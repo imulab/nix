@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'jacoco'
+    id 'maven-publish'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.0'
+    id 'org.jetbrains.dokka' version '0.9.17'
+    id 'com.gradle.build-scan' version '1.16'
+    id 'com.github.johnrengelman.shadow' version '4.0.2'
+}
+
+apply from: "$rootDir/gradle/constants.gradle"
+apply from: "$rootDir/gradle/test.gradle"
+apply from: "$rootDir/gradle/coverage.gradle"
+apply from: "$rootDir/gradle/dokka.gradle"
+
+group = "io.imulab"
+version = "0.0.1"
+
+mainClassName = "$mainClass"
+
+sourceCompatibility = 1.8
+compileKotlin { kotlinOptions.jvmTarget = "1.8" }
+compileTestKotlin { kotlinOptions.jvmTarget = "1.8" }
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven { url 'https://dl.bintray.com/kotlin/ktor' }
+    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+    maven { url 'https://artifactory.imulab.io/artifactory/gradle-dev-local/' }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$v_kotlin"
+    implementation "io.ktor:ktor-server-netty:$v_ktor"
+    implementation "io.ktor:ktor-gson:$v_ktor"
+    implementation "ch.qos.logback:logback-classic:$v_logback"
+    implementation "io.imulab:astrea:$v_astrea"
+}
+
+buildScan {
+    termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+    termsOfServiceAgree = 'yes'
+}
