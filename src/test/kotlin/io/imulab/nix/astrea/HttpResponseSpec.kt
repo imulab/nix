@@ -6,6 +6,7 @@ import io.ktor.application.call
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.routing.get
+import kotlinx.coroutines.GlobalScope
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
 import org.spekframework.spek2.Spek
@@ -25,7 +26,7 @@ object HttpResponseSpec: Spek({
                 },
                 serverSetup = {
                     get("/get") {
-                        val response: HttpResponseWriter = HttpResponse(call)
+                        val response: HttpResponseWriter = HttpResponse(call, GlobalScope)
                         response.setStatus(200)
                         response.setHeader("FOO", "BAR")
                         response.writeBody("hello world".toByteArray(StandardCharsets.UTF_8))

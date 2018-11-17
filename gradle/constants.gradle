@@ -6,7 +6,7 @@ ext {
     v_kotlin = "1.3.0"
     v_ktor = "1.0.0-beta-3"
     v_logback = "1.2.3"
-    v_astrea = "0.8.7.4"
+    v_astrea = "0.8.8.0"
 
     /* test implementation versions */
     v_junit = "5.3.1"
