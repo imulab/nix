@@ -16,6 +16,7 @@ import io.ktor.server.netty.Netty
 fun Application.nix() {
     routing {
         get("/") {
+            // TODO object takes a call object
             call.respondText(text = "Hello World", contentType = ContentType.Text.Plain)
         }
     }

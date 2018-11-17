@@ -34,6 +34,7 @@ repositories {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$v_kotlin"
     implementation "io.ktor:ktor-server-netty:$v_ktor"
+    implementation "io.ktor:ktor-client-apache:$v_ktor"
     implementation "io.ktor:ktor-gson:$v_ktor"
     implementation "ch.qos.logback:logback-classic:$v_logback"
     implementation "io.imulab:astrea:$v_astrea"

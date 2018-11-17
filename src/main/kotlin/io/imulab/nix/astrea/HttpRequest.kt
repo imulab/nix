@@ -11,23 +11,16 @@ import kotlinx.coroutines.runBlocking
 
 class HttpRequest(private val call: ApplicationCall): HttpRequestReader {
 
-    override fun formValue(key: String): String {
-        throw UnsupportedOperationException("not implementation since deprecated")
-    }
-
-    override fun formValueUnescaped(key: String): String {
-        throw UnsupportedOperationException("not implementation since deprecated")
-    }
-
-    override fun getForm(): UrlValues {
-        val parameters = runBlocking {
+    private val myForm: UrlValues by lazy {
+        runBlocking {
             when (call.request.httpMethod) {
                 HttpMethod.Get -> call.request.queryParameters
                 else -> call.receiveParameters()
             }
-        }
-        return parameters.toMap()
+        }.toMap()
     }
+
+    override fun getForm(): UrlValues = myForm
 
     override fun getHeader(key: String): String = call.request.headers[key] ?: ""
 
