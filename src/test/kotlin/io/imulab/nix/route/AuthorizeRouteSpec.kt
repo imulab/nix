@@ -1,6 +1,7 @@
 package io.imulab.nix.route
 
 import io.imulab.astrea.domain.*
+import io.imulab.nix.consent.AutoConsentStrategy
 import io.imulab.nix.oauth.provider
 import io.imulab.nix.support.KtorServerSupport
 import io.ktor.application.application
@@ -29,7 +30,7 @@ object AuthorizeRouteSpec: Spek({
                     ).formUrlEncode()
                 },
                 serverSetup = {
-                    get("/oauth/authorize") { authorizeRoute(this.application.provider()) }
+                    get("/oauth/authorize") { authorizeRoute(this.application.provider(), AutoConsentStrategy) }
                 },
                 responseAssertion = {
                     println(this.headers["Location"])

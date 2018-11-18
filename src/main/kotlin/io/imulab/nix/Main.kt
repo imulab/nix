@@ -1,5 +1,6 @@
 package io.imulab.nix
 
+import io.imulab.nix.consent.AutoConsentStrategy
 import io.imulab.nix.oauth.provider
 import io.imulab.nix.route.authorizeRoute
 import io.imulab.nix.route.tokenRoute
@@ -11,10 +12,11 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 
 fun Application.nix() {
+    val provider = this.provider()
 
     routing {
-        get("/oauth/authorize") { authorizeRoute(provider()) }
-        post("/oauth/token") { tokenRoute() }
+        get("/oauth/authorize") { authorizeRoute(provider, AutoConsentStrategy) }
+        post("/oauth/token") { tokenRoute(provider) }
     }
 }
 
