@@ -29,7 +29,6 @@ class HttpResponse(private val call: ApplicationCall, private val scope: Corouti
 
     override fun writeBody(data: ByteArray) {
         runBlocking(scope.coroutineContext) {
-            println(String(data))
             call.respondBytes(data)
         }
         hasBody = true

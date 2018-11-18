@@ -28,7 +28,7 @@ fun PipelineContext<Unit, ApplicationCall>.tokenRoute(provider: OAuthProvider) =
         provider.encodeAccessResponse(httpResponse, accessRequest, accessResponse)
     } catch (e: Exception) {
         provider.encodeAccessError(httpResponse, accessRequest, e)
-        e.printStackTrace()
+        //e.printStackTrace()
     } finally {
         httpResponse.flush()
     }

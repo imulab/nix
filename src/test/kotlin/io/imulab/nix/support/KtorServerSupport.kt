@@ -8,9 +8,9 @@ import io.ktor.server.testing.withTestApplication
 
 object KtorServerSupport {
 
-    fun test(clientSetup: TestApplicationRequest.() -> Unit,
-             serverSetup: Routing.() -> Unit,
-             responseAssertion: TestApplicationResponse.() -> Unit = {}) = withTestApplication(
+    fun oneShot(clientSetup: TestApplicationRequest.() -> Unit,
+                serverSetup: Routing.() -> Unit,
+                responseAssertion: TestApplicationResponse.() -> Unit = {}) = withTestApplication(
         moduleFunction = {
             routing { this.apply(serverSetup) }
         }, test = {
@@ -19,4 +19,20 @@ object KtorServerSupport {
             }
             Unit
         })
+
+    fun flow(serverSetup: Routing.() -> Unit,
+             requestsAndResponses: List<RequestAndResponse> = emptyList()) = withTestApplication(
+        moduleFunction = {
+            routing { this.apply(serverSetup) }
+        }, test = {
+            requestsAndResponses.forEach { reqAndResp ->
+                with(handleRequest(reqAndResp.request)) {
+                    response.apply(reqAndResp.responseAssertion)
+                }
+            }
+            Unit
+        })
+
+    class RequestAndResponse(val request: TestApplicationRequest.() -> Unit,
+                             val responseAssertion: TestApplicationResponse.() -> Unit = {})
 }

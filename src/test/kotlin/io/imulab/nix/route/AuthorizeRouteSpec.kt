@@ -8,7 +8,6 @@ import io.ktor.application.application
 import io.ktor.http.HttpMethod
 import io.ktor.http.formUrlEncode
 import io.ktor.routing.get
-import io.ktor.routing.post
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 
@@ -18,7 +17,7 @@ object AuthorizeRouteSpec: Spek({
         it("""
             should return authorize code
         """.trimIndent()) {
-            KtorServerSupport.test(
+            KtorServerSupport.oneShot(
                 clientSetup = {
                     method = HttpMethod.Get
                     uri = "/oauth/authorize?" + listOf(

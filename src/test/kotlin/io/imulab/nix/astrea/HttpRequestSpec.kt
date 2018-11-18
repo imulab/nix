@@ -18,7 +18,7 @@ object HttpRequestSpec: Spek({
         it("""
             should have correct method, form and header
         """.trimIndent()) {
-            KtorServerSupport.test(clientSetup = {
+            KtorServerSupport.oneShot(clientSetup = {
                 method = HttpMethod.Get
                 uri = "/get?" + listOf("k1" to "v1", "k2" to "v2 v3").formUrlEncode()
                 addHeader("FOO", "BAR")
@@ -40,7 +40,7 @@ object HttpRequestSpec: Spek({
         it("""
             should have correct method, form and header
         """.trimIndent()) {
-            KtorServerSupport.test(clientSetup = {
+            KtorServerSupport.oneShot(clientSetup = {
                 method = HttpMethod.Post
                 uri = "/post"
                 addHeader(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())

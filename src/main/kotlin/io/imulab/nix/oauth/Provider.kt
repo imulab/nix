@@ -10,7 +10,7 @@ import io.ktor.application.Application
 
 fun Application.provider(): OAuthProvider {
     val memoryStore = MemoryStorage()
-    val clientStore = MemoryClientManager()
+    val clientStore = FooBarClientManager()
 
     return Astrea.compose(
         bom = Astrea.BOM(

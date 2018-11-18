@@ -7,7 +7,6 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.routing.get
 import kotlinx.coroutines.GlobalScope
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
@@ -19,7 +18,7 @@ object HttpResponseSpec: Spek({
         it("""
             should have correct status, header and body
         """.trimIndent()) {
-            KtorServerSupport.test(
+            KtorServerSupport.oneShot(
                 clientSetup = {
                     method = HttpMethod.Get
                     uri = "/get"
