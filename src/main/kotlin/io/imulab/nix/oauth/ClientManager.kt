@@ -42,7 +42,8 @@ class FooBarClientManager: ClientManager {
                     scopes = listOf(
                         SCOPE_OFFLINE,
                         "foo",
-                        "bar"
+                        "bar",
+                        "foobar"
                     ),
                     redirectUris = listOf(
                         "http://localhost:8888/callback",

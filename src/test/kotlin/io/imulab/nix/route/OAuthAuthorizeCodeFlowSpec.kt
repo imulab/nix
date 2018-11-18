@@ -2,13 +2,9 @@ package io.imulab.nix.route
 
 import com.google.gson.Gson
 import io.imulab.astrea.domain.*
-import io.imulab.nix.consent.AutoConsentStrategy
-import io.imulab.nix.oauth.provider
 import io.imulab.nix.support.KtorServerSupport
 import io.ktor.http.*
 import io.ktor.routing.Routing
-import io.ktor.routing.get
-import io.ktor.routing.post
 import io.ktor.server.testing.TestApplicationResponse
 import io.ktor.server.testing.setBody
 import org.assertj.core.api.Assertions.assertThat
@@ -18,11 +14,7 @@ import org.spekframework.spek2.style.specification.describe
 object OAuthAuthorizeCodeFlowSpec : Spek({
 
     describe("OAuth Authorize Code Flow") {
-        it(
-            """
-            Obtain an authorize code and use it to acquire access token
-        """.trimIndent()
-        ) {
+        it("Obtain an authorize code and use it to acquire access token") {
             AuthorizeCodeFlow.tokenEndpointLeg(
                 authorizeEndpointResponseAssertion = {
                     assertThat(headers.contains(HttpHeaders.Location)).isTrue()
@@ -37,6 +29,21 @@ object OAuthAuthorizeCodeFlowSpec : Spek({
                         satisfies {
                             assertThat(it[PARAM_EXPIRES_IN] as Double).isGreaterThan(0.0)
                         }
+                    }
+                }
+            )
+        }
+
+        it("scope rewrite is ignored") {
+            AuthorizeCodeFlow.tokenEndpointLeg(
+                tokenEndpointParamModifier = {
+                    it.add(PARAM_SCOPE to "foo foobar")
+                },
+                tokenEndpointResponseAssertion = {
+                    assertThat(status()).isEqualTo(HttpStatusCode.OK)
+                    with(assertThat(Gson().fromJson(content, HashMap::class.java))) {
+                        extracting { it[PARAM_SCOPE] }.asString().contains("foo", "bar")
+                        extracting { it[PARAM_SCOPE] }.asString().doesNotContain("foobar")
                     }
                 }
             )
@@ -145,7 +152,6 @@ object OAuthAuthorizeCodeFlowSpec : Spek({
 
             it("missing a required parameter") {
                 listOf(
-                    PARAM_SCOPE,
                     PARAM_REDIRECT_URI,
                     PARAM_GRANT_TYPE
                 ).forEach { missing ->
@@ -265,14 +271,8 @@ object OAuthAuthorizeCodeFlowSpec : Spek({
 }) {
     private object AuthorizeCodeFlow {
 
-        val standardServerSetup: Routing.() -> Unit = {
-            val provider = application.provider()
-            get("/oauth/authorize") { authorizeRoute(provider, AutoConsentStrategy) }
-            post("/oauth/token") { tokenRoute(provider) }
-        }
-
         fun authorizeEndpointLeg(
-            serverSetup: Routing.() -> Unit = standardServerSetup,
+            serverSetup: Routing.() -> Unit = KtorServerSupport.testServerSetup,
             paramModifier: (MutableList<Pair<String, String>>) -> Unit,
             responseAssertion: TestApplicationResponse.() -> Unit
         ) {
@@ -299,7 +299,7 @@ object OAuthAuthorizeCodeFlowSpec : Spek({
         }
 
         fun tokenEndpointLeg(
-            serverSetup: Routing.() -> Unit = standardServerSetup,
+            serverSetup: Routing.() -> Unit = KtorServerSupport.testServerSetup,
             authorizeEndpointParamModifier: (MutableList<Pair<String, String>>) -> Unit = {},
             tokenEndpointParamModifier: (MutableList<Pair<String, String>>) -> Unit = {},
             tokenEndpointHeaders: Map<String, String> = mapOf(
@@ -338,7 +338,6 @@ object OAuthAuthorizeCodeFlowSpec : Spek({
                             val params = mutableListOf(
                                 PARAM_CLIENT_ID to "foo",
                                 PARAM_CLIENT_SECRET to "s3cret",
-                                PARAM_SCOPE to "foo bar",
                                 PARAM_REDIRECT_URI to "http://localhost:8888/callback",
                                 PARAM_GRANT_TYPE to GrantType.AuthorizationCode.specValue,
                                 PARAM_CODE to authorizeCode!!
