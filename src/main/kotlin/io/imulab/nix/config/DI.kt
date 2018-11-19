@@ -51,7 +51,7 @@ fun Application.appModule(): Kodein.Module {
                 enableOAuthResourceOwnerFlow = booleanConfig("flow.oauth.resource-owner"),
                 enablePkce = false,
                 enableOidcAuthorizeFlow = booleanConfig("flow.oidc.authorize"),
-                enableOidcHybridFlow = false,
+                enableOidcHybridFlow = booleanConfig("flow.oidc.hybrid"),
                 enableOidcImplicitFlow = booleanConfig("flow.oidc.implicit"),
                 enableOidcRefreshFlow = false,
                 enableIntrospection = false,

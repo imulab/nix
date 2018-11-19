@@ -1,5 +1,7 @@
 package io.imulab.nix.support
 
+import io.ktor.http.Url
+import io.ktor.http.decodeURLQueryComponent
 import org.kodein.di.Kodein
 import org.kodein.di.conf.global
 
@@ -10,3 +12,9 @@ inline fun <reified T: Any> List<T>.forEachAutoClear(f: (T) -> Unit) = this.forE
     f(e)
     Kodein.global.clear()
 }
+
+fun Url.decodedFragmentsAsMap(): Map<String, String> =
+    this.fragment.decodeURLQueryComponent()
+        .split("&")
+        .map { it.split("=").let { p -> Pair(p[0], p[1]) } }
+        .toMap()
