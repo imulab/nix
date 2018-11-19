@@ -52,7 +52,7 @@ fun Application.appModule(): Kodein.Module {
                 enablePkce = false,
                 enableOidcAuthorizeFlow = booleanConfig("flow.oidc.authorize"),
                 enableOidcHybridFlow = false,
-                enableOidcImplicitFlow = false,
+                enableOidcImplicitFlow = booleanConfig("flow.oidc.implicit"),
                 enableOidcRefreshFlow = false,
                 enableIntrospection = false,
                 enableRevocation = false

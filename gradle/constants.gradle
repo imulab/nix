@@ -7,7 +7,7 @@ ext {
     v_ktor = "1.0.0-beta-3"
     v_kodein = "5.3.0"
     v_logback = "1.2.3"
-    v_astrea = "0.8.8.7"
+    v_astrea = "0.8.8.8"
 
     /* test implementation versions */
     v_junit = "5.3.1"

@@ -35,8 +35,6 @@ object OAuthImplicitFlowSpec : Spek({
                         extracting { it[PARAM_SCOPE] }.asString().contains("foo", "bar")
                         extracting { it[PARAM_EXPIRES_IN] }.asString().satisfies { it.toLong() > 0 }
                     }
-
-
             })
         }
     }
