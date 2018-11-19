@@ -1,22 +1,28 @@
 package io.imulab.nix
 
-import io.imulab.nix.consent.AutoConsentStrategy
-import io.imulab.nix.oauth.provider
-import io.imulab.nix.route.authorizeRoute
-import io.imulab.nix.route.tokenRoute
+import io.imulab.nix.config.appModule
+import io.imulab.nix.config.memoryPersistenceModule
+import io.imulab.nix.route.AuthorizeRoute
+import io.imulab.nix.route.TokenRoute
 import io.ktor.application.Application
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import org.kodein.di.Kodein
+import org.kodein.di.conf.global
 
 fun Application.nix() {
-    val provider = this.provider()
+    with(Kodein.global) {
+        mutable = true
+        addImport(memoryPersistenceModule())
+        addImport(appModule())
+    }
 
     routing {
-        get("/oauth/authorize") { authorizeRoute(provider, AutoConsentStrategy) }
-        post("/oauth/token") { tokenRoute(provider) }
+        get("/oauth/authorize") { AuthorizeRoute.accept(this) }
+        post("/oauth/token") { TokenRoute.accept(this) }
     }
 }
 

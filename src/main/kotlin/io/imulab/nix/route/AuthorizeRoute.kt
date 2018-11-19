@@ -11,30 +11,35 @@ import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.util.pipeline.PipelineContext
 import kotlinx.coroutines.runBlocking
+import org.kodein.di.conf.KodeinGlobalAware
+import org.kodein.di.erased.instance
 
-fun PipelineContext<Unit, ApplicationCall>.authorizeRoute(
-    provider: OAuthProvider,
-    consentStrategy: ConsentStrategy
-) = runBlocking {
-    val httpRequest = HttpRequest(call)
-    val httpResponse = HttpResponse(call, this)
+object AuthorizeRoute: KodeinGlobalAware {
 
-    var authorizeRequest: AuthorizeRequest? = null
-    val authorizeResponse: AuthorizeResponse?
+    private val provider: OAuthProvider by kodein.instance()
+    private val consentStrategy: ConsentStrategy by kodein.instance()
 
-    try {
-        authorizeRequest = provider.newAuthorizeRequest(httpRequest)
+    fun accept(ctx: PipelineContext<Unit, ApplicationCall>) = runBlocking {
+        val httpRequest = HttpRequest(ctx.call)
+        val httpResponse = HttpResponse(ctx.call, this)
 
-        consentStrategy.acquireConsent(httpRequest, authorizeRequest)
+        var authorizeRequest: AuthorizeRequest? = null
+        val authorizeResponse: AuthorizeResponse?
 
-        authorizeResponse = provider.newAuthorizeResponse(authorizeRequest, DefaultJwtSession.Builder().also {
-            it.getClaims().setGeneratedJwtId()
-        }.build())
+        try {
+            authorizeRequest = provider.newAuthorizeRequest(httpRequest)
 
-        provider.encodeAuthorizeResponse(httpResponse, authorizeRequest, authorizeResponse)
-    } catch (e: Exception) {
-        provider.encodeAuthorizeError(httpResponse, authorizeRequest, e)
-    } finally {
-        httpResponse.flush()
+            consentStrategy.acquireConsent(httpRequest, authorizeRequest)
+
+            authorizeResponse = provider.newAuthorizeResponse(authorizeRequest, DefaultJwtSession.Builder().also {
+                it.getClaims().setGeneratedJwtId()
+            }.build())
+
+            provider.encodeAuthorizeResponse(httpResponse, authorizeRequest, authorizeResponse)
+        } catch (e: Exception) {
+            provider.encodeAuthorizeError(httpResponse, authorizeRequest, e)
+        } finally {
+            httpResponse.flush()
+        }
     }
 }

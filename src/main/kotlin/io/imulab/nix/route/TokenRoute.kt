@@ -10,26 +10,33 @@ import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.util.pipeline.PipelineContext
 import kotlinx.coroutines.runBlocking
+import org.kodein.di.conf.KodeinGlobalAware
+import org.kodein.di.erased.instance
 
-fun PipelineContext<Unit, ApplicationCall>.tokenRoute(provider: OAuthProvider) = runBlocking {
-    val httpRequest = HttpRequest(call)
-    val httpResponse = HttpResponse(call, this)
+object TokenRoute: KodeinGlobalAware {
 
-    var accessRequest: AccessRequest? = null
-    val accessResponse: AccessResponse
+    private val provider: OAuthProvider by kodein.instance()
 
-    try {
-        accessRequest = provider.newAccessRequest(httpRequest, DefaultJwtSession.Builder().also {
-            it.getClaims().setGeneratedJwtId()
-        }.build())
+    fun accept(ctx: PipelineContext<Unit, ApplicationCall>) = runBlocking {
+        val httpRequest = HttpRequest(ctx.call)
+        val httpResponse = HttpResponse(ctx.call, this)
 
-        accessResponse = provider.newAccessResponse(accessRequest)
+        var accessRequest: AccessRequest? = null
+        val accessResponse: AccessResponse
 
-        provider.encodeAccessResponse(httpResponse, accessRequest, accessResponse)
-    } catch (e: Exception) {
-        provider.encodeAccessError(httpResponse, accessRequest, e)
-        //e.printStackTrace()
-    } finally {
-        httpResponse.flush()
+        try {
+            accessRequest = provider.newAccessRequest(httpRequest, DefaultJwtSession.Builder().also {
+                it.getClaims().setGeneratedJwtId()
+            }.build())
+
+            accessResponse = provider.newAccessResponse(accessRequest)
+
+            provider.encodeAccessResponse(httpResponse, accessRequest, accessResponse)
+        } catch (e: Exception) {
+            provider.encodeAccessError(httpResponse, accessRequest, e)
+            //e.printStackTrace()
+        } finally {
+            httpResponse.flush()
+        }
     }
 }

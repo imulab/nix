@@ -1,9 +1,9 @@
 package io.imulab.nix.support
 
-import io.imulab.nix.consent.AutoConsentStrategy
-import io.imulab.nix.oauth.provider
-import io.imulab.nix.route.authorizeRoute
-import io.imulab.nix.route.tokenRoute
+import io.imulab.nix.config.appModule
+import io.imulab.nix.config.memoryPersistenceModule
+import io.imulab.nix.route.AuthorizeRoute
+import io.imulab.nix.route.TokenRoute
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.post
@@ -11,13 +11,18 @@ import io.ktor.routing.routing
 import io.ktor.server.testing.TestApplicationRequest
 import io.ktor.server.testing.TestApplicationResponse
 import io.ktor.server.testing.withTestApplication
+import org.kodein.di.Kodein
+import org.kodein.di.conf.global
 
 object KtorServerSupport {
 
     val testServerSetup: Routing.() -> Unit = {
-        val provider = application.provider()
-        get("/oauth/authorize") { authorizeRoute(provider, AutoConsentStrategy) }
-        post("/oauth/token") { tokenRoute(provider) }
+        Kodein.global.mutable = true
+        Kodein.global.addImport(application.memoryPersistenceModule())
+        Kodein.global.addImport(application.appModule())
+
+        get("/oauth/authorize") { AuthorizeRoute.accept(this) }
+        post("/oauth/token") { TokenRoute.accept(this) }
     }
 
     fun oneShot(clientSetup: TestApplicationRequest.() -> Unit,

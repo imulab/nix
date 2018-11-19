@@ -36,6 +36,8 @@ dependencies {
     implementation "io.ktor:ktor-server-netty:$v_ktor"
     implementation "io.ktor:ktor-client-apache:$v_ktor"
     implementation "io.ktor:ktor-gson:$v_ktor"
+    implementation "org.kodein.di:kodein-di-erased-jvm:$v_kodein"
+    implementation "org.kodein.di:kodein-di-conf-jvm:$v_kodein"
     implementation "ch.qos.logback:logback-classic:$v_logback"
     implementation "io.imulab:astrea:$v_astrea"
 }
