@@ -13,6 +13,8 @@ import io.imulab.nix.astrea.HttpClient
 import io.imulab.nix.consent.AutoConsentStrategy
 import io.imulab.nix.consent.ConsentStrategy
 import io.imulab.nix.oauth.FooBarClientManager
+import io.imulab.nix.route.AuthorizeRoute
+import io.imulab.nix.route.TokenRoute
 import io.ktor.application.Application
 import org.kodein.di.Kodein
 import org.kodein.di.erased.bind
@@ -21,6 +23,8 @@ import org.kodein.di.erased.singleton
 
 fun Application.appModule(): Kodein.Module {
     return Kodein.Module("app") {
+        bind<AuthorizeRoute>() with singleton { AuthorizeRoute() }
+        bind<TokenRoute>() with singleton { TokenRoute() }
         bind<io.imulab.astrea.spi.http.HttpClient>() with singleton { HttpClient }
         bind<ScopeStrategy>() with singleton { StringEqualityScopeStrategy }
         bind<JsonEncoder>() with singleton { GsonEncoder }
@@ -36,16 +40,17 @@ fun Application.appModule(): Kodein.Module {
                     accessTokenStorage = instance(),
                     refreshTokenStorage = instance(),
                     tokenRevocationStorage = instance(),
+                    oidcRequestStorage = instance(),
                     httpClient = instance(),
                     clientManager = instance()
                 ),
-                enableOAuthAuthorizeFlow = true,
-                enableOAuthClientCredentialsFlow = true,
-                enableOAuthImplicitFlow = true,
-                enableOAuthRefreshFlow = true,
-                enableOAuthResourceOwnerFlow = false,
+                enableOAuthAuthorizeFlow = booleanConfig("flow.oauth.authorize", true),
+                enableOAuthClientCredentialsFlow = booleanConfig("flow.oauth.client-credentials", true),
+                enableOAuthImplicitFlow = booleanConfig("flow.oauth.implicit", true),
+                enableOAuthRefreshFlow = booleanConfig("flow.oauth.refresh", true),
+                enableOAuthResourceOwnerFlow = booleanConfig("flow.oauth.resource-owner"),
                 enablePkce = false,
-                enableOidcAuthorizeFlow = false,
+                enableOidcAuthorizeFlow = booleanConfig("flow.oidc.authorize"),
                 enableOidcHybridFlow = false,
                 enableOidcImplicitFlow = false,
                 enableOidcRefreshFlow = false,
@@ -55,6 +60,8 @@ fun Application.appModule(): Kodein.Module {
         }
     }
 }
+
+// TODO module of default no-op persistence implementation as base module
 
 fun Application.memoryPersistenceModule(): Kodein.Module {
     val memoryStore = MemoryStorage()

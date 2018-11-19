@@ -8,10 +8,16 @@ import io.ktor.routing.Routing
 import io.ktor.server.testing.TestApplicationResponse
 import io.ktor.server.testing.setBody
 import org.assertj.core.api.Assertions
+import org.kodein.di.Kodein
+import org.kodein.di.conf.global
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 
 object OAuthClientCredentialsFlowSpec: Spek({
+
+    afterEachTest {
+        Kodein.global.clear()
+    }
 
     describe("OAuth Client Credentials Flow") {
         it("acquire access token from token endpoint") {

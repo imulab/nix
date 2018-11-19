@@ -3,15 +3,22 @@ package io.imulab.nix.route
 import com.google.gson.Gson
 import io.imulab.astrea.domain.*
 import io.imulab.nix.support.KtorServerSupport
+import io.imulab.nix.support.forEachAutoClear
 import io.ktor.http.*
 import io.ktor.routing.Routing
 import io.ktor.server.testing.TestApplicationResponse
 import io.ktor.server.testing.setBody
 import org.assertj.core.api.Assertions.assertThat
+import org.kodein.di.Kodein
+import org.kodein.di.conf.global
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 
 object OAuthAuthorizeCodeFlowSpec : Spek({
+
+    afterEachTest {
+        Kodein.global.clear()
+    }
 
     describe("OAuth Authorize Code Flow") {
         it("Obtain an authorize code and use it to acquire access token") {
@@ -55,7 +62,7 @@ object OAuthAuthorizeCodeFlowSpec : Spek({
         describe("invalid_request") {
 
             it("required parameter is missing") {
-                listOf(PARAM_CLIENT_ID, PARAM_SCOPE, PARAM_RESPONSE_TYPE, PARAM_STATE).forEach { missing ->
+                listOf(PARAM_CLIENT_ID, PARAM_SCOPE, PARAM_RESPONSE_TYPE, PARAM_STATE).forEachAutoClear { missing ->
                     AuthorizeCodeFlow.authorizeEndpointLeg(
                         paramModifier = { it.removeIf { p -> p.first == missing } }
                     ) {
@@ -93,7 +100,7 @@ object OAuthAuthorizeCodeFlowSpec : Spek({
                 listOf(
                     "http://localhost:8888/wrong",
                     "http://insecure.com/callback"
-                ).forEach { redirectUri ->
+                ).forEachAutoClear { redirectUri ->
                     AuthorizeCodeFlow.authorizeEndpointLeg(
                         paramModifier = {
                             it.removeIf { p -> p.first == PARAM_REDIRECT_URI }
@@ -154,7 +161,7 @@ object OAuthAuthorizeCodeFlowSpec : Spek({
                 listOf(
                     PARAM_REDIRECT_URI,
                     PARAM_GRANT_TYPE
-                ).forEach { missing ->
+                ).forEachAutoClear { missing ->
                     AuthorizeCodeFlow.tokenEndpointLeg(
                         tokenEndpointParamModifier = {
                             it.removeIf { p -> p.first == missing }
@@ -231,7 +238,7 @@ object OAuthAuthorizeCodeFlowSpec : Spek({
 
         describe("invalid_client") {
             it("missing client_id or client_secret") {
-                listOf(PARAM_CLIENT_ID, PARAM_CLIENT_SECRET).forEach { missing ->
+                listOf(PARAM_CLIENT_ID, PARAM_CLIENT_SECRET).forEachAutoClear { missing ->
                     AuthorizeCodeFlow.tokenEndpointLeg(
                         tokenEndpointParamModifier = {
                             it.removeIf { p -> p.first == missing }

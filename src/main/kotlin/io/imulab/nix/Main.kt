@@ -12,6 +12,7 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import org.kodein.di.Kodein
 import org.kodein.di.conf.global
+import org.kodein.di.erased.instance
 
 fun Application.nix() {
     with(Kodein.global) {
@@ -20,9 +21,12 @@ fun Application.nix() {
         addImport(appModule())
     }
 
+    val authorizeRoute: AuthorizeRoute by Kodein.global.instance()
+    val tokenRoute: TokenRoute by Kodein.global.instance()
+
     routing {
-        get("/oauth/authorize") { AuthorizeRoute.accept(this) }
-        post("/oauth/token") { TokenRoute.accept(this) }
+        get("/oauth/authorize") { authorizeRoute.accept(this) }
+        post("/oauth/token") { tokenRoute.accept(this) }
     }
 }
 

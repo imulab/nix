@@ -3,14 +3,21 @@ package io.imulab.nix.route
 import com.google.gson.Gson
 import io.imulab.astrea.domain.*
 import io.imulab.nix.support.KtorServerSupport
+import io.imulab.nix.support.forEachAutoClear
 import io.ktor.http.*
 import io.ktor.routing.Routing
 import io.ktor.server.testing.TestApplicationResponse
 import org.assertj.core.api.Assertions.assertThat
+import org.kodein.di.Kodein
+import org.kodein.di.conf.global
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 
 object OAuthImplicitFlowSpec : Spek({
+
+    afterEachTest {
+        Kodein.global.clear()
+    }
 
     describe("OAuth Implicit Flow") {
         it("acquire access token directly from authorize endpoint") {
@@ -57,7 +64,7 @@ object OAuthImplicitFlowSpec : Spek({
                 PARAM_REDIRECT_URI,
                 PARAM_RESPONSE_TYPE,
                 PARAM_STATE
-            ).forEach { missing ->
+            ).forEachAutoClear { missing ->
                 ImplicitFlow.authorizeEndpointLeg(
                     paramModifier = {
                         it.removeIf { p -> p.first == missing }

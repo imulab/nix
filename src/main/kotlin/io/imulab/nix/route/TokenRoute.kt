@@ -13,7 +13,7 @@ import kotlinx.coroutines.runBlocking
 import org.kodein.di.conf.KodeinGlobalAware
 import org.kodein.di.erased.instance
 
-object TokenRoute: KodeinGlobalAware {
+class TokenRoute: KodeinGlobalAware {
 
     private val provider: OAuthProvider by kodein.instance()
 

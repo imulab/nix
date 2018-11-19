@@ -2,7 +2,6 @@ package io.imulab.nix.route
 
 import io.imulab.astrea.domain.request.AuthorizeRequest
 import io.imulab.astrea.domain.response.AuthorizeResponse
-import io.imulab.astrea.domain.session.impl.DefaultJwtSession
 import io.imulab.astrea.provider.OAuthProvider
 import io.imulab.nix.astrea.HttpRequest
 import io.imulab.nix.astrea.HttpResponse
@@ -14,7 +13,7 @@ import kotlinx.coroutines.runBlocking
 import org.kodein.di.conf.KodeinGlobalAware
 import org.kodein.di.erased.instance
 
-object AuthorizeRoute: KodeinGlobalAware {
+class AuthorizeRoute: KodeinGlobalAware {
 
     private val provider: OAuthProvider by kodein.instance()
     private val consentStrategy: ConsentStrategy by kodein.instance()
@@ -31,9 +30,7 @@ object AuthorizeRoute: KodeinGlobalAware {
 
             consentStrategy.acquireConsent(httpRequest, authorizeRequest)
 
-            authorizeResponse = provider.newAuthorizeResponse(authorizeRequest, DefaultJwtSession.Builder().also {
-                it.getClaims().setGeneratedJwtId()
-            }.build())
+            authorizeResponse = provider.newAuthorizeResponse(authorizeRequest, authorizeRequest.getSession()!!)
 
             provider.encodeAuthorizeResponse(httpResponse, authorizeRequest, authorizeResponse)
         } catch (e: Exception) {
