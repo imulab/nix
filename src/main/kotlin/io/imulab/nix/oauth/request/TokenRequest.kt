@@ -4,5 +4,5 @@ import io.imulab.nix.client.metadata.GrantType
 
 interface TokenRequest : OAuthRequest {
 
-    val grantTypes: Set<GrantType>
+    override val grantTypes: Set<GrantType>
 }

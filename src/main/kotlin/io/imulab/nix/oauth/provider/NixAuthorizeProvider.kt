@@ -6,12 +6,15 @@ import io.imulab.nix.constant.ErrorCode
 import io.imulab.nix.constant.Misc
 import io.imulab.nix.constant.Param
 import io.imulab.nix.constant.Scope
+import io.imulab.nix.crypt.JwxProvider
 import io.imulab.nix.error.InvalidRequestException
+import io.imulab.nix.error.JwkException
 import io.imulab.nix.oauth.request.AuthorizeRequest
 import io.imulab.nix.oauth.request.NixAuthorizeRequest
 import io.imulab.nix.oauth.response.AuthorizeResponse
 import io.imulab.nix.oauth.session.OAuthSession
 import io.imulab.nix.oauth.session.Session
+import io.imulab.nix.oauth.vor.JsonWebKeySetVor
 import io.imulab.nix.oauth.vor.OidcRequestObjectVor
 import io.imulab.nix.support.*
 import io.ktor.application.ApplicationCall
@@ -23,7 +26,10 @@ class NixAuthorizeProvider(
     private val clientStore: ClientStore,
     private val clientStoreCoroutineScope: CoroutineScope,
     private val stateEntropy: Int = 8,
-    private val oidcRequestObjectVor: OidcRequestObjectVor
+    private val expectedAudience: String,
+    private val oidcRequestObjectVor: OidcRequestObjectVor,
+    private val jsonWebKeySetVor: JsonWebKeySetVor,
+    private val jwxProvider: JwxProvider
 ) : AuthorizeEndpointProvider {
 
     override suspend fun newAuthorizeRequest(call: ApplicationCall): AuthorizeRequest {
@@ -58,7 +64,22 @@ class NixAuthorizeProvider(
                     form.request(),
                     form.requestUri(),
                     deferredClient
-                )?.claimsMap?.forEach { k, v ->
+                )?.let {
+                    val c = deferredClient.await() as OidcClient
+                    jwxProvider.decodeJsonWebToken(
+                        jwt = it,
+                        signingAlgorithm = c.requestObjectSigningAlgorithm,
+                        key = jsonWebKeySetVor.resolveRequestObjectSigningKey(c)?.key
+                            ?: throw JwkException.Companion.JwkSeekException(),
+                        extraCriteria = { b ->
+                            b.setSkipVerificationKeyResolutionOnNone()
+                            b.setExpectedAudience(true, expectedAudience)
+                            b.setExpectedIssuer(true, c.id)
+                            b.setRequireIssuedAt()
+                            b.setRequireExpirationTime()
+                        }
+                    ).jwtClaims
+                }?.claimsMap?.forEach { k, v ->
                     if (k == Param.SCOPE) {
                         when (v) {
                             is Collection<*> -> v.map { it.toString() }.filter { it.isNotBlank() }.let { b.addRequestScope(it) }

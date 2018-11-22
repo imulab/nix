@@ -1,6 +1,6 @@
 package io.imulab.nix.oauth.session
 
-import jdk.nashorn.internal.parser.TokenType
+import io.imulab.nix.oauth.token.TokenType
 import java.time.LocalDateTime
 
 /**

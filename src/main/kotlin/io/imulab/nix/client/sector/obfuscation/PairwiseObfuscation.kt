@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets
 
 class PairwiseObfuscation(
     private val salt: ByteArray,
-    private val algorithm: HashAlgorithmProvider = ShaHashAlgorithmProvider.Sha256()
+    private val algorithm: HashAlgorithmProvider = ShaHashAlgorithmProvider.sha256()
 ) : SubjectIdentifierObfuscation {
 
     override fun obfuscate(subjectId: String, client: OidcClient): String {

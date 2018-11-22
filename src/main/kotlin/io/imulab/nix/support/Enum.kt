@@ -1,7 +1,6 @@
 package io.imulab.nix.support
 
 import io.imulab.astrea.error.RequestParameterInvalidValueException
-import io.imulab.nix.client.metadata.ResponseType
 
 /**
  * General interface for all OAuth options related enums to implement.

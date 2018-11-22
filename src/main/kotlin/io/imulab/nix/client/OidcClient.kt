@@ -6,6 +6,7 @@ import io.imulab.nix.client.metadata.SubjectType
 import io.imulab.nix.crypt.alg.EncryptionAlgorithm
 import io.imulab.nix.crypt.alg.KeyManagementAlgorithm
 import io.imulab.nix.crypt.alg.SigningAlgorithm
+import org.jose4j.jwk.JsonWebKeySet
 
 interface OidcClient: OAuthClient {
 

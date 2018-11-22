@@ -6,6 +6,7 @@ import io.imulab.nix.constant.ErrorCode
 import io.imulab.nix.constant.Misc
 import io.imulab.nix.constant.Param
 import io.imulab.nix.error.InvalidRequestException
+import io.imulab.nix.oauth.request.Prompt
 
 fun Map<String, String>.clientId(): String = this[Param.CLIENT_ID] ?: ""
 
@@ -48,7 +49,7 @@ fun Map<String, String>.mustState(): String = this[Param.STATE]
 fun Map<String, String>.mustStateWithEnoughEntropy(minEntropy: Int) = this[Param.STATE]?.also {
   if (it.length < minEntropy)
       throw throw InvalidRequestException(
-          subCode = ErrorCode.Sub.INSUFFICIENT_NONCE_ENTROPY,
+          subCode = ErrorCode.Sub.INSUFFICIENT_STATE_ENTROPY,
           message = "${Param.STATE} entropy less than $minEntropy.")
 } ?: throw InvalidRequestException(
         subCode = ErrorCode.Sub.MISSING_STATE,
@@ -57,3 +58,17 @@ fun Map<String, String>.mustStateWithEnoughEntropy(minEntropy: Int) = this[Param
 fun Map<String, String>.request(): String = this[Param.REQUEST] ?: ""
 
 fun Map<String, String>.requestUri(): String = this[Param.REQUEST_URI] ?: ""
+
+fun Map<String, String>.nonce(): String = this[Param.NONCE] ?: ""
+
+fun Map<String, String>.idTokenHint(): String = this[Param.ID_TOKEN_HINT] ?: ""
+
+fun Map<String, String>.prompts(): Set<Prompt> = this[Param.PROMPT]
+    ?.split(Misc.SPACE)
+    ?.filter { it.isNotBlank() }
+    ?.map { it.asOAuthEnum(Param.PROMPT, false) as Prompt }
+    ?.toSet() ?: emptySet()
+
+fun Map<String, String>.maxAgeOrNull(): Long? = this[Param.MAX_AGE]?.toLongOrNull()
+
+fun Map<String, String>.acrValue(): String = this[Param.ACR_VALUE] ?: ""
