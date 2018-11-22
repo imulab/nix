@@ -47,9 +47,9 @@ object JsonWebKeySetVorSpec : Spek({
             println("${Thread.currentThread().name} hit")
             magicJwks
         }
-        onBlocking { write(any(), any(), anyOrNull()) } doAnswer {
+        onBlocking { write(any(), any(), anyOrNull()) } doAnswer { iom ->
             println("${Thread.currentThread().name} write")
-            println(it.arguments[2].toString())
+            println(iom.arguments[2].toString())
             runBlocking { delay(200L) }
         }
     }
