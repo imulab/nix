@@ -39,11 +39,7 @@ object OidcRequestObjectVorSpec: Spek({
     val client = mock<OidcClient>()
 
     val vor = OidcRequestObjectVor(
-        jsonWebKeySetVor = JsonWebKeySetVor(
-            jwksCache = mock(),
-            httpClient = HttpClient(Apache),
-            cacheCoroutineScope = GlobalScope
-        ),
+        jsonWebKeySetVor = mock(),
         cacheCoroutineScope = GlobalScope,
         httpClient = HttpClient(Apache),
         jwxProvider = JwxProvider(),

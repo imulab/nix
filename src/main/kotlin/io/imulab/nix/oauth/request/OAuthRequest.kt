@@ -25,21 +25,6 @@ interface OAuthRequest {
     val grantTypes: Set<GrantType>
         get() = requestForm.grantTypes()
 
-    val nonce: String
-        get() = requestForm.nonce()
-
-    val prompts: Set<Prompt>
-        get() = requestForm.prompts()
-
-    val maxAge: Long?
-        get() = requestForm.maxAgeOrNull()
-
-    val idTokenHint: String
-        get() = requestForm.idTokenHint()
-
-    val acrValue: String
-        get() = requestForm.acrValue()
-
     fun grantScope(scope: String) { grantedScopes.add(scope) }
 
     fun grantScopes(vararg scopes: String) { grantedScopes.addAll(scopes) }

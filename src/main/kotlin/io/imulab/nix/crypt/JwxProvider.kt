@@ -1,12 +1,14 @@
 package io.imulab.nix.crypt
 
 import io.imulab.nix.client.OidcClient
-import io.imulab.nix.constant.ErrorCode
 import io.imulab.nix.crypt.alg.EncryptionAlgorithm
 import io.imulab.nix.crypt.alg.KeyManagementAlgorithm
 import io.imulab.nix.crypt.alg.SigningAlgorithm
-import io.imulab.nix.error.JwkException
 import io.imulab.nix.error.JwkException.Companion.JwkSeekException
+import io.imulab.nix.support.findKeyForJweKeyManagement
+import io.imulab.nix.support.findKeyForSignature
+import io.imulab.nix.support.resolvePrivateKey
+import io.imulab.nix.support.resolvePublicKey
 import org.jose4j.jwa.AlgorithmConstraints
 import org.jose4j.jwa.AlgorithmConstraints.ConstraintType.WHITELIST
 import org.jose4j.jwe.JsonWebEncryption
@@ -23,15 +25,18 @@ class JwxProvider {
     // kty, kid is set with headers
     fun generateJsonWebToken(
         claims: JwtClaims,
-        headers: Map<String, String>,
+        headers: Map<String, String> = emptyMap(),
         signingAlgorithm: SigningAlgorithm,
-        key: Key
+        jwks: JsonWebKeySet
     ): String {
+        val jwk = jwks.findKeyForSignature(signingAlgorithm)
+
         return JsonWebSignature().also { jws ->
+            jws.keyIdHeaderValue = jwk.keyId
+            jws.algorithmHeaderValue = jwk.algorithm
             headers.forEach { t, u -> jws.setHeader(t, u) }
             jws.payload = claims.toJson()
-            jws.key = key
-            jws.algorithmHeaderValue = signingAlgorithm.alg
+            jws.key = jwk.resolvePrivateKey()
         }.compactSerialization
     }
 
@@ -66,15 +71,18 @@ class JwxProvider {
 
     fun generateJsonWebEncryption(
         payload: String,
-        key: Key,
+        jwks: JsonWebKeySet,
         keyAlg: KeyManagementAlgorithm,
         encAlg: EncryptionAlgorithm
     ): String {
+        val jwk = jwks.findKeyForJweKeyManagement(keyAlg)
+
         return JsonWebEncryption().also { jwe ->
             jwe.setPlaintext(payload)
             jwe.encryptionMethodHeaderParameter = encAlg.alg
             jwe.algorithmHeaderValue = keyAlg.identifier
-            jwe.key = key
+            jwe.contentTypeHeaderValue = "JWT"
+            jwe.key = jwk.resolvePublicKey()
         }.compactSerialization
     }
 

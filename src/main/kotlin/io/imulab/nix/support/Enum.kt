@@ -1,6 +1,6 @@
 package io.imulab.nix.support
 
-import io.imulab.astrea.error.RequestParameterInvalidValueException
+import io.imulab.nix.constant.Error
 
 /**
  * General interface for all OAuth options related enums to implement.
@@ -21,5 +21,5 @@ interface OAuthEnum {
 inline fun <reified T> String.asOAuthEnum(paramName: String, ignoreCase: Boolean = false): T
         where T: Enum<T>, T: OAuthEnum {
     return enumValues<T>().find { it.specValue.equals(this, ignoreCase) }
-        ?: throw RequestParameterInvalidValueException(paramName, this)
+        ?: throw Error.Enum.invalid(paramName)
 }

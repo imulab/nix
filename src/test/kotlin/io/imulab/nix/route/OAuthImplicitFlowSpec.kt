@@ -55,7 +55,7 @@ object OAuthImplicitFlowSpec : Spek({
             )
         }
 
-        it("missing required parameter") {
+        it("noneRegistered required parameter") {
             listOf(
                 PARAM_CLIENT_ID,
                 PARAM_SCOPE,

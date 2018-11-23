@@ -10,3 +10,5 @@ inline fun <reified T : OAuthSession> OAuthSession?.assertType(): T {
         throw IllegalStateException("Session is unexpected type.")
     return this
 }
+
+fun String?.switchOnEmpty(another: String): String = if (isNullOrEmpty()) another else this!!

@@ -61,7 +61,7 @@ object OAuthAuthorizeCodeFlowSpec : Spek({
 
         describe("invalid_request") {
 
-            it("required parameter is missing") {
+            it("required parameter is noneRegistered") {
                 listOf(PARAM_CLIENT_ID, PARAM_SCOPE, PARAM_RESPONSE_TYPE, PARAM_STATE).forEachAutoClear { missing ->
                     AuthorizeCodeFlow.authorizeEndpointLeg(
                         paramModifier = { it.removeIf { p -> p.first == missing } }
@@ -73,7 +73,7 @@ object OAuthAuthorizeCodeFlowSpec : Spek({
                             extracting { it["error"] }.asString()
                                 .isEqualTo("invalid_request")
                             extracting { it["error_description"] }.asString()
-                                .contains("missing")
+                                .contains("noneRegistered")
                         }
                     }
                 }
@@ -157,7 +157,7 @@ object OAuthAuthorizeCodeFlowSpec : Spek({
                 )
             }
 
-            it("missing a required parameter") {
+            it("noneRegistered a required parameter") {
                 listOf(
                     PARAM_REDIRECT_URI,
                     PARAM_GRANT_TYPE
@@ -182,7 +182,7 @@ object OAuthAuthorizeCodeFlowSpec : Spek({
         }
 
         describe("invalid_grant") {
-            it("missing authorization code grant") {
+            it("noneRegistered authorization code grant") {
                 AuthorizeCodeFlow.tokenEndpointLeg(
                     tokenEndpointParamModifier = {
                         it.removeIf { p -> p.first == PARAM_CODE }
@@ -237,7 +237,7 @@ object OAuthAuthorizeCodeFlowSpec : Spek({
         }
 
         describe("invalid_client") {
-            it("missing client_id or client_secret") {
+            it("noneRegistered client_id or client_secret") {
                 listOf(PARAM_CLIENT_ID, PARAM_CLIENT_SECRET).forEachAutoClear { missing ->
                     AuthorizeCodeFlow.tokenEndpointLeg(
                         tokenEndpointParamModifier = {

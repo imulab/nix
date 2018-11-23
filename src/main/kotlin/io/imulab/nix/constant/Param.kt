@@ -22,9 +22,17 @@ object Param {
     const val TOKEN = "token"
     const val TOKEN_TYPE_HINT = "token_type_hint"
     const val ACR = "acr"
-    const val ACR_VALUE = "acr_value"
+    const val AMR = "amr"
+    const val AZP = "azp"
+    const val ACR_VALUES = "acr_values"
     const val ID_TOKEN_HINT = "id_token_hint"
+    const val LOGIN_HINT = "login_hint"
     const val NONCE = "nonce"
+    const val RESPONSE_MODE = "response_mode"
+    const val DISPLAY = "display"
+    const val UI_LOCALES = "ui_locales"
+    const val CLAIMS_LOCALES = "claims_locales"
+    const val CLAIMS = "claims"
 
     const val ACTIVE = "active"
 

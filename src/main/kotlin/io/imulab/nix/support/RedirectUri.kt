@@ -1,5 +1,6 @@
 package io.imulab.nix.support
 
+import io.imulab.nix.constant.Error
 import java.net.URI
 
 typealias RedirectUri = String
@@ -17,11 +18,11 @@ fun RedirectUri.checkValidity(): Throwable? {
     try {
         val uri = URI(this)
         if (!uri.isAbsolute)
-            return RuntimeException("TODO malformed uri")
+            return Error.RedirectUri.invalid()
         if (uri.rawFragment != null && uri.rawFragment.isNotBlank())
-            return RuntimeException("TODO malformed uri, has fragment")
+            return Error.RedirectUri.invalid()
         return null
     } catch (e: Exception) {
-        return e
+        return Error.RedirectUri.invalid()
     }
 }

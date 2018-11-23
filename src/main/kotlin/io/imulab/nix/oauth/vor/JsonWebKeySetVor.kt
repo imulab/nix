@@ -1,7 +1,7 @@
 package io.imulab.nix.oauth.vor
 
 import io.imulab.nix.client.OidcClient
-import io.imulab.nix.constant.ErrorCode
+import io.imulab.nix.constant.Error
 import io.imulab.nix.error.JwkException
 import io.imulab.nix.persistence.Cache
 import io.imulab.nix.support.effectiveExpiry
@@ -16,7 +16,6 @@ import org.jose4j.jwk.JsonWebKey
 import org.jose4j.jwk.JsonWebKeySet
 import org.jose4j.jwk.Use
 import org.jose4j.lang.JoseException
-import java.security.Key
 
 class JsonWebKeySetVor(
     private val jwksCache: Cache<String, String>,
@@ -31,7 +30,7 @@ class JsonWebKeySetVor(
         try {
             return JsonWebKeySet(value)
         } catch (e: JoseException) {
-            throw JwkException(subCode = ErrorCode.Sub.INVALID_JWKS,
+            throw JwkException(subCode = Error.Sub.INVALID_JWKS,
                 message = e.message ?: "Not a valid Json Web Key Set.")
         }
     }

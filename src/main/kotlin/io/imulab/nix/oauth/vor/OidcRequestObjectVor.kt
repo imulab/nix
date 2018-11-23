@@ -2,10 +2,10 @@ package io.imulab.nix.oauth.vor
 
 import io.imulab.nix.client.OAuthClient
 import io.imulab.nix.client.OidcClient
-import io.imulab.nix.constant.ErrorCode.Sub.VALUE_AND_REFERENCE
+import io.imulab.nix.constant.Error
+import io.imulab.nix.constant.Error.Sub.VALUE_AND_REFERENCE
 import io.imulab.nix.crypt.JwxProvider
 import io.imulab.nix.error.InvalidRequestException
-import io.imulab.nix.error.InvalidRequestObjectException
 import io.imulab.nix.error.JwkException.Companion.JwkSeekException
 import io.imulab.nix.persistence.Cache
 import io.imulab.nix.support.effectiveExpiry
@@ -52,7 +52,7 @@ class OidcRequestObjectVor(
     override suspend fun extractFromHttpResponse(response: HttpResponse): String? {
         if (response.status == HttpStatusCode.OK)
             return response.readText(StandardCharsets.UTF_8)
-        throw InvalidRequestObjectException("Failed to retrieve request object (code ${response.status.value}).")
+        throw Error.RequestObject.acquireFailed()
     }
 
     override suspend fun resolve(value: String, reference: String, context: Deferred<OAuthClient>): String? {
