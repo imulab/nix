@@ -11,27 +11,35 @@ import io.imulab.nix.support.getScopes
 import io.imulab.nix.support.maybe
 import io.imulab.nix.support.resolvePublicKey
 import org.assertj.core.api.Assertions.assertThat
+import org.jose4j.jwk.EcJwkGenerator
 import org.jose4j.jwk.JsonWebKeySet
 import org.jose4j.jwk.RsaJwkGenerator
 import org.jose4j.jwk.Use
 import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.consumer.JwtConsumerBuilder
+import org.jose4j.keys.EllipticCurves
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.LocalDateTime
 
 object JwtAccessTokenStrategySpec: Spek({
 
+    val signAlg = SigningAlgorithm.ES256
+
     val keySet = JsonWebKeySet().also { s ->
         s.addJsonWebKey(RsaJwkGenerator.generateJwk(2048).also {
             it.use = Use.SIGNATURE
             it.keyId = "0354A698-82C5-4B98-A13C-AB608B219897"
         })
+        s.addJsonWebKey(EcJwkGenerator.generateJwk(EllipticCurves.P256).also {
+            it.use = Use.SIGNATURE
+            it.keyId = "ADF472C0-308E-4EE6-84EE-C3B11545AC7D"
+        })
     }
 
     val strategy = JwtAccessTokenStrategy(
         issuer = "https://test.nix.com",
-        signingAlgorithm = SigningAlgorithm.RS256,
+        signingAlgorithm = signAlg,
         serverJwks = keySet
     )
 
@@ -65,7 +73,7 @@ object JwtAccessTokenStrategySpec: Spek({
 
             val decoded = JwtConsumerBuilder().also {
                 it.setSkipAllValidators()
-                it.setVerificationKey(keySet.findKeyForSignature(SigningAlgorithm.RS256).resolvePublicKey())
+                it.setVerificationKey(keySet.findKeyForSignature(signAlg).resolvePublicKey())
             }.build().processToClaims(verified.value)
 
             assertThat(decoded.subject).isEqualTo("user/D363D388-E8F4-4913-B4DC-9731DB78A433")
