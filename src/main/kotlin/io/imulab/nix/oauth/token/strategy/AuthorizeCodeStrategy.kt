@@ -47,7 +47,7 @@ abstract class HmacBaseStrategy(
 
     protected fun createFromRaw(raw: String): Token {
         val parts = requireTwoParts(raw)
-        return createToken(parts[0], parts[1])
+        return createToken(value = parts[0] + Misc.DOT + parts[1], signature = parts[1])
     }
 
     protected fun generate(): Token {
@@ -55,20 +55,21 @@ abstract class HmacBaseStrategy(
             ThreadLocalRandom.current().nextBytes(it)
         }
         val signatureBytes = algorithm.sign(key, randomBytes, ProviderContext())
-        return createToken(encoder.encodeToString(randomBytes), encoder.encodeToString(signatureBytes))
+        return createFromRaw(encoder.encodeToString(randomBytes) + Misc.DOT + encoder.encodeToString(signatureBytes))
     }
 
     protected fun verify(token: Token): Token {
+        val parts = requireTwoParts(token.value)
         if (!algorithm.verifySignature(
-                decoder.decode(token.signature),
+                decoder.decode(parts[1]),
                 key,
-                decoder.decode(token.value),
+                decoder.decode(parts[0]),
                 ProviderContext()
             )
         ) {
             throw badSignatureException()
         }
-        return token
+        return createFromRaw(parts[0] + Misc.DOT + parts[1])
     }
 
     private fun requireTwoParts(raw: String): List<String> {

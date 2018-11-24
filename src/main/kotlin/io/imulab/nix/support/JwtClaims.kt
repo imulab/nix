@@ -75,7 +75,7 @@ fun JwtClaims.maybeRedirectUri(): String = this.maybe(Param.REDIRECT_URI)
 fun JwtClaims.maybeResponseMode(): String = this.maybe(Param.RESPONSE_MODE)
 
 fun JwtClaims.setScopes(scopes: List<String>) {
-    this.setStringListClaim(Param.NONCE, scopes)
+    this.setStringListClaim(Param.SCOPE, scopes)
 }
 
 fun JwtClaims.getScopes(): List<String> {

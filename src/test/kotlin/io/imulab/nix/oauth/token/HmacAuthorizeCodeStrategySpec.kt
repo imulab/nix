@@ -22,7 +22,6 @@ object HmacAuthorizeCodeStrategySpec: Spek({
 
         it("should generate new code") {
             val code = strategy.generateCode(mock())
-            println(code)
             assertThat(code.value).isNotEmpty()
             assertThat(code.signature).isNotEmpty()
             raw = code.toString()

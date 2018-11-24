@@ -21,7 +21,6 @@ object HmacRefreshTokenStrategySpec: Spek({
 
         it("should generate new token") {
             val token = strategy.generateToken(mock())
-            println(token)
             Assertions.assertThat(token.value).isNotEmpty()
             Assertions.assertThat(token.signature).isNotEmpty()
             raw = token.toString()

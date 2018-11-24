@@ -36,7 +36,7 @@ interface AccessTokenStrategy {
     /**
      * Validate the provided [token].
      */
-    fun verifyToken(request: OAuthRequest, token: String): Token
+    fun verifyToken(request: OAuthRequest, token: Token): Token
 }
 
 class JwtAccessTokenStrategy(
@@ -99,7 +99,7 @@ class JwtAccessTokenStrategy(
         return JwtToken(TokenType.AccessToken, jwt)
     }
 
-    override fun verifyToken(request: OAuthRequest, token: String): Token {
+    override fun verifyToken(request: OAuthRequest, token: Token): Token {
         try {
             JwtConsumerBuilder()
                 .setRequireJwtId()
@@ -109,7 +109,7 @@ class JwtAccessTokenStrategy(
                 .setRequireIssuedAt()
                 .setRequireExpirationTime()
                 .build()
-                .process(token)
+                .process(token.value)
         } catch (e: InvalidJwtException) {
             when {
                 e.errorDetails.any { it.errorCode == ErrorCodes.EXPIRED } ->
@@ -120,7 +120,7 @@ class JwtAccessTokenStrategy(
             }
         }
 
-        return JwtToken(TokenType.AccessToken, token)
+        return JwtToken(TokenType.AccessToken, token.value)
     }
 
     private fun requireThreeParts(raw: String): List<String> {

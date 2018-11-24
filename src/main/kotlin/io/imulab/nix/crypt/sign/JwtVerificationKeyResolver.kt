@@ -26,8 +26,6 @@ class JwtVerificationKeyResolver(
         if (jws.keyIdHeaderValue != null) {
             val candidate = jwks.findJsonWebKey(jws.keyIdHeaderValue, null, Use.SIGNATURE, null)
                 ?: throw Error.Jwk.notFoundForSignature()
-            if (candidate.algorithm != mustSigningAlgorithm.alg)
-                throw Error.Jwk.algorithmMismatch(mustSigningAlgorithm)
             return candidate.resolvePublicKey()
         }
 

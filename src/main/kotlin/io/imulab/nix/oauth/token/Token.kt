@@ -19,7 +19,7 @@ interface Token {
 data class SignedToken(override val type: TokenType,
                        override val value: String,
                        override val signature: String): Token {
-    override fun toString(): String = value + Misc.DOT + signature
+    override fun toString(): String = value
 }
 
 /**
