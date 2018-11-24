@@ -117,26 +117,43 @@ object Error {
         private const val expired = "access_token_expired"
         private const val signature = "access_token_bad_signature"
         private const val verify = "access_token_verify_failed"
+        private const val notFound = "access_token_not_found"
+        private const val inactive = "access_token_inactive"
 
         fun badFormat() = InvalidRequestException(format, "Malformed access token. Must be a valid Json Web Token.")
         fun expired() = InvalidRequestException(expired, "Access token has expired.")
         fun badSignature() = InvalidRequestException(signature, "Access token has illegal signature.")
         fun verifyFailed(t: Throwable) = InvalidRequestException(verify, "Access token failed verification: ${t.localizedMessage}")
+        fun notFound() = InvalidRequestException(notFound, "Access token not found in record.")
+        fun inactive() = InvalidRequestException(inactive, "Access token has been deactivated.")
     }
 
+    // TODO token/code related exception should be invalid_grant
     object AuthorizeCode {
         private const val format = "authorize_code_malformed"
         private const val signature = "authorize_code_bad_signature"
+        private const val notFound = "authorize_code_not_found"
+        private const val expired = "authorize_code_expired"
+        private const val inactive = "authorize_code_inactive"
 
         fun badFormat() = InvalidRequestException(format, "Malformed authorize code.")
         fun badSignature() = InvalidRequestException(signature, "Authorize code has illegal signature.")
+        fun notFound() = InvalidRequestException(notFound, "Authorize code not found in record.")
+        fun expired() = InvalidRequestException(expired, "Authorize code has expired.")
+        fun inactive() = InvalidRequestException(inactive, "Authorize code has been deactivated.")
     }
 
     object RefreshToken {
         private const val format = "refresh_token_malformed"
         private const val signature = "refresh_token_bad_signature"
+        private const val notFound = "refresh_token_not_found"
+        private const val expired = "refresh_token_expired"
+        private const val inactive = "refresh_token_inactive"
 
         fun badFormat() = InvalidRequestException(format, "Malformed refresh token.")
         fun badSignature() = InvalidRequestException(signature, "Refresh token has illegal signature.")
+        fun notFound() = InvalidRequestException(notFound, "Refresh token not found in record.")
+        fun expired() = InvalidRequestException(expired, "Refresh token has expired.")
+        fun inactive() = InvalidRequestException(inactive, "Refresh token has been deactivated.")
     }
 }

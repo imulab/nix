@@ -11,7 +11,7 @@ interface OAuthSession {
     /**
      * Expiry of a token of type [TokenType].
      */
-    val expiry: Map<TokenType, LocalDateTime>
+    val expiry: MutableMap<TokenType, LocalDateTime>
 
     /**
      * Username of the session owner.
@@ -27,4 +27,7 @@ interface OAuthSession {
      * Returns a new identical session.
      */
     fun clone(): OAuthSession
+
+    fun hasExpired(tokenType: TokenType): Boolean =
+        expiry[tokenType]?.isAfter(LocalDateTime.now()) == true
 }
