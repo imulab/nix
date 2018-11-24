@@ -6,7 +6,6 @@ import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.mock
 import io.imulab.nix.client.OidcClient
-import io.imulab.nix.crypt.JwxProvider
 import io.imulab.nix.persistence.Cache
 import io.imulab.nix.support.MockServerSupport
 import io.ktor.client.HttpClient
@@ -19,7 +18,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 
-object OidcRequestObjectVorSpec: Spek({
+object RequestObjectVorSpec: Spek({
 
     val magicUrl = "http://localhost:31246/request.jwt"
 
@@ -38,17 +37,14 @@ object OidcRequestObjectVorSpec: Spek({
 
     val client = mock<OidcClient>()
 
-    val vor = OidcRequestObjectVor(
-        jsonWebKeySetVor = mock(),
-        cacheCoroutineScope = GlobalScope,
+    val vor = RequestObjectVor(
         httpClient = HttpClient(Apache),
-        jwxProvider = JwxProvider(),
         requestObjectCache = cache
     )
 
     describe("resolve already existing request object") {
         it("should return existing request object") {
-            val requestObj = GlobalScope.async { vor.resolve(magicJwt, "", async { client }) }
+            val requestObj = GlobalScope.async { vor.resolve(magicJwt, "", null) }
             runBlocking {
                 assertThat(requestObj.await()).isEqualTo(magicJwt)
             }
@@ -57,7 +53,7 @@ object OidcRequestObjectVorSpec: Spek({
 
     describe("resolve request object from cache") {
         it("should return request object from cache") {
-            val requestObj = GlobalScope.async { vor.resolve("", magicUrl, async { client }) }
+            val requestObj = GlobalScope.async { vor.resolve("", magicUrl, null) }
             runBlocking {
                 assertThat(requestObj.await()).isEqualTo(magicJwt)
             }

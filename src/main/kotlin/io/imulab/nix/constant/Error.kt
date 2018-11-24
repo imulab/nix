@@ -51,7 +51,9 @@ object Error {
 
     object Jwks {
         private const val noResolve = "no_jwks"
+        private const val invalid = "invalid_jwks"
 
+        fun invalid() = InvalidRequestException(invalid, "Json web key set is invalid.")
         fun noJwks() = InvalidRequestException(noResolve, "Failed to resolve a json web key set for further operation.")
     }
 

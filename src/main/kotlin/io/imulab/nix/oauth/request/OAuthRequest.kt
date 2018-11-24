@@ -3,7 +3,7 @@ package io.imulab.nix.oauth.request
 import io.imulab.nix.client.OAuthClient
 import io.imulab.nix.client.metadata.GrantType
 import io.imulab.nix.oauth.session.OAuthSession
-import io.imulab.nix.support.*
+import io.imulab.nix.support.grantTypes
 import java.time.LocalDateTime
 
 interface OAuthRequest {

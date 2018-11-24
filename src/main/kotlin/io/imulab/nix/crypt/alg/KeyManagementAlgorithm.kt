@@ -1,6 +1,7 @@
 package io.imulab.nix.crypt.alg
 
 import io.imulab.nix.support.OAuthEnum
+import org.jose4j.jwa.AlgorithmConstraints
 import org.jose4j.jwe.KeyManagementAlgorithmIdentifiers
 
 enum class KeyManagementAlgorithm(override val specValue: String, val identifier: String): OAuthEnum {
@@ -25,5 +26,8 @@ enum class KeyManagementAlgorithm(override val specValue: String, val identifier
     PBES2_HS384_A192KW("PBES2-HS384+A192KW", KeyManagementAlgorithmIdentifiers.PBES2_HS384_A192KW),
     PBES2_HS512_A256KW("PBES2-HS512+A256KW", KeyManagementAlgorithmIdentifiers.PBES2_HS512_A256KW),
 
-    DIRECT("dir", KeyManagementAlgorithmIdentifiers.DIRECT)
+    DIRECT("dir", KeyManagementAlgorithmIdentifiers.DIRECT);
+
+    fun asAlgorithmConstraint(): AlgorithmConstraints =
+            AlgorithmConstraints(AlgorithmConstraints.ConstraintType.WHITELIST, this.identifier)
 }

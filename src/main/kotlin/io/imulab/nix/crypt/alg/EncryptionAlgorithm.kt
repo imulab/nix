@@ -1,6 +1,7 @@
 package io.imulab.nix.crypt.alg
 
 import io.imulab.nix.support.OAuthEnum
+import org.jose4j.jwa.AlgorithmConstraints
 import org.jose4j.jwe.ContentEncryptionAlgorithmIdentifiers
 
 enum class EncryptionAlgorithm(
@@ -33,5 +34,8 @@ enum class EncryptionAlgorithm(
     A256GCM(
         specValue = "A256GCM",
         fullName = "AES GCM using 256-bit key",
-        alg = ContentEncryptionAlgorithmIdentifiers.AES_256_GCM)
+        alg = ContentEncryptionAlgorithmIdentifiers.AES_256_GCM);
+
+    fun asAlgorithmConstraint(): AlgorithmConstraints =
+            AlgorithmConstraints(AlgorithmConstraints.ConstraintType.WHITELIST, this.alg)
 }

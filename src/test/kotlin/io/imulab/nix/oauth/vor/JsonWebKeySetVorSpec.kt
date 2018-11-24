@@ -6,6 +6,7 @@ import com.nhaarman.mockitokotlin2.anyOrNull
 import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.mock
 import io.imulab.astrea.token.strategy.impl.JwtAccessTokenStrategy
+import io.imulab.nix.error.InvalidRequestException
 import io.imulab.nix.error.JwkException
 import io.imulab.nix.persistence.Cache
 import io.imulab.nix.support.MockServerSupport
@@ -56,8 +57,7 @@ object JsonWebKeySetVorSpec : Spek({
 
     val vor = JsonWebKeySetVor(
         jwksCache = cache,
-        httpClient = HttpClient(Apache),
-        cacheCoroutineScope = GlobalScope
+        httpClient = HttpClient(Apache)
     )
 
     beforeGroup {
@@ -105,7 +105,7 @@ object JsonWebKeySetVorSpec : Spek({
 
         it("should throw exception when not 200") {
             val jwks = GlobalScope.async { vor.resolve("", "${MockServerSupport.url()}/jwks.bad.json", mock()) }
-            assertThatExceptionOfType(JwkException.Companion.JwksAcquireException::class.java)
+            assertThatExceptionOfType(InvalidRequestException::class.java)
                 .isThrownBy {
                     runBlocking { jwks.await() }
                 }
