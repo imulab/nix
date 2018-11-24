@@ -111,4 +111,32 @@ object Error {
 
         fun acquireFailed() = InvalidRequestObjectException(acquire, "Failed to acquire request object.")
     }
+
+    object AccessToken {
+        private const val format = "access_token_malformed"
+        private const val expired = "access_token_expired"
+        private const val signature = "access_token_bad_signature"
+        private const val verify = "access_token_verify_failed"
+
+        fun badFormat() = InvalidRequestException(format, "Malformed access token. Must be a valid Json Web Token.")
+        fun expired() = InvalidRequestException(expired, "Access token has expired.")
+        fun badSignature() = InvalidRequestException(signature, "Access token has illegal signature.")
+        fun verifyFailed(t: Throwable) = InvalidRequestException(verify, "Access token failed verification: ${t.localizedMessage}")
+    }
+
+    object AuthorizeCode {
+        private const val format = "authorize_code_malformed"
+        private const val signature = "authorize_code_bad_signature"
+
+        fun badFormat() = InvalidRequestException(format, "Malformed authorize code.")
+        fun badSignature() = InvalidRequestException(signature, "Authorize code has illegal signature.")
+    }
+
+    object RefreshToken {
+        private const val format = "refresh_token_malformed"
+        private const val signature = "refresh_token_bad_signature"
+
+        fun badFormat() = InvalidRequestException(format, "Malformed refresh token.")
+        fun badSignature() = InvalidRequestException(signature, "Refresh token has illegal signature.")
+    }
 }

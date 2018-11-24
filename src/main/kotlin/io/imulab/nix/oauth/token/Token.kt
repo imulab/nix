@@ -14,24 +14,18 @@ interface Token {
 }
 
 /**
- * Represents a token in the format of <value.signature>.
+ * Represents a token with signature.
  */
-class SignedToken(override val type: TokenType, private val raw: String): Token {
-    override val value: String
-        get() = raw
-    override val signature: String
-        get() {
-            val parts = raw.split(Misc.DOT)
-            if (parts.size != 2)
-                TODO("invalid token, malformed")
-            return parts[1]
-        }
+data class SignedToken(override val type: TokenType,
+                       override val value: String,
+                       override val signature: String): Token {
+    override fun toString(): String = value + Misc.DOT + signature
 }
 
 /**
  * Represents a json web token.
  */
-class JwtToken(override val type: TokenType, private val raw: String): Token {
+data class JwtToken(override val type: TokenType, private val raw: String): Token {
     override val value: String
         get() = raw
     override val signature: String
@@ -41,15 +35,19 @@ class JwtToken(override val type: TokenType, private val raw: String): Token {
                 TODO("invalid token, malformed")
             return parts[2]
         }
+
+    override fun toString(): String = raw
 }
 
 /**
  * Represents a json web encryption token.
  */
-class JweToken(override val type: TokenType, private val raw: String): Token {
+data class JweToken(override val type: TokenType, private val raw: String): Token {
     override val value: String
         get() = raw
     override val signature: String
         get() = ""
     override fun isEncrypted(): Boolean = true
+
+    override fun toString(): String = raw
 }

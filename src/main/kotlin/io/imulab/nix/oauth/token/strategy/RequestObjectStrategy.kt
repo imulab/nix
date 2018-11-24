@@ -4,7 +4,7 @@ import io.imulab.nix.client.OidcClient
 import io.imulab.nix.constant.Error
 import io.imulab.nix.constant.Misc
 import io.imulab.nix.crypt.alg.SigningAlgorithm
-import io.imulab.nix.crypt.sign.OidcRequestObjectVerificationKeyResolver
+import io.imulab.nix.crypt.sign.JwtVerificationKeyResolver
 import io.imulab.nix.oauth.vor.JsonWebKeySetVor
 import io.imulab.nix.support.findKeyForJweKeyManagement
 import io.imulab.nix.support.resolvePrivateKey
@@ -108,7 +108,7 @@ class JwxRequestObjectStrategy(
                 JwtConsumerBuilder()
                     .setRequireJwtId()
                     .setVerificationKeyResolver(
-                        OidcRequestObjectVerificationKeyResolver(
+                        JwtVerificationKeyResolver(
                             clientJwks,
                             client.requestObjectSigningAlgorithm
                         )

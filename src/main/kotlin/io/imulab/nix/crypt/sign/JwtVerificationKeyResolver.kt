@@ -11,7 +11,7 @@ import org.jose4j.jwx.JsonWebStructure
 import org.jose4j.keys.resolvers.VerificationKeyResolver
 import java.security.Key
 
-class OidcRequestObjectVerificationKeyResolver(
+class JwtVerificationKeyResolver(
     private val jwks: JsonWebKeySet,
     private val mustSigningAlgorithm: SigningAlgorithm
 ): VerificationKeyResolver {

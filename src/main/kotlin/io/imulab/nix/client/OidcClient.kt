@@ -6,13 +6,10 @@ import io.imulab.nix.client.metadata.SubjectType
 import io.imulab.nix.crypt.alg.EncryptionAlgorithm
 import io.imulab.nix.crypt.alg.KeyManagementAlgorithm
 import io.imulab.nix.crypt.alg.SigningAlgorithm
-import io.imulab.nix.crypt.sign.OidcRequestObjectVerificationKeyResolver
 import io.imulab.nix.support.findKeyForJweKeyManagement
 import io.imulab.nix.support.resolvePrivateKey
 import org.jose4j.jwe.JsonWebEncryption
 import org.jose4j.jwk.JsonWebKeySet
-import org.jose4j.jwt.consumer.JwtConsumerBuilder
-import org.jose4j.jwt.consumer.JwtContext
 
 interface OidcClient : OAuthClient {
 
