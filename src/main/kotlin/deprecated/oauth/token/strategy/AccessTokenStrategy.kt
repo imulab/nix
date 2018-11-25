@@ -11,7 +11,6 @@ import deprecated.oauth.token.JwtToken
 import deprecated.oauth.token.Token
 import deprecated.oauth.token.TokenType
 import deprecated.support.*
-import io.imulab.nix.support.*
 import org.jose4j.jwk.JsonWebKeySet
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims

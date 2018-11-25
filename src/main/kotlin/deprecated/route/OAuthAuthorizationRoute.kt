@@ -13,7 +13,6 @@ import deprecated.oauth.token.strategy.RequestObjectStrategy
 import deprecated.oauth.vor.JsonWebKeySetVor
 import deprecated.oauth.vor.RequestObjectVor
 import deprecated.support.*
-import io.imulab.nix.support.*
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
 import io.ktor.routing.Routing
@@ -99,7 +98,7 @@ class OAuthAuthorizationRouteHandler(
      * parameter. Then merge the claimed fields back into the request as parameters. Downstream processing can view
      * open id connect request and oauth request in a unified manner.
      *
-     * This method assumes any content provided via 'redirect_uri' has already been resolved and assigned to 'request'
+     * This method assumes any content provided via 'redirectUri' has already been resolved and assigned to 'request'
      * parameter in the container, hence it only takes into account the 'request' parameter in the container.
      *
      * Claims from the request object is considered fixed, hence any parameters supplied from url queries takes precedence.

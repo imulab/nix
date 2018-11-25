@@ -77,7 +77,7 @@ object OAuthImplicitFlowSpec : Spek({
             }
         }
 
-        it("unregistered redirect_uri") {
+        it("unregistered redirectUri") {
             ImplicitFlow.authorizeEndpointLeg(
                 paramModifier = {
                     it.removeIf { p -> p.first == PARAM_REDIRECT_URI }

@@ -32,7 +32,7 @@ interface OAuthClient {
 
     /**
      * REQUIRED. Array of Redirection URI values used by the Client.
-     * One of these registered Redirection URI values MUST exactly match the redirect_uri parameter value used in
+     * One of these registered Redirection URI values MUST exactly match the redirectUri parameter value used in
      * each Authorization Request, with the matching performed as Simple String Comparison.
      */
     val redirectUris: List<String>

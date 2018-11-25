@@ -217,7 +217,7 @@ object OAuthAuthorizeCodeFlowSpec : Spek({
                 )
             }
 
-            it("mismatched redirect_uri") {
+            it("mismatched redirectUri") {
                 AuthorizeCodeFlow.tokenEndpointLeg(
                     tokenEndpointParamModifier = {
                         it.removeIf { p -> p.first == PARAM_REDIRECT_URI }

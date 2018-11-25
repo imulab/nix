@@ -3,7 +3,6 @@ package deprecated.oauth.request
 import deprecated.constant.Error
 import deprecated.oauth.session.OidcSession
 import deprecated.support.*
-import io.imulab.nix.support.*
 import org.jose4j.jwt.NumericDate
 
 interface OidcRequest : OAuthRequest {

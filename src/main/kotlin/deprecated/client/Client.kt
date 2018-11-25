@@ -2,7 +2,6 @@ package deprecated.client
 
 import com.google.gson.annotations.SerializedName
 import deprecated.client.metadata.*
-import io.imulab.nix.client.metadata.*
 import deprecated.crypt.alg.EncryptionAlgorithm
 import deprecated.crypt.alg.KeyManagementAlgorithm
 import deprecated.crypt.alg.SigningAlgorithm

@@ -34,7 +34,7 @@ object Error {
         const val JWKS_ACQUIRE_FAILURE = "jwks_acquire_failure"
         const val JWK_SEEK_FAILURE = "jwk_seek_failure"
 
-        const val REDIRECT_URI = "redirect_uri"
+        const val REDIRECT_URI = "redirectUri"
     }
 
     object Jwk {

@@ -6,7 +6,7 @@ object Param {
     const val CODE = "code"
     const val CODE_HASH = "c_hash"
     const val SCOPE = "scope"
-    const val REDIRECT_URI = "redirect_uri"
+    const val REDIRECT_URI = "redirectUri"
     const val RESPONSE_TYPE = "response_type"
     const val STATE = "state"
     const val REQUEST = "request"

@@ -77,7 +77,7 @@ interface OidcClient : OAuthClient {
 
     /**
      * OPTIONAL. URL using the https scheme to be used in calculating Pseudonymous Identifiers by the OP.
-     * The URL references a file with a single JSON array of redirect_uri values. Providers that use pairwise
+     * The URL references a file with a single JSON array of redirectUri values. Providers that use pairwise
      * sub (subject) values SHOULD utilize the sector_identifier_uri value provided in the Subject Identifier
      * calculation for pairwise identifiers.
      */
