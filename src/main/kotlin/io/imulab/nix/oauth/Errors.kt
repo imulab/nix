@@ -1,7 +1,5 @@
 package io.imulab.nix.oauth
 
-import java.lang.RuntimeException
-
 // invalid_request
 // ---------------
 // The request is missing a required parameter, includes an
@@ -12,13 +10,13 @@ object InvalidRequest {
     private const val status = 400
 
     val required: (String) -> Throwable =
-        { param -> OAuthException(status, code, "Parameter <$param> is required.")}
+        { param -> OAuthException(status, code, "Parameter <$param> is required.") }
 
     val invalid: (String) -> Throwable =
-        { param -> OAuthException(status, code, "Value for parameter <$param> is invalid.")}
+        { param -> OAuthException(status, code, "Value for parameter <$param> is invalid.") }
 
     val duplicate: (String) -> Throwable =
-        { param -> OAuthException(status, code, "Parameter <$param> is duplicated in the request.")}
+        { param -> OAuthException(status, code, "Parameter <$param> is duplicated in the request.") }
 }
 
 // unauthorized_client
@@ -68,9 +66,11 @@ object InvalidClient {
         { OAuthException(status, code, "Client failed authentication.") }
 
     val unauthorized: (String) -> Throwable = { scheme ->
-        OAuthException(status, code, "Client failed authentication.", mapOf(
-            "WWW-Authenticate" to scheme
-        ))
+        OAuthException(
+            status, code, "Client failed authentication.", mapOf(
+                "WWW-Authenticate" to scheme
+            )
+        )
     }
 }
 
@@ -123,7 +123,7 @@ object UnsupportedResponseType {
     private const val status = 400
 
     val unsupported: (String) -> Throwable =
-        { rt -> throw OAuthException(status, code, "Use of response_type <$rt> is unsupported by this server.")}
+        { rt -> throw OAuthException(status, code, "Use of response_type <$rt> is unsupported by this server.") }
 }
 
 // unsupported_grant_type
@@ -135,7 +135,7 @@ object UnsupportedGrantType {
     private const val status = 400
 
     val unsupported: (String) -> Throwable =
-        { gt -> throw OAuthException(status, code, "Use of grant_type <$gt> is unsupported by this server.")}
+        { gt -> throw OAuthException(status, code, "Use of grant_type <$gt> is unsupported by this server.") }
 }
 
 // invalid_scope
@@ -147,16 +147,16 @@ object InvalidScope {
     private const val status = 400
 
     val invalid: (String) -> Throwable =
-        { s -> throw OAuthException(status, code, "Scope <$s> is invalid.")}
+        { s -> throw OAuthException(status, code, "Scope <$s> is invalid.") }
 
     val unknown: (String) -> Throwable =
-        { s -> throw OAuthException(status, code, "Scope <$s> is unknown.")}
+        { s -> throw OAuthException(status, code, "Scope <$s> is unknown.") }
 
     val malformed: (String) -> Throwable =
-        { s -> throw OAuthException(status, code, "Scope <$s> is malformed.")}
+        { s -> throw OAuthException(status, code, "Scope <$s> is malformed.") }
 
     val notGranted: (String) -> Throwable =
-        { s -> throw OAuthException(status, code, "Scope <$s> was not granted to client.")}
+        { s -> throw OAuthException(status, code, "Scope <$s> was not granted to client.") }
 }
 
 // server_error
@@ -165,7 +165,7 @@ object ServerError {
     private const val status = 500
 
     val wrapped: (Throwable) -> Throwable =
-        { t -> throw OAuthException(status, code, t.message ?: t.javaClass.name)}
+        { t -> throw OAuthException(status, code, t.message ?: t.javaClass.name) }
 }
 
 // temporarily_unavailable
@@ -175,4 +175,4 @@ class OAuthException(
     val error: String,
     val description: String,
     val headers: Map<String, String> = emptyMap()
-): RuntimeException("$error: $description")
+) : RuntimeException("$error: $description")
