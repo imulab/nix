@@ -166,6 +166,9 @@ object ServerError {
 
     val wrapped: (Throwable) -> Throwable =
         { t -> throw OAuthException(status, code, t.message ?: t.javaClass.name) }
+
+    val internal: (String) -> Throwable =
+        { m -> throw OAuthException(status, code, m) }
 }
 
 // temporarily_unavailable

@@ -31,9 +31,17 @@ object Param {
     const val errorUri = "error_uri"
 }
 
+object Header {
+    const val authorization = "Authorization"
+}
+
 object ResponseType {
     const val code = "code"
     const val token = "token"
+
+    enum class Value(val spec: String) {
+        Code(code), Token(token)
+    }
 }
 
 object GrantType {
@@ -42,9 +50,28 @@ object GrantType {
     const val password = "password"
     const val clientCredentials = "client_credentials"
     const val refreshToken = "refresh_token"
+
+    enum class Value(val spec: String) {
+        AuthCode(authorizationCode),
+        Implicit(implicit),
+        Password(password),
+        ClientCredentials(clientCredentials),
+        RefreshToken(refreshToken)
+    }
 }
 
 object ClientType {
     const val public = "public"
     const val confidential = "confidential"
+
+    enum class Value(val spec: String) {
+        Public(public), Confidential(confidential)
+    }
 }
+
+object AuthenticationMethod {
+    const val clientSecretBasic = "client_secret_basic"
+    const val clientSecretPost = "client_secret_post"
+}
+
+const val colon = ":"

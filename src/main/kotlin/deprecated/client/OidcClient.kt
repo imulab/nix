@@ -213,7 +213,7 @@ interface OidcClient : OAuthClient {
      * requests from this Client, with the values appearing in order of preference. The Authentication Context Class
      * satisfied by the authentication performed is returned as the acr Claim Value in the issued ID Token.
      * The acr Claim is requested as a Voluntary Claim by this parameter. The acr_values_supported discovery element
-     * contains a list of the supported acr values supported by this server. Values specified in the acr_values
+     * contains a list of the supported acr values supported by this server. Value specified in the acr_values
      * request parameter or an individual acr Claim request override these default values.
      */
     val defaultAcrValues: List<String>
