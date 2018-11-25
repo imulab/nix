@@ -17,42 +17,53 @@ import kotlin.reflect.KProperty
  * Possible usage scenarios include (but not restricted to) consolidating request parameter
  * values from multiple sources. For instance, resolving OIDC request object.
  */
-open class OAuthRequestForm(val httpForm: MutableMap<String, List<String>>) {
+open class OAuthRequestForm(
+    val httpForm: MutableMap<String, List<String>>,
+    additionalMapping: Map<String, String> = emptyMap()
+) {
+
+    private val mapping = mutableMapOf(
+        "clientId" to Param.clientId,
+        "clientSecret" to Param.clientSecret,
+        "scope" to Param.scope,
+        "redirectUri" to Param.redirectUri,
+        "responseType" to Param.responseType,
+        "state" to Param.state,
+        "code" to Param.code,
+        "grantType" to Param.grantType,
+        "username" to Param.username,
+        "password" to Param.password
+    )
+
+    init {
+        mapping.putAll(additionalMapping)
+    }
 
     var clientId: String by Delegate
     var clientSecret: String by Delegate
     var scope: String by Delegate
-    val redirectUri: String by Delegate
-    val responseType: String by Delegate
-    val state: String by Delegate
-    val code: String by Delegate
-    val grantType: String by Delegate
-    val username: String by Delegate
-    val password: String by Delegate
-
-    protected val mapping by lazy {
-        mapOf(
-            "clientId" to Param.clientId,
-            "clientSecret" to Param.clientSecret,
-            "scope" to Param.scope,
-            "redirectUri" to Param.redirectUri,
-            "responseType" to Param.responseType,
-            "state" to Param.state,
-            "code" to Param.code,
-            "grantType" to Param.grantType,
-            "username" to Param.username,
-            "password" to Param.password
-        )
-    }
+    var redirectUri: String by Delegate
+    var responseType: String by Delegate
+    var state: String by Delegate
+    var code: String by Delegate
+    var grantType: String by Delegate
+    var username: String by Delegate
+    var password: String by Delegate
 
     protected object Delegate {
         operator fun getValue(thisRef: Any?, property: KProperty<*>): String {
             val ref = thisRef as OAuthRequestForm
+            checkNotNull(ref.mapping[property.name]) {
+                "unregistered property mapping"
+            }
             return ref.httpForm.singleOrNull(ref.mapping[property.name]!!) ?: ""
         }
 
         operator fun setValue(thisRef: Any?, property: KProperty<*>, value: String) {
             val ref = thisRef as OAuthRequestForm
+            checkNotNull(ref.mapping[property.name]) {
+                "unregistered property mapping"
+            }
             ref.httpForm[ref.mapping[property.name]!!] = listOf(value)
         }
     }
