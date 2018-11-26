@@ -22,7 +22,9 @@ class OidcRequestForm(httpForm: MutableMap<String, List<String>>) : OAuthRequest
     "claimsLocales" to OidcParam.claimsLocales,
     "request" to OidcParam.request,
     "requestUri" to OidcParam.requestUri,
-    "registration" to OidcParam.registration
+    "registration" to OidcParam.registration,
+    "iss" to OidcParam.iss,
+    "targetLinkUri" to OidcParam.targetLinkUri
 )) {
     var responseMode: String by Delegate
     var nonce: String by Delegate
@@ -38,6 +40,8 @@ class OidcRequestForm(httpForm: MutableMap<String, List<String>>) : OAuthRequest
     var request: String by Delegate
     var requestUri: String by Delegate
     var registration: String by Delegate
+    var iss: String by Delegate
+    var targetLinkUri: String by Delegate
 }
 
 /**

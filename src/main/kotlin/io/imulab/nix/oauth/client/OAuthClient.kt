@@ -15,9 +15,14 @@ interface OAuthClient {
     val secret: ByteArray
 
     /**
+     * Name of the client, represented to the end user.
+     */
+    val name: String
+
+    /**
      * Type of the client. Public clients may have an empty [secret].
      */
-    val type: ClientType.Value
+    val type: String
 
     /**
      * List of pre-registered and pre-validated redirect_uri. These values will be

@@ -15,6 +15,8 @@ object OidcParam {
     const val request = "request"
     const val requestUri = "request_uri"
     const val registration = "registration"
+    const val iss = "iss"
+    const val targetLinkUri = "target_link_uri"
 }
 
 object StandardClaim {
@@ -52,8 +54,48 @@ object StandardClaim {
     }
 }
 
+/**
+ * Authentication method applicable to client. This is an extension to
+ * the values existing in [io.imulab.nix.oauth.AuthenticationMethod] and
+ * represents the authentication method that wasn't mentioned in OAuth 2.0
+ * specification but mentioned in Open ID Connect 1.0 specification.
+ */
 object AuthenticationMethod {
     const val clientSecretJwt = "client_secret_jwt"
     const val privateKeyJwt = "private_key_jwt"
     const val none = "none"
+}
+
+object ApplicationType {
+    const val web = "web"
+    const val native = "native"
+}
+
+object SubjectType {
+    const val pairwise = "pairwise"
+    const val public = "public"
+}
+
+enum class JwtSigningAlgorithm {
+    None
+}
+
+/**
+ * Key management algorithm used for JWE encryption/decryption.
+ * [None] is a special value to indicate this algorithm is not
+ * specified. Fields adopting [None] should be treated as if
+ * the value is null.
+ */
+enum class JweKeyManagementAlgorithm {
+    None
+}
+
+/**
+ * Content encoding algorithm used for JWE encryption/decryption.
+ * [None] is a special value to indicate this algorithm is not
+ * specified. Fields adopting [None] should be treated as if the
+ * value is null.
+ */
+enum class JweContentEncodingAlgorithm {
+    None
 }
