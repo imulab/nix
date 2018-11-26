@@ -84,7 +84,8 @@ open class OAuthRequestForm(
 open class OAuthRequest(
     val id: String = UUID.randomUUID().toString(),
     val requestTime: LocalDateTime = LocalDateTime.now(),
-    val client: OAuthClient
+    val client: OAuthClient,
+    val session: OAuthSession = OAuthSession()
 )
 
 /**
@@ -96,8 +97,9 @@ open class OAuthAuthorizeRequest(
     val redirectUri: String,
     val scopes: Set<String>,
     val state: String?,
-    val grantedScopes: MutableSet<String> = mutableSetOf()
-) : OAuthRequest(client = client) {
+    val grantedScopes: MutableSet<String> = mutableSetOf(),
+    session: OAuthSession = OAuthSession()
+) : OAuthRequest(client = client, session = session) {
 
     class Builder(
         var responseTypes: MutableSet<String> = mutableSetOf(),
@@ -161,6 +163,8 @@ open class OAuthAccessRequest(
         }
     }
 }
+
+open class OAuthSession(var subject: String = "")
 
 /**
  * Provides function to take [OAuthRequestForm] and produce a [OAuthRequest]. Subclasses can call

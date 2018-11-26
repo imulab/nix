@@ -2,6 +2,7 @@ package io.imulab.nix.oidc
 
 import io.imulab.nix.oauth.OAuthAuthorizeRequest
 import io.imulab.nix.oauth.OAuthRequestForm
+import io.imulab.nix.oauth.OAuthSession
 import io.imulab.nix.oidc.client.OidcClient
 
 /**
@@ -39,6 +40,9 @@ class OidcRequestForm(httpForm: MutableMap<String, List<String>>) : OAuthRequest
     var registration: String by Delegate
 }
 
+/**
+ * An Open ID Connect Authorize Request.
+ */
 class OidcAuthorizeRequest(
     client: OidcClient,
     responseTypes: Set<String>,
@@ -55,7 +59,23 @@ class OidcAuthorizeRequest(
     val loginHint: String?,
     val acrValues: List<String>,
     val claims: Claims,
-    val claimsLocales: List<String>
-) : OAuthAuthorizeRequest(client, responseTypes, redirectUri, scopes, state)
+    val claimsLocales: List<String>,
+    session: OidcSession = OidcSession()
+) : OAuthAuthorizeRequest(
+    client = client,
+    responseTypes = responseTypes,
+    redirectUri = redirectUri,
+    scopes = scopes,
+    state = state,
+    session = session
+)
+
+/**
+ * Open ID Connect User Session.
+ */
+class OidcSession(
+    subject: String = "",
+    val claims: MutableMap<String, Any> = mutableMapOf()
+): OAuthSession(subject)
 
 class OidcAuthorizeRequestProducer
