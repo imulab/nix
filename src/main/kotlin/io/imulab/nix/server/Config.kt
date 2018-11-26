@@ -2,11 +2,18 @@ package io.imulab.nix.server
 
 import io.imulab.nix.oidc.OidcClientAuthenticationMethodValidator
 import io.imulab.nix.oidc.OidcContext
+import io.imulab.nix.server.route.AuthorizeRouteProvider
 import io.ktor.config.ApplicationConfig
 import io.ktor.util.KtorExperimentalAPI
 import org.jose4j.jwk.JsonWebKeySet
+import org.kodein.di.Kodein
+import org.kodein.di.erased.bind
+import org.kodein.di.erased.singleton
 import java.time.Duration
 
+/**
+ * Global server configuration
+ */
 @UseExperimental(KtorExperimentalAPI::class)
 class ServerContext(private val config: ApplicationConfig) : OidcContext {
 
@@ -73,5 +80,15 @@ class ServerContext(private val config: ApplicationConfig) : OidcContext {
             else
                 Duration.ofSeconds(it)
         }
+    }
+}
+
+/**
+ * Declare dependency injection modules.
+ */
+object DependencyInjection {
+
+    val routeProviders = Kodein.Module(name = "routeProviders") {
+        bind() from singleton { AuthorizeRouteProvider() }
     }
 }

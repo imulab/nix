@@ -20,6 +20,9 @@ object InvalidRequest {
 
     val indetermined: (String) -> Throwable =
         { param -> OAuthException(status, code, "Value for parameter <$param> cannot be determined.") }
+
+    val unmet: (String) -> Throwable =
+        { feature -> OAuthException(status, code, "Request must have the following feature: $feature.") }
 }
 
 // unauthorized_client
