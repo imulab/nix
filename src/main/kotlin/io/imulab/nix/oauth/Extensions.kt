@@ -11,3 +11,14 @@ fun Map<String, List<String>>.singleOrNull(key: String): String? {
         else -> return v[0]
     }
 }
+
+fun String.mustNotMalformedScope(): String {
+    val chars = this.toCharArray().toSortedSet()
+    return when {
+        chars.first() < '!' -> throw InvalidScope.malformed(this)
+        chars.last() > '~' -> throw InvalidScope.malformed(this)
+        chars.contains('"') -> throw InvalidScope.malformed(this)
+        chars.contains('\\') -> throw InvalidScope.malformed(this)
+        else -> this
+    }
+}

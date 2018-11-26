@@ -75,3 +75,4 @@ object AuthenticationMethod {
 }
 
 const val colon = ":"
+const val space = " "

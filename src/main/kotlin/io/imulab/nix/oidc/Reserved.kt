@@ -1,6 +1,7 @@
 package io.imulab.nix.oidc
 
 object OidcParam {
+    const val responseMode = "response_mode"
     const val nonce = "nonce"
     const val display = "display"
     const val prompt = "prompt"

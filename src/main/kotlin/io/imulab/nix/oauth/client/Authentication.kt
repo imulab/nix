@@ -1,6 +1,8 @@
 package io.imulab.nix.oauth.client
 
 import io.imulab.nix.oauth.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.nio.charset.StandardCharsets
 import java.util.*
 
@@ -28,9 +30,14 @@ interface ClientAuthenticator {
  * depending on the supported method. If no authenticator was able to take on work, it
  * raises server_error.
  */
-class ClientAuthenticators(private val authenticators: List<ClientAuthenticator>) {
+class ClientAuthenticators(
+    private val authenticators: List<ClientAuthenticator>,
+    private val defaultMethod: String = AuthenticationMethod.clientSecretPost,
+    private val methodFinder: suspend (OAuthRequestForm) -> String = { defaultMethod }
+) {
 
-    suspend fun authenticate(method: String, form: OAuthRequestForm): OAuthClient {
+    suspend fun authenticate(form: OAuthRequestForm): OAuthClient {
+        val method = methodFinder(form)
         return authenticators.find { it.supports(method) }?.authenticate(form)
             ?: throw ServerError.internal("No client authenticators configured for method <$method>.")
     }
@@ -82,7 +89,9 @@ class ClientSecretBasicAuthenticator(
         assert(clientId.isNotEmpty())
         assert(clientSecret.isNotEmpty())
 
-        val client = lookup.find(clientId)
+        val client = withContext(Dispatchers.IO) {
+            run { lookup.find(clientId) }
+        }
         if (!passwordEncoder.matches(clientSecret, client.secret.toString(StandardCharsets.UTF_8)))
             throw unauthorizedError
 
@@ -106,7 +115,9 @@ class ClientSecretPostAuthenticator(
         if (form.clientId.isEmpty() || form.clientSecret.isEmpty())
             throw InvalidClient.authenticationRequired()
 
-        val client = lookup.find(form.clientId)
+        val client = withContext(Dispatchers.IO) {
+            run { lookup.find(form.clientId) }
+        }
         if (!passwordEncoder.matches(form.clientSecret, client.secret.toString(StandardCharsets.UTF_8)))
             throw InvalidClient.authenticationFailed()
 

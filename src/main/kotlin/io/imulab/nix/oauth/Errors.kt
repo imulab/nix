@@ -17,6 +17,9 @@ object InvalidRequest {
 
     val duplicate: (String) -> Throwable =
         { param -> OAuthException(status, code, "Parameter <$param> is duplicated in the request.") }
+
+    val indetermined: (String) -> Throwable =
+        { param -> OAuthException(status, code, "Value for parameter <$param> cannot be determined.") }
 }
 
 // unauthorized_client
@@ -174,8 +177,15 @@ object ServerError {
 // temporarily_unavailable
 
 class OAuthException(
-    val status: Int,
-    val error: String,
-    val description: String,
-    val headers: Map<String, String> = emptyMap()
-) : RuntimeException("$error: $description")
+    override val status: Int,
+    private val error: String,
+    private val description: String,
+    override val headers: Map<String, String> = emptyMap()
+) : RuntimeException("$error: $description"), OAuthResponse {
+
+    override val data: Map<String, String>
+        get() = mapOf(
+            Param.error to error,
+            Param.errorDescription to description
+        )
+}

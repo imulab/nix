@@ -1,9 +1,6 @@
 package io.imulab.nix.oauth.client
 
-import io.imulab.nix.oauth.ClientType
-import io.imulab.nix.oauth.GrantType
-import io.imulab.nix.oauth.ResponseType
-import io.imulab.nix.oauth.UnsupportedGrantType
+import io.imulab.nix.oauth.*
 
 interface OAuthClient {
 
@@ -32,13 +29,13 @@ interface OAuthClient {
      * Supported response_type for this client. Any request made with
      * response_type outside these values shall be rejected unsupported_response_type.
      */
-    val responseTypes: Set<ResponseType.Value>
+    val responseTypes: Set<String>
 
     /**
      * Supported grant_type for this client. Any request made with
      * grant_type outside these values shall be rejected with unsupported_grant_type.
      */
-    val grantTypes: Set<GrantType.Value>
+    val grantTypes: Set<String>
 
     /**
      * Supported scope for this client. Any request made with scope
@@ -50,9 +47,38 @@ interface OAuthClient {
      * Utility method to ensure this client possesses the [presented] grant_type
      * value. It it does not, a unsupported_grant_type error is raised.
      */
-    fun mustGrantType(presented: GrantType.Value): GrantType.Value {
+    fun mustGrantType(presented: String): String {
         if (!this.grantTypes.contains(presented))
-            throw UnsupportedGrantType.unsupported(presented.spec)
+            throw UnsupportedGrantType.unsupported(presented)
         return presented
+    }
+
+    /**
+     * Utility method to ensure this client can request the [presented] scope
+     * value. It it cannot, a invalid_scope error is raised.
+     */
+    fun mustScope(presented: String): String {
+        if (!this.scopes.contains(presented))
+            throw InvalidScope.unknown(presented)
+        return presented
+    }
+
+    /**
+     * Utility method to select a redirect uri from options:
+     * - if one is [presented], it must match one of the registered redirect_uri value, if any.
+     * - if one is not presented, there must be exactly one registered redirect_uri.
+     */
+    fun determineRedirectUri(presented: String): String {
+        return if (presented.isBlank()) {
+            when {
+                redirectUris.size == 1 -> redirectUris.first()
+                else -> throw InvalidRequest.indetermined(Param.redirectUri)
+            }
+        } else {
+            when {
+                redirectUris.contains(presented) -> presented
+                else -> throw InvalidRequest.indetermined(Param.redirectUri)
+            }
+        }
     }
 }

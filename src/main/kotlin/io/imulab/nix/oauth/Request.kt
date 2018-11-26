@@ -1,5 +1,10 @@
 package io.imulab.nix.oauth
 
+import io.imulab.nix.oauth.client.ClientAuthenticators
+import io.imulab.nix.oauth.client.ClientLookup
+import io.imulab.nix.oauth.client.OAuthClient
+import java.time.LocalDateTime
+import java.util.*
 import kotlin.reflect.KProperty
 
 /**
@@ -70,5 +75,170 @@ open class OAuthRequestForm(
             }
             ref.httpForm[ref.mapping[property.name]!!] = listOf(value)
         }
+    }
+}
+
+/**
+ * Super class of all OAuth requests.
+ */
+open class OAuthRequest(
+    val id: String = UUID.randomUUID().toString(),
+    val requestTime: LocalDateTime = LocalDateTime.now(),
+    val client: OAuthClient
+)
+
+/**
+ * An OAuth authorize request
+ */
+open class OAuthAuthorizeRequest(
+    client: OAuthClient,
+    val responseTypes: Set<String>,
+    val redirectUri: String,
+    val scopes: Set<String>,
+    val state: String?,
+    val grantedScopes: MutableSet<String> = mutableSetOf()
+) : OAuthRequest(client = client) {
+
+    class Builder(
+        var responseTypes: MutableSet<String> = mutableSetOf(),
+        var redirectUri: String = "",
+        var scopes: MutableSet<String> = mutableSetOf(),
+        var state: String = "",
+        var client: OAuthClient? = null
+    ) {
+
+        fun build(): OAuthAuthorizeRequest {
+            if (responseTypes.isEmpty())
+                throw InvalidRequest.required(Param.responseType)
+
+            check(redirectUri.isNotEmpty())
+            checkNotNull(client)
+
+            return OAuthAuthorizeRequest(
+                client = client!!,
+                responseTypes = responseTypes.toSet(),
+                redirectUri = redirectUri,
+                scopes = scopes,
+                state = state
+            )
+        }
+    }
+}
+
+/**
+ * An OAuth access request
+ */
+open class OAuthAccessRequest(
+    val grantTypes: Set<String>,
+    val code: String,
+    val redirectUri: String,
+    client: OAuthClient
+) : OAuthRequest(client = client) {
+
+    class Builder(
+        var grantTypes: MutableSet<String> = mutableSetOf(),
+        var code: String = "",
+        var redirectUri: String = "",
+        var client: OAuthClient? = null
+    ) {
+
+        fun build(): OAuthAccessRequest {
+            if (grantTypes.isEmpty())
+                throw InvalidRequest.required(Param.grantType)
+            if (code.isEmpty())
+                throw InvalidRequest.required(Param.code)
+            if (redirectUri.isEmpty())
+                throw InvalidRequest.required(Param.redirectUri)
+
+            checkNotNull(client)
+
+            return OAuthAccessRequest(
+                grantTypes = grantTypes.toSet(),
+                code = code,
+                redirectUri = redirectUri,
+                client = client!!
+            )
+        }
+    }
+}
+
+/**
+ * Provides function to take [OAuthRequestForm] and produce a [OAuthRequest]. Subclasses can call
+ * super producers to get a prototype request object and then supply data to its own builder.
+ */
+interface OAuthRequestProducer {
+    suspend fun produce(form: OAuthRequestForm): OAuthRequest
+}
+
+/**
+ * Implementation of [OAuthRequestProducer] that takes the input parameter values from [OAuthRequestForm]
+ * and populates [OAuthAuthorizeRequest]. This producer also performs some light value based validation
+ * to ensure at least specification values are respected. Further validation needs to be performed by
+ * validators.
+ */
+open class OAuthAuthorizeRequestProducer(
+    private val lookup: ClientLookup,
+    private val responseTypeValidator: ReservedWordValidator
+) : OAuthRequestProducer {
+
+    override suspend fun produce(form: OAuthRequestForm): OAuthRequest {
+        if (form.clientId.isEmpty())
+            throw InvalidRequest.required(Param.clientId)
+
+        val client = lookup.find(form.clientId)
+
+        val builder = OAuthAuthorizeRequest.Builder().also { b ->
+            b.client = client
+            b.redirectUri = client.determineRedirectUri(form.redirectUri)
+            b.responseTypes = form.responseType
+                .split(space)
+                .filter { it.isNotBlank() }
+                .map { responseTypeValidator.validate(it) }
+                .toMutableSet()
+            b.state = form.state
+            b.scopes = form.scope
+                .split(space)
+                .filter { it.isNotBlank() }
+                .map { it.mustNotMalformedScope() }
+                .map { client.mustScope(it) }
+                .toMutableSet()
+        }
+
+        return builder.build()
+    }
+}
+
+/**
+ * Implementation of [OAuthRequestProducer] that takes the input parameter values from [OAuthRequestForm]
+ * and populates [OAuthAccessRequest].
+ *
+ * This producer is responsible for authenticating the client using [ClientAuthenticators].
+ *
+ * This producer also performs some light value based validation to ensure at least specification values
+ * are respected. Further validation needs to be performed by validators.
+ */
+open class OAuthAccessRequestProducer(
+    private val grantTypeValidator: ReservedWordValidator,
+    private val clientAuthenticators: ClientAuthenticators
+) : OAuthRequestProducer {
+
+    override suspend fun produce(form: OAuthRequestForm): OAuthRequest {
+        if (form.clientId.isEmpty())
+            throw InvalidRequest.required(Param.clientId)
+
+        val client = clientAuthenticators.authenticate(form)
+
+        val builder = OAuthAccessRequest.Builder().also { b ->
+            b.client = client
+            b.code = form.code
+            b.grantTypes = form.grantType
+                .split(space)
+                .filter { it.isNotBlank() }
+                .map { grantTypeValidator.validate(it) }
+                .toMutableSet()
+            b.redirectUri = form.redirectUri
+        }
+
+        return builder.build()
     }
 }
