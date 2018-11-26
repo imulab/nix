@@ -51,3 +51,9 @@ object StandardClaim {
         const val country = "country"
     }
 }
+
+object AuthenticationMethod {
+    const val clientSecretJwt = "client_secret_jwt"
+    const val privateKeyJwt = "private_key_jwt"
+    const val none = "none"
+}

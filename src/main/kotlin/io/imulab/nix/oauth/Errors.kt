@@ -164,7 +164,7 @@ object InvalidScope {
 
 // server_error
 object ServerError {
-    private const val code = "server_error"
+    const val code = "server_error"
     private const val status = 500
 
     val wrapped: (Throwable) -> Throwable =
@@ -178,7 +178,7 @@ object ServerError {
 
 class OAuthException(
     override val status: Int,
-    private val error: String,
+    val error: String,
     private val description: String,
     override val headers: Map<String, String> = emptyMap()
 ) : RuntimeException("$error: $description"), OAuthResponse {

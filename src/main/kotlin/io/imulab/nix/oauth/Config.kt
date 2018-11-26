@@ -5,12 +5,43 @@ import java.time.Duration
 /**
  * Global server configuration data.
  */
-open class ServerConfiguration(
-    val issuerUrl: String,
-    val authorizeEndpointUrl: String,
-    val tokenEndpointUrl: String,
-    val defaultTokenEndpointAuthenticationMethod: String = AuthenticationMethod.clientSecretPost,
-    val authorizeCodeLifespan: Duration = Duration.ofMinutes(10),
-    val accessTokenLifespan: Duration = Duration.ofHours(1),
-    val refreshTokenLifespan: Duration = Duration.ofDays(14)
-)
+interface OAuthContext {
+    /**
+     * Issuer identifier URL for the server. It will be used as the issuer for tokens
+     * as well as the expected audience for most token verifications.
+     */
+    val issuerUrl: String
+
+    /**
+     * Absolute URL for OAuth authorize endpoint
+     */
+    val authorizeEndpointUrl: String
+
+    /**
+     * Absolute URL for OAuth token endpoint
+     */
+    val tokenEndpointUrl: String
+
+    /**
+     * The fallback client authentication method deployed at the token endpoint. Suggested
+     * value is client_secret_basic or client_secret_post. This value can be override at
+     * client authenticators, which is useful for scenarios that authentication method
+     * is registered with individual clients (Open ID Connect Dynamic Client).
+     */
+    val defaultTokenEndpointAuthenticationMethod: String
+
+    /**
+     * Time to live for the authorization code. Suggested value is 10 minutes.
+     */
+    val authorizeCodeLifespan: Duration
+
+    /**
+     * Time to live for access token. Suggested value is 1 hour.
+     */
+    val accessTokenLifespan: Duration
+
+    /**
+     * Time to live for refresh token. Suggested value is 14 days.
+     */
+    val refreshTokenLifespan: Duration
+}

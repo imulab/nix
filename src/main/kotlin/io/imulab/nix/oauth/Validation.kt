@@ -4,7 +4,7 @@ interface ReservedWordValidator {
     fun validate(value: String): String
 }
 
-class OAuthResponseTypeValidator: ReservedWordValidator {
+object OAuthResponseTypeValidator : ReservedWordValidator {
     override fun validate(value: String): String {
         return when (value) {
             ResponseType.code, ResponseType.token -> value
@@ -13,7 +13,7 @@ class OAuthResponseTypeValidator: ReservedWordValidator {
     }
 }
 
-class OAuthGrantTypeValidator: ReservedWordValidator {
+object OAuthGrantTypeValidator : ReservedWordValidator {
     override fun validate(value: String): String {
         return when (value) {
             GrantType.authorizationCode,
@@ -22,6 +22,16 @@ class OAuthGrantTypeValidator: ReservedWordValidator {
             GrantType.clientCredentials,
             GrantType.refreshToken -> value
             else -> throw UnsupportedGrantType.unsupported(value)
+        }
+    }
+}
+
+object OAuthClientAuthenticationMethodValidator : ReservedWordValidator {
+    override fun validate(value: String): String {
+        return when (value) {
+            AuthenticationMethod.clientSecretBasic,
+            AuthenticationMethod.clientSecretPost -> value
+            else -> throw ServerError.internal("Illegal client authentication method named <$value>.")
         }
     }
 }
