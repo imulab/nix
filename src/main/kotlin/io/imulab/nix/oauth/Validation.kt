@@ -26,6 +26,15 @@ object OAuthGrantTypeValidator : ReservedWordValidator {
     }
 }
 
+object ClientTypeValidator : ReservedWordValidator {
+    override fun validate(value: String): String {
+        return when (value) {
+            ClientType.public, ClientType.confidential -> value
+            else -> throw ServerError.internal("Illegal client type <$value>.")
+        }
+    }
+}
+
 object OAuthClientAuthenticationMethodValidator : ReservedWordValidator {
     override fun validate(value: String): String {
         return when (value) {
