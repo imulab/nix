@@ -1,13 +1,9 @@
 package io.imulab.nix.oidc
 
-import deprecated.crypt.alg.HashAlgorithm
 import org.jose4j.jwa.AlgorithmConstraints
 import org.jose4j.jwa.AlgorithmConstraints.ConstraintType.WHITELIST
 import org.jose4j.jwe.ContentEncryptionAlgorithmIdentifiers
 import org.jose4j.jwe.KeyManagementAlgorithmIdentifiers
-import org.jose4j.jwk.EllipticCurveJsonWebKey
-import org.jose4j.jwk.OctetSequenceJsonWebKey
-import org.jose4j.jwk.RsaJsonWebKey
 import org.jose4j.jws.AlgorithmIdentifiers
 
 object OidcParam {
@@ -62,6 +58,11 @@ object StandardClaim {
         const val postalCode = "postal_code"
         const val country = "country"
     }
+}
+
+object StandardScope {
+    const val openid = "openid"
+    const val offlineAccess = "offline_access"
 }
 
 /**

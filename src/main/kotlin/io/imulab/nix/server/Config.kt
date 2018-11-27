@@ -10,6 +10,7 @@ import kotlinx.coroutines.runBlocking
 import org.jose4j.jwk.JsonWebKeySet
 import org.kodein.di.Kodein
 import org.kodein.di.erased.bind
+import org.kodein.di.erased.instance
 import org.kodein.di.erased.singleton
 import java.time.Duration
 
@@ -95,6 +96,11 @@ class ServerContext(
 object DependencyInjection {
 
     val routeProviders = Kodein.Module(name = "routeProviders") {
-        bind() from singleton { AuthorizeRouteProvider() }
+        bind() from singleton {
+            AuthorizeRouteProvider(
+                requestStrategy = instance(),
+                clientLookup = instance()
+            )
+        }
     }
 }
