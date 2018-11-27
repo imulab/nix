@@ -9,8 +9,12 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.jose4j.jwk.JsonWebKeySet
+import org.jose4j.jwk.*
+import org.jose4j.jws.JsonWebSignature
+import org.jose4j.jwx.JsonWebStructure
+import org.jose4j.keys.resolvers.VerificationKeyResolver
 import org.jose4j.lang.JoseException
+import java.security.Key
 
 /**
  * Data management interface for saved Json Web Key Sets.
@@ -102,3 +106,56 @@ class JsonWebKeySetStrategy(
         }
     }
 }
+
+class JwtVerificationKeyResolver(
+    private val jwks: JsonWebKeySet,
+    private val signAlg: JwtSigningAlgorithm
+): VerificationKeyResolver {
+
+    override fun resolveKey(jws: JsonWebSignature?, nestingContext: MutableList<JsonWebStructure>?): Key {
+        requireNotNull(jws) {
+            "Json web signature must exist."
+        }
+
+        return if (jws.keyIdHeaderValue != null)
+            jwks.mustKeyWithId(jws.keyIdHeaderValue).resolvePublicKey()
+        else
+            jwks.mustKeyForSignature(signAlg).resolvePublicKey()
+    }
+}
+
+/**
+ * Resolves the private key of the json web key for signing and decryption.
+ * If [this] is a symmetric key (octet-sequence), returns the key directly.
+ */
+fun JsonWebKey.resolvePrivateKey(): Key = when(this) {
+    is RsaJsonWebKey -> this.rsaPrivateKey
+    is EllipticCurveJsonWebKey -> this.ecPrivateKey
+    is PublicJsonWebKey -> this.privateKey
+    is OctetSequenceJsonWebKey -> this.key
+    else -> this.key
+}
+
+/**
+ * Resolves the public key of the json web key for signature verification and encryption.
+ * If [this] is a symmetric key (octet-sequence), returns the key directly.
+ */
+fun JsonWebKey.resolvePublicKey(): Key = when(this) {
+    is RsaJsonWebKey -> this.getRsaPublicKey()
+    is EllipticCurveJsonWebKey -> this.ecPublicKey
+    is PublicJsonWebKey -> this.publicKey
+    is OctetSequenceJsonWebKey -> this.key
+    else -> this.key
+}
+
+fun JsonWebKeySet.mustKeyForJweKeyManagement(keyAlg: JweKeyManagementAlgorithm): JsonWebKey =
+    this.findJsonWebKey(null, null, Use.ENCRYPTION, keyAlg.algorithmIdentifier)
+        ?: throw ServerError.internal("Cannot find key for managing ${keyAlg.spec}.")
+
+fun JsonWebKeySet.mustKeyForSignature(signAlg: JwtSigningAlgorithm): JsonWebKey =
+        this.findJsonWebKey(null, null, Use.SIGNATURE, signAlg.algorithmIdentifier)
+        ?: throw ServerError.internal("Cannot find key for signing ${signAlg.spec}.")
+
+fun JsonWebKeySet.mustKeyWithId(keyId: String): JsonWebKey =
+        this.findJsonWebKey(keyId, null, null, null)
+            ?: throw ServerError.internal("Cannot find key with id $keyId.")

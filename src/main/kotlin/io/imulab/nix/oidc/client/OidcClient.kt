@@ -181,4 +181,22 @@ interface OidcClient : OAuthClient {
      * hash does not match.
      */
     val requestUris: List<String>
+
+    /**
+     * Returns true if this client requires encryption for request object
+     */
+    fun requireRequestObjectEncryption(): Boolean =
+        requestObjectEncryptionAlgorithm != JweKeyManagementAlgorithm.None
+
+    /**
+     * Returns true if this client requires encryption for user info response
+     */
+    fun requireUserInfoEncrption(): Boolean =
+        userInfoEncryptedResponseAlgorithm != JweKeyManagementAlgorithm.None
+
+    /**
+     * Returns true if this client requires encryption for id_token
+     */
+    fun requireIdTokenEncryption(): Boolean =
+        idTokenEncryptedResponseAlgorithm != JweKeyManagementAlgorithm.None
 }

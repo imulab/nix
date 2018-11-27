@@ -79,6 +79,12 @@ object InvalidRequestUri {
 
     val badHash: () -> Throwable =
         { OAuthException(status, code, "Request URI data does not match its hash.") }
+
+    val rouge: () -> Throwable =
+        { OAuthException(status, code, "Request URI was not pre-registered with client.") }
+
+    val tooLong: () -> Throwable =
+        { OAuthException(status, code, "Request URI must not exceed 512 ASCII characters.") }
 }
 
 // invalid_request_object
