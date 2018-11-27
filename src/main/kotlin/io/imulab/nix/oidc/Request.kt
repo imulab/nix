@@ -4,28 +4,32 @@ import io.imulab.nix.oauth.OAuthAuthorizeRequest
 import io.imulab.nix.oauth.OAuthRequestForm
 import io.imulab.nix.oauth.OAuthSession
 import io.imulab.nix.oidc.client.OidcClient
+import org.jose4j.jwt.JwtClaims
+import java.time.LocalDateTime
 
 /**
  * Extension to [OAuthRequestForm] to provide access to Open ID Connect specified parameters.
  */
-class OidcRequestForm(httpForm: MutableMap<String, List<String>>) : OAuthRequestForm(httpForm, mapOf(
-    "responseMode" to OidcParam.responseMode,
-    "nonce" to OidcParam.nonce,
-    "display" to OidcParam.display,
-    "prompt" to OidcParam.prompt,
-    "maxAge" to OidcParam.maxAge,
-    "uiLocales" to OidcParam.uiLocales,
-    "idTokenHint" to OidcParam.idTokenHint,
-    "loginHint" to OidcParam.loginHint,
-    "acrValues" to OidcParam.acrValues,
-    "claims" to OidcParam.claims,
-    "claimsLocales" to OidcParam.claimsLocales,
-    "request" to OidcParam.request,
-    "requestUri" to OidcParam.requestUri,
-    "registration" to OidcParam.registration,
-    "iss" to OidcParam.iss,
-    "targetLinkUri" to OidcParam.targetLinkUri
-)) {
+class OidcRequestForm(httpForm: MutableMap<String, List<String>>) : OAuthRequestForm(
+    httpForm, mapOf(
+        "responseMode" to OidcParam.responseMode,
+        "nonce" to OidcParam.nonce,
+        "display" to OidcParam.display,
+        "prompt" to OidcParam.prompt,
+        "maxAge" to OidcParam.maxAge,
+        "uiLocales" to OidcParam.uiLocales,
+        "idTokenHint" to OidcParam.idTokenHint,
+        "loginHint" to OidcParam.loginHint,
+        "acrValues" to OidcParam.acrValues,
+        "claims" to OidcParam.claims,
+        "claimsLocales" to OidcParam.claimsLocales,
+        "request" to OidcParam.request,
+        "requestUri" to OidcParam.requestUri,
+        "registration" to OidcParam.registration,
+        "iss" to OidcParam.iss,
+        "targetLinkUri" to OidcParam.targetLinkUri
+    )
+) {
     var responseMode: String by Delegate
     var nonce: String by Delegate
     var display: String by Delegate
@@ -80,6 +84,40 @@ class OidcAuthorizeRequest(
 class OidcSession(
     subject: String = "",
     val claims: MutableMap<String, Any> = mutableMapOf()
-): OAuthSession(subject)
+) : OAuthSession(subject)
 
-class OidcAuthorizeRequestProducer
+/**
+ * Data object of a server cached request object. This can be created when client
+ * registers a set of request_uris as well as when server actively fetches content
+ * from a request_uri during request.
+ */
+class CachedRequest(
+    val requestUri: String,
+    val claims: JwtClaims,
+    val expiry: LocalDateTime? = null,
+    val hash: String = ""
+)
+
+/**
+ * Data management interface for a [CachedRequest].
+ */
+interface CachedRequestRepository {
+
+    /**
+     * Write a [request] to cache. Implementations may expect [CachedRequest.expiry] if
+     * it is set.
+     */
+    suspend fun write(request: CachedRequest)
+
+    /**
+     * Find if a [CachedRequest] was cached with [requestUri].
+     *
+     * @param requestUri the unmodified version of the request_uri parameter, including
+     * scheme, host and fragment (if any).
+     */
+    suspend fun find(requestUri: String): CachedRequest?
+}
+
+class CachedRequestStrategy(
+    private val repository: CachedRequestRepository
+)

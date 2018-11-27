@@ -1,10 +1,12 @@
 package io.imulab.nix.server
 
+import io.imulab.nix.oidc.JsonWebKeySetRepository
 import io.imulab.nix.oidc.OidcClientAuthenticationMethodValidator
 import io.imulab.nix.oidc.OidcContext
 import io.imulab.nix.server.route.AuthorizeRouteProvider
 import io.ktor.config.ApplicationConfig
 import io.ktor.util.KtorExperimentalAPI
+import kotlinx.coroutines.runBlocking
 import org.jose4j.jwk.JsonWebKeySet
 import org.kodein.di.Kodein
 import org.kodein.di.erased.bind
@@ -15,10 +17,14 @@ import java.time.Duration
  * Global server configuration
  */
 @UseExperimental(KtorExperimentalAPI::class)
-class ServerContext(private val config: ApplicationConfig) : OidcContext {
+class ServerContext(
+    private val config: ApplicationConfig,
+    private val jsonWebKeySetRepository: JsonWebKeySetRepository
+) : OidcContext {
 
-    override val masterJsonWebKeySet: JsonWebKeySet
-        get() = TODO("not implemented, depending to JsonWebKeySetRepository") //To change initializer of created properties use File | Settings | File Templates.
+    override val masterJsonWebKeySet: JsonWebKeySet by lazy {
+        runBlocking { jsonWebKeySetRepository.getServerJsonWebKeySet() }
+    }
 
     override val masterJsonWebKeySetUrl: String by lazy {
         config.stringPropertyOrNull("nix.endpoint.jwks")

@@ -9,14 +9,17 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import org.kodein.di.Kodein
 import org.kodein.di.erased.bind
+import org.kodein.di.erased.instance
 import org.kodein.di.erased.singleton
 
 fun Application.nix() {
 
     val di = Kodein {
-        bind<OidcContext>() with singleton { ServerContext(config = environment.config) }
-
         import(DependencyInjection.routeProviders)
+
+        bind<OidcContext>() with singleton {
+            ServerContext(config = environment.config, jsonWebKeySetRepository = instance())
+        }
     }
 
     routing {
