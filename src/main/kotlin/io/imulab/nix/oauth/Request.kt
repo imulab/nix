@@ -197,14 +197,11 @@ open class OAuthAuthorizeRequestProducer(
             b.responseTypes = form.responseType
                 .split(space)
                 .filter { it.isNotBlank() }
-                .map { responseTypeValidator.validate(it) }
                 .toMutableSet()
             b.state = form.state
             b.scopes = form.scope
                 .split(space)
                 .filter { it.isNotBlank() }
-                .map { it.mustNotMalformedScope() }
-                .map { client.mustScope(it) }
                 .toMutableSet()
         }
 

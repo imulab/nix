@@ -1,9 +1,8 @@
 package io.imulab.nix.server.route
 
 import io.imulab.nix.oauth.client.ClientLookup
-import io.imulab.nix.oauth.space
 import io.imulab.nix.oidc.*
-import io.imulab.nix.server.assertType
+import io.imulab.nix.oauth.assertType
 import io.imulab.nix.server.autoParameters
 import io.imulab.nix.server.toMutableMap
 import io.ktor.application.ApplicationCall

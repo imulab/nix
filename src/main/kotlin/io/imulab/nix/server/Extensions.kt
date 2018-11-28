@@ -1,7 +1,6 @@
 package io.imulab.nix.server
 
 import io.imulab.nix.oauth.InvalidRequest
-import io.imulab.nix.oidc.OidcRequestForm
 import io.ktor.application.ApplicationCall
 import io.ktor.config.ApplicationConfig
 import io.ktor.http.ContentType
@@ -10,7 +9,6 @@ import io.ktor.http.Parameters
 import io.ktor.request.contentType
 import io.ktor.request.httpMethod
 import io.ktor.request.receiveParameters
-import io.ktor.request.receiveText
 import io.ktor.util.KtorExperimentalAPI
 import io.ktor.util.StringValues
 import kotlinx.coroutines.Dispatchers
@@ -49,11 +47,3 @@ suspend fun ApplicationCall.autoParameters(): Parameters {
 fun StringValues.toMutableMap(): MutableMap<String, List<String>> =
     entries().associateByTo(LinkedHashMap(), { it.key }, { it.value.toList() })
 
-@Suppress("unchecked_cast")
-inline fun <reified T : Any> Any?.assertType(): T {
-    if (this == null)
-        throw NullPointerException("Cannot assert type: it is null.")
-    else if (this !is T)
-        throw IllegalStateException("Failed assert: unexpected type")
-    return this
-}

@@ -3,7 +3,7 @@ package io.imulab.nix.oidc
 import io.imulab.nix.oauth.*
 import io.imulab.nix.oauth.client.ClientLookup
 import io.imulab.nix.oidc.client.OidcClient
-import io.imulab.nix.server.assertType
+import io.imulab.nix.oauth.assertType
 import io.ktor.client.HttpClient
 import io.ktor.client.call.call
 import io.ktor.client.call.receive

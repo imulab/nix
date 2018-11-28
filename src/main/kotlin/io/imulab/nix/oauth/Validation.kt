@@ -1,19 +1,101 @@
 package io.imulab.nix.oauth
 
+import java.net.URI
+
+/**
+ * Rule to validate an [OAuthRequest]. Implementation should raise an error when validation fails; otherwise, should
+ * return normally.
+ */
+interface OAuthRequestValidation {
+    fun validate(request: OAuthRequest)
+}
+
+/**
+ * Validates the parameter `redirect_uri`. First, it must be pre-registered with the client. Second, if http
+ * scheme is used, the host must be _localhost_ or _127.0.0.1_.
+ */
+object RedirectUriValidator : OAuthRequestValidation {
+    override fun validate(request: OAuthRequest) {
+        val ar = request.assertType<OAuthAuthorizeRequest>()
+        if (ar.redirectUri.isEmpty())
+            throw InvalidRequest.required(Param.redirectUri)
+
+        if (!ar.client.redirectUris.contains(ar.redirectUri))
+            throw InvalidRequest.invalid(Param.redirectUri)
+
+        URI(ar.redirectUri).let { uri ->
+            if (uri.scheme.toLowerCase() == "http")
+                when (uri.host.toLowerCase()) {
+                    "localhost", "127.0.0.1" -> {}
+                    else -> throw InvalidRequest.invalid(Param.redirectUri)
+                }
+        }
+    }
+}
+
+/**
+ * Validate the parameter `state`. Its entropy must not be less than [entropy].
+ */
+class StateValidator(private val entropy: Int = 8) : OAuthRequestValidation {
+    override fun validate(request: OAuthRequest) {
+        if (request.assertType<OAuthAuthorizeRequest>().state.length < entropy)
+            throw InvalidRequest.unmet("<state> length must not be less than $entropy")
+    }
+}
+
+/**
+ * Validate the parameter `scope`. It must not be malformed according to OAuth spec and
+ * it must be allowed by the requesting client.
+ */
+object ScopeValidator : OAuthRequestValidation {
+    override fun validate(request: OAuthRequest) {
+        val ar = request.assertType<OAuthAuthorizeRequest>()
+        ar.scopes.forEach { scope ->
+            scope.mustNotMalformedScope()
+            ar.client.mustScope(scope)
+        }
+    }
+}
+
+/**
+ * Interface to validate a value belongs to a certain set of reserved works in OAuth.
+ *
+ * This validator replaces the function which would otherwise be enforced by the use of Enum classes. However, because
+ * we require extensibility by design, Enum classes cannot be used for this purpose. As a result, we have to defer to
+ * the use of plain data types (such as, in this case, string) and require interfaces like this to validate values
+ * manually.
+ */
 interface ReservedWordValidator {
     fun validate(value: String): String
 }
 
-object OAuthResponseTypeValidator : ReservedWordValidator {
+/**
+ * Validates the set relation: `response_type = {code, token}`.
+ * When in the context of a request, it must be registered/allowed by the client.
+ */
+object OAuthResponseTypeValidator : ReservedWordValidator, OAuthRequestValidation {
     override fun validate(value: String): String {
         return when (value) {
             ResponseType.code, ResponseType.token -> value
             else -> throw UnsupportedResponseType.unsupported(value)
         }
     }
+
+    override fun validate(request: OAuthRequest) {
+        val ar = request.assertType<OAuthAuthorizeRequest>()
+        ar.responseTypes.forEach {
+            validate(it)
+            if (!ar.client.responseTypes.contains(it))
+                throw UnauthorizedClient.forbiddenResponseType(it)
+        }
+    }
 }
 
-object OAuthGrantTypeValidator : ReservedWordValidator {
+/**
+ * Validates `grant_type = {authorization_code, implicit, password, client_credentials, refresh_token}`.
+ * When in the context of a request, it must be registered/allowed by the client.
+ */
+object OAuthGrantTypeValidator : ReservedWordValidator, OAuthRequestValidation {
     override fun validate(value: String): String {
         return when (value) {
             GrantType.authorizationCode,
@@ -24,8 +106,20 @@ object OAuthGrantTypeValidator : ReservedWordValidator {
             else -> throw UnsupportedGrantType.unsupported(value)
         }
     }
+
+    override fun validate(request: OAuthRequest) {
+        val ac = request.assertType<OAuthAccessRequest>()
+        ac.grantTypes.forEach {
+            validate(it)
+            if (!ac.client.grantTypes.contains(it))
+                throw UnauthorizedClient.forbiddenGrantType(it)
+        }
+    }
 }
 
+/**
+ * Validates `client_type = {public, confidential}`.
+ */
 object ClientTypeValidator : ReservedWordValidator {
     override fun validate(value: String): String {
         return when (value) {
@@ -35,6 +129,9 @@ object ClientTypeValidator : ReservedWordValidator {
     }
 }
 
+/**
+ * Validates client authentication method is one of `{client_secret_basic, client_secret_post}`.
+ */
 object OAuthClientAuthenticationMethodValidator : ReservedWordValidator {
     override fun validate(value: String): String {
         return when (value) {

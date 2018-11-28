@@ -22,3 +22,12 @@ fun String.mustNotMalformedScope(): String {
         else -> this
     }
 }
+
+@Suppress("unchecked_cast")
+inline fun <reified T : Any> Any?.assertType(): T {
+    if (this == null)
+        throw NullPointerException("Cannot assert type: it is null.")
+    else if (this !is T)
+        throw IllegalStateException("Failed assert: unexpected type")
+    return this
+}
