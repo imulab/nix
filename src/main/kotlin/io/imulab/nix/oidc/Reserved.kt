@@ -6,6 +6,8 @@ import org.jose4j.jwe.ContentEncryptionAlgorithmIdentifiers
 import org.jose4j.jwe.KeyManagementAlgorithmIdentifiers
 import org.jose4j.jws.AlgorithmIdentifiers
 
+const val jwtBearerClientAssertionType = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+
 object OidcParam {
     const val responseMode = "response_mode"
     const val nonce = "nonce"
@@ -23,6 +25,8 @@ object OidcParam {
     const val registration = "registration"
     const val iss = "iss"
     const val targetLinkUri = "target_link_uri"
+    const val clientAssertion = "client_assertion"
+    const val clientAssertionType = "client_assertion_type"
 }
 
 object StandardClaim {

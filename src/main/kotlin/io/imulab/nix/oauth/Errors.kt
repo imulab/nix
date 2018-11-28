@@ -71,6 +71,9 @@ object InvalidClient {
     val authenticationFailed: () -> Throwable =
         { OAuthException(status, code, "Client failed authentication.") }
 
+    val authenticationFailedWithReason: (String) -> Throwable =
+        { reason -> OAuthException(status, code, "Client failed authentication due to $reason.") }
+
     val unauthorized: (String) -> Throwable = { scheme ->
         OAuthException(
             status, code, "Client failed authentication.", mapOf(
