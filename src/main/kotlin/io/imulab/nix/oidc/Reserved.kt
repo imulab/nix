@@ -87,6 +87,25 @@ object SubjectType {
     const val public = "public"
 }
 
+object ResponseMode {
+    const val query = "query"
+    const val fragment = "fragment"
+}
+
+object Display {
+    const val page = "page"
+    const val popup = "popup"
+    const val touch = "touch"
+    const val wap = "wap"
+}
+
+object Prompt {
+    const val none = "none"
+    const val login = "login"
+    const val consent = "consent"
+    const val selectAccount = "select_account"
+}
+
 typealias KmId = KeyManagementAlgorithmIdentifiers
 typealias CeId = ContentEncryptionAlgorithmIdentifiers
 typealias AId = AlgorithmIdentifiers

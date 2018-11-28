@@ -27,4 +27,9 @@ interface OidcContext : OAuthContext {
      * URL where clients can download the publicly available server json web key set.
      */
     val masterJsonWebKeySetUrl: String
+
+    /**
+     * Minimum length for the `nonce` parameter.
+     */
+    val nonceEntropy: Int
 }

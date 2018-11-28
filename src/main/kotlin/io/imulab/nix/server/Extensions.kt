@@ -20,6 +20,11 @@ fun ApplicationConfig.longPropertyOrNull(path: String): Long? {
 }
 
 @UseExperimental(KtorExperimentalAPI::class)
+fun ApplicationConfig.intPropertyOrNull(path: String): Int? {
+    return this.propertyOrNull(path)?.getString()?.toIntOrNull()
+}
+
+@UseExperimental(KtorExperimentalAPI::class)
 fun ApplicationConfig.stringPropertyOrNull(path: String): String? {
     return this.propertyOrNull(path)?.getString()
 }

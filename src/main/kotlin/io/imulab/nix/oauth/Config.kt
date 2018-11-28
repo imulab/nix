@@ -44,4 +44,9 @@ interface OAuthContext {
      * Time to live for refresh token. Suggested value is 14 days.
      */
     val refreshTokenLifespan: Duration
+
+    /**
+     * Minimum length for the state parameter.
+     */
+    val stateEntropy: Int
 }

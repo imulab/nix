@@ -11,6 +11,17 @@ interface OAuthRequestValidation {
 }
 
 /**
+ * Validation container which delegates work to [validators] one by one.
+ */
+class OAuthRequestValidationChain(
+    private val validators: List<OAuthRequestValidation>
+) : OAuthRequestValidation {
+    override fun validate(request: OAuthRequest) {
+        validators.forEach { it.validate(request) }
+    }
+}
+
+/**
  * Validates the parameter `redirect_uri`. First, it must be pre-registered with the client. Second, if http
  * scheme is used, the host must be _localhost_ or _127.0.0.1_.
  */
@@ -34,12 +45,14 @@ object RedirectUriValidator : OAuthRequestValidation {
 }
 
 /**
- * Validate the parameter `state`. Its entropy must not be less than [entropy].
+ * Validate the parameter `state`. Its entropy must not be less than [entropy]. Because this is an optional parameter,
+ * empty string is allowed.
  */
-class StateValidator(private val entropy: Int = 8) : OAuthRequestValidation {
+class StateValidator(private val oauthContext: OAuthContext) : OAuthRequestValidation {
     override fun validate(request: OAuthRequest) {
-        if (request.assertType<OAuthAuthorizeRequest>().state.length < entropy)
-            throw InvalidRequest.unmet("<state> length must not be less than $entropy")
+        val l = request.assertType<OAuthAuthorizeRequest>().state.length
+        if (l in 1..(oauthContext.stateEntropy - 1))
+            throw InvalidRequest.unmet("<state> length must not be less than ${oauthContext.stateEntropy}")
     }
 }
 

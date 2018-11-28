@@ -1,6 +1,8 @@
 package io.imulab.nix.server
 
+import io.imulab.nix.oauth.StateValidator
 import io.imulab.nix.oidc.JsonWebKeySetRepository
+import io.imulab.nix.oidc.NonceValidator
 import io.imulab.nix.oidc.OidcClientAuthenticationMethodValidator
 import io.imulab.nix.oidc.OidcContext
 import io.imulab.nix.server.route.AuthorizeRouteProvider
@@ -88,6 +90,15 @@ class ServerContext(
                 Duration.ofSeconds(it)
         }
     }
+
+    override val nonceEntropy: Int by lazy {
+        config.intPropertyOrNull("nix.param.nonceEntropy") ?: 0
+    }
+
+
+    override val stateEntropy: Int by lazy {
+        config.intPropertyOrNull("nix.param.stateEntropy") ?: 0
+    }
 }
 
 /**
@@ -95,11 +106,15 @@ class ServerContext(
  */
 object DependencyInjection {
 
+    val validators = Kodein.Module(name = "validators") {
+        bind() from singleton { StateValidator(oauthContext = instance()) }
+        bind() from singleton { NonceValidator(oidcContext = instance()) }
+    }
+
     val routeProviders = Kodein.Module(name = "routeProviders") {
         bind() from singleton {
             AuthorizeRouteProvider(
-                requestStrategy = instance(),
-                clientLookup = instance()
+                requestProducer = instance("TODO")
             )
         }
     }

@@ -1,5 +1,6 @@
 package io.imulab.nix.server.route
 
+import io.imulab.nix.oauth.OAuthRequestValidation
 import io.imulab.nix.oauth.client.ClientLookup
 import io.imulab.nix.oidc.*
 import io.imulab.nix.oauth.assertType
@@ -21,9 +22,9 @@ fun Routing.authorize(di: Kodein) {
 }
 
 class AuthorizeRouteProvider(
-    private val requestStrategy: RequestStrategy,
-    private val clientLookup: ClientLookup,
-    private val requestProducer: OidcAuthorizeRequestProducer
+    private val requestProducer: OidcAuthorizeRequestProducer,
+    private val preValidation: OAuthRequestValidation,
+    private val postValidation: OAuthRequestValidation
 ) {
 
     fun accept(ctx: PipelineContext<Unit, ApplicationCall>) = runBlocking {
@@ -32,12 +33,15 @@ class AuthorizeRouteProvider(
         val authorizeRequest = requestProducer.produce(requestForm).assertType<OidcAuthorizeRequest>()
 
         // next up: preliminary validation (should understand what is re-entry and skip if it's an re-entry)
+        // TODO re-entry identification is pending
+        preValidation.validate(authorizeRequest)
 
         // authentication
 
         // consent
 
         // post validation (everything should be nice and sound)
+        postValidation.validate(authorizeRequest)
 
         // handlers
 
