@@ -26,10 +26,6 @@ object OidcParam {
 }
 
 object StandardClaim {
-    const val accessTokenHash = "at_hash"
-    const val codeHash = "c_hash"
-    const val nonce = "nonce"
-    const val sub = "sub"
     const val name = "name"
     const val givenName = "given_name"
     const val familyName = "family_name"
@@ -58,6 +54,14 @@ object StandardClaim {
         const val postalCode = "postal_code"
         const val country = "country"
     }
+}
+
+object IdTokenClaim {
+    const val accessTokenHash = "at_hash"
+    const val codeHash = "c_hash"
+    const val nonce = "nonce"
+    const val sub = "sub"
+    const val authTime = "auth_time"
 }
 
 object StandardScope {

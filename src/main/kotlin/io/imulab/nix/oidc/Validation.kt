@@ -1,6 +1,7 @@
 package io.imulab.nix.oidc
 
 import io.imulab.nix.oauth.*
+import java.time.LocalDateTime
 
 /**
  * An extension to [OAuthClientAuthenticationMethodValidator]. In OIDC spec, we have a few additional methods. Now,
@@ -102,5 +103,53 @@ object MaxAgeValidator : OAuthRequestValidation {
     override fun validate(request: OAuthRequest) {
         if (request.assertType<OidcAuthorizeRequest>().maxAge < 0)
             throw InvalidRequest.invalid(OidcParam.maxAge)
+    }
+}
+
+/**
+ * Validates the relation between `max_age`, `auth_time` and `prompt`. This validator assumes all previous
+ * authorization request has been revived and authentication information has also been merged into request
+ * session. Hence, it is recommended to place this validator behind the aforementioned actions.
+ *
+ * Under these assumptions, this validator enforces the following rules:
+ * - `auth_time` is optional when `max_age` is not specified, or it has not been requested as an essential claim.
+ * - `auth_time`, if present, must not be in the future
+ * - `auth_time` and `max_age`, if present, must form such relation that `auth_time + max_age >= now`.
+ * - when `prompt` is set to `login`, `auth_time` must happen after the original (before redirection) request time.
+ * - when `prompt` is set to `none`, `auth_time` must happen before the current request time.
+ */
+object AuthTimeValidator : OAuthRequestValidation {
+    override fun validate(request: OAuthRequest) {
+        val ar = request.assertType<OidcAuthorizeRequest>()
+        val session = ar.session.assertType<OidcSession>()
+        val authTime = session.authTime
+
+        if (authTime == null) {
+            when {
+                ar.maxAge > 0 ->
+                    throw ServerError.internal("<auth_time> must be specified when <max_age> is specified.")
+                ar.claims.hasEssentialClaim(IdTokenClaim.authTime) ->
+                    throw ServerError.internal("<auth_time> must be specified when it is requested as an essential claim.")
+            }
+            return
+        }
+
+        if (authTime.isAfter(LocalDateTime.now()))
+            throw AccessDenied.byServer("Untrusted authentication (happened in the future).")
+
+        if (ar.maxAge > 0) {
+            if (authTime.plusSeconds(ar.maxAge).isBefore(LocalDateTime.now()))
+                throw AccessDenied.byServer("Authentication expired (<auth_time> happened longer ago than <max_age>).")
+        }
+
+        if (ar.prompts.contains(Prompt.login)) {
+            if (authTime.isBefore(session.originalRequestTime ?: ar.requestTime))
+                throw AccessDenied.byServer("Authentication did not happen (<login> prompt requested but <auth_time> is still before original request time).")
+        }
+
+        if (ar.prompts.contains(Prompt.none)) {
+            if (authTime.isAfter(ar.requestTime))
+                throw AccessDenied.byServer("New authentication took place (<none> prompt requested by <auth_time> is after request time).")
+        }
     }
 }

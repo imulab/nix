@@ -295,6 +295,7 @@ class RequestObjectAwareOidcAuthorizeRequestProducer(
  */
 class OidcSession(
     subject: String = "",
+    var authTime: LocalDateTime? = null,
     val claims: MutableMap<String, Any> = mutableMapOf()
 ) : OAuthSession(subject)
 

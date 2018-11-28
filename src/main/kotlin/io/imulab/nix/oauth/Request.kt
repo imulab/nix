@@ -164,7 +164,10 @@ open class OAuthAccessRequest(
     }
 }
 
-open class OAuthSession(var subject: String = "")
+open class OAuthSession(
+    var subject: String = "",
+    var originalRequestTime: LocalDateTime? = null
+)
 
 /**
  * Provides function to take [OAuthRequestForm] and produce a [OAuthRequest]. Subclasses can call

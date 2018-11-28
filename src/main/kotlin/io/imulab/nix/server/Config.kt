@@ -95,7 +95,6 @@ class ServerContext(
         config.intPropertyOrNull("nix.param.nonceEntropy") ?: 0
     }
 
-
     override val stateEntropy: Int by lazy {
         config.intPropertyOrNull("nix.param.stateEntropy") ?: 0
     }
@@ -114,7 +113,9 @@ object DependencyInjection {
     val routeProviders = Kodein.Module(name = "routeProviders") {
         bind() from singleton {
             AuthorizeRouteProvider(
-                requestProducer = instance("TODO")
+                requestProducer = instance("TODO"),
+                preValidation = instance("TODO"),
+                postValidation = instance("TODO")
             )
         }
     }
