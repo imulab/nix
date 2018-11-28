@@ -1,7 +1,7 @@
 package io.imulab.nix.oidc
 
-data class Claims(var userInfo: Map<String, ClaimInfo?>?,
-                  var idToken: Map<String, ClaimInfo?>?)
+data class Claims(var userInfo: Map<String, ClaimInfo?>? = null,
+                  var idToken: Map<String, ClaimInfo?>? = null)
 
 data class ClaimInfo(var essential: Boolean = false,
                      var values: List<String> = emptyList())

@@ -1,10 +1,9 @@
 package io.imulab.nix.oidc
 
-import io.imulab.nix.oauth.OAuthAuthorizeRequest
-import io.imulab.nix.oauth.OAuthException
-import io.imulab.nix.oauth.OAuthRequestForm
-import io.imulab.nix.oauth.OAuthSession
+import io.imulab.nix.oauth.*
+import io.imulab.nix.oauth.client.ClientLookup
 import io.imulab.nix.oidc.client.OidcClient
+import io.imulab.nix.server.assertType
 import io.ktor.client.HttpClient
 import io.ktor.client.call.call
 import io.ktor.client.call.receive
@@ -74,17 +73,19 @@ class OidcAuthorizeRequest(
     redirectUri: String,
     scopes: Set<String>,
     state: String,
-    val responseMode: String?,
-    val nonce: String?,
-    val display: String?,
+    val responseMode: String,
+    val nonce: String,
+    val display: String,
     val prompts: Set<String>,
-    val maxAge: Long?,
+    val maxAge: Long,
     val uiLocales: List<String>,
-    val idTokenHint: String?,
-    val loginHint: String?,
+    val idTokenHint: String,
+    val loginHint: String,
     val acrValues: List<String>,
     val claims: Claims,
     val claimsLocales: List<String>,
+    val iss: String,
+    val targetLinkUri: String,
     session: OidcSession = OidcSession()
 ) : OAuthAuthorizeRequest(
     client = client,
@@ -93,7 +94,201 @@ class OidcAuthorizeRequest(
     scopes = scopes,
     state = state,
     session = session
-)
+) {
+
+    fun asBuilder(): Builder {
+        return Builder().also { b ->
+            b.client = client.assertType()
+            b.responseTypes.addAll(responseTypes)
+            b.redirectUri = redirectUri
+            b.scopes.addAll(scopes)
+            b.state = state
+            b.responseMode = responseMode
+            b.nonce = nonce
+            b.display = display
+            b.prompts.addAll(prompts)
+            b.maxAge = maxAge
+            b.uiLocales.addAll(uiLocales)
+            b.idTokenHint = idTokenHint
+            b.loginHint = loginHint
+            b.acrValues.addAll(acrValues)
+            b.claims = claims
+            b.claimsLocales.addAll(claimsLocales)
+            b.iss = iss
+            b.targetLinkUri = targetLinkUri
+            b.session = session.assertType()
+        }
+    }
+
+    class Builder(
+        var client: OidcClient? = null,
+        var responseTypes: MutableSet<String> = mutableSetOf(),
+        var redirectUri: String = "",
+        var scopes: MutableSet<String> = mutableSetOf(),
+        var state: String = "",
+        var responseMode: String = "",
+        var nonce: String = "",
+        var display: String = "",
+        var prompts: MutableSet<String> = mutableSetOf(),
+        var maxAge: Long = 0,
+        var uiLocales: MutableList<String> = mutableListOf(),
+        var idTokenHint: String = "",
+        var loginHint: String = "",
+        var acrValues: MutableList<String> = mutableListOf(),
+        var claims: Claims = Claims(),
+        var claimsLocales: MutableList<String> = mutableListOf(),
+        var iss: String = "",
+        var targetLinkUri: String = "",
+        var session: OidcSession = OidcSession()
+    ) {
+        fun build(): OidcAuthorizeRequest {
+            checkNotNull(client)
+
+            return OidcAuthorizeRequest(
+                client = client!!,
+                responseTypes = responseTypes,
+                redirectUri = redirectUri,
+                scopes = scopes,
+                state = state,
+                responseMode = responseMode,
+                nonce = nonce,
+                display = display,
+                prompts = prompts,
+                maxAge = maxAge,
+                uiLocales = uiLocales,
+                idTokenHint = idTokenHint,
+                loginHint = loginHint,
+                acrValues = acrValues,
+                claims = claims,
+                claimsLocales = claimsLocales,
+                iss = iss,
+                targetLinkUri = targetLinkUri,
+                session = session
+            )
+        }
+    }
+}
+
+/**
+ * Implementation of [OAuthRequestProducer] to produce a [OidcAuthorizeRequest]. This class utilizes
+ * [OAuthAuthorizeRequestProducer] to do the basis work and transform built value back to
+ * [OidcAuthorizeRequest.Builder].
+ */
+class OidcAuthorizeRequestProducer(
+    lookup: ClientLookup,
+    responseTypeValidator: ReservedWordValidator,
+    private val claimsJsonConverter: ClaimsJsonConverter
+) : OAuthAuthorizeRequestProducer(lookup, responseTypeValidator) {
+
+    override suspend fun produce(form: OAuthRequestForm): OAuthRequest {
+        require(form is OidcRequestForm) { "this producer only produces from OidcRequestForm" }
+        val oauthRequest = super.produce(form).assertType<OAuthAuthorizeRequest>()
+
+        return OidcAuthorizeRequest.Builder().also { b ->
+            oauthRequest.run {
+                b.client = client.assertType()
+                b.responseTypes.addAll(responseTypes)
+                b.redirectUri = redirectUri
+                b.scopes.addAll(scopes)
+                b.state = state
+            }
+
+            form.run {
+                b.responseMode = responseMode
+                b.nonce = nonce
+                b.display = display
+                b.prompts.addAll(prompt.split(space).filter { it.isNotBlank() })
+                b.maxAge = maxAge.toLongOrNull() ?: 0
+                b.uiLocales.addAll(uiLocales.split(space).filter { it.isNotBlank() })
+                b.idTokenHint = idTokenHint
+                b.loginHint = loginHint
+                b.acrValues.addAll(acrValues.split(space).filter { it.isNotBlank() })
+                b.claims = claimsJsonConverter.fromJson(claims)
+                b.claimsLocales.addAll(claimsLocales.split(space).filter { it.isNotBlank() })
+                b.iss = iss
+                b.targetLinkUri = targetLinkUri
+                b.session = OidcSession()
+            }
+        }.build()
+    }
+}
+
+/**
+ * Functional extension to [OidcAuthorizeRequestProducer] that provides the capability to merge request objects
+ * (provided as `request` parameter or `request_uri` parameter) back to the [OidcAuthorizeRequest] parsed by
+ * [OidcAuthorizeRequestProducer].
+ *
+ * Note: as of now, the deserialization of the 'claims' parameter take a round trip to and from JSON. This is very
+ * inefficient. We intend to fix this in the future. Potentially, [ClaimsJsonConverter] will provide a capability
+ * to directly parse a map.
+ */
+class RequestObjectAwareOidcAuthorizeRequestProducer(
+    private val firstPassProducer: OidcAuthorizeRequestProducer,
+    private val requestStrategy: RequestStrategy,
+    private val claimsJsonConverter: ClaimsJsonConverter
+) : OAuthRequestProducer {
+
+    override suspend fun produce(form: OAuthRequestForm): OAuthRequest {
+        require(form is OidcRequestForm)
+
+        val authorizeRequest = firstPassProducer.produce(form)
+            .assertType<OidcAuthorizeRequest>()
+
+        if (authorizeRequest.scopes.contains(StandardScope.openid)) {
+            val request = requestStrategy.resolveRequest(
+                request = form.request,
+                requestUri = form.requestUri,
+                client = authorizeRequest.client.assertType()
+            )
+
+            return authorizeRequest.asBuilder().also { b ->
+                if (request.hasClaim(Param.responseType)) {
+                    b.responseTypes.clear()
+                    b.responseTypes.addAll(request.responseTypes())
+                }
+                if (request.hasClaim(Param.redirectUri))
+                    b.redirectUri = request.redirectUri()
+                if (request.hasClaim(Param.scope)) {
+                    b.scopes.clear()
+                    b.scopes.addAll(request.scopes())
+                }
+                if (request.hasClaim(Param.state))
+                    b.state = request.state()
+                if (request.hasClaim(OidcParam.responseMode))
+                    b.responseMode = request.responseMode()
+                if (request.hasClaim(OidcParam.nonce))
+                    b.nonce = request.nonce()
+                if (request.hasClaim(OidcParam.display))
+                    b.display = request.display()
+                if (request.hasClaim(OidcParam.maxAge))
+                    b.maxAge = request.maxAge()
+                if (request.hasClaim(OidcParam.uiLocales)) {
+                    b.uiLocales.clear()
+                    b.uiLocales.addAll(request.uiLocales())
+                }
+                if (request.hasClaim(OidcParam.idTokenHint))
+                    b.idTokenHint = request.idTokenHint()
+                if (request.hasClaim(OidcParam.loginHint))
+                    b.loginHint = request.loginHint()
+                if (request.hasClaim(OidcParam.acrValues)) {
+                    b.acrValues.clear()
+                    b.acrValues.addAll(request.acrValues())
+                }
+                if (request.hasClaim(OidcParam.claims)) {
+                    // TODO this is very inefficient, upgrade claimsJsonConverter!!!
+                    b.claims = claimsJsonConverter.fromJson(request.claimsInJson())
+                }
+                if (request.hasClaim(OidcParam.claimsLocales)) {
+                    b.claimsLocales.clear()
+                    b.claimsLocales.addAll(request.claimsLocales())
+                }
+                // iss and target_link_uri, if requested, still needs to be specified via parameters.
+            }.build()
+        }
+
+        return authorizeRequest
+    }
+}
 
 /**
  * Open ID Connect User Session.

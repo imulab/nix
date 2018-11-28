@@ -49,6 +49,11 @@ suspend fun ApplicationCall.autoParameters(): Parameters {
 fun StringValues.toMutableMap(): MutableMap<String, List<String>> =
     entries().associateByTo(LinkedHashMap(), { it.key }, { it.value.toList() })
 
-//fun OidcRequestForm.hasOpenIdScope(): Boolean {
-//
-//}
+@Suppress("unchecked_cast")
+inline fun <reified T : Any> Any?.assertType(): T {
+    if (this == null)
+        throw NullPointerException("Cannot assert type: it is null.")
+    else if (this !is T)
+        throw IllegalStateException("Failed assert: unexpected type")
+    return this
+}

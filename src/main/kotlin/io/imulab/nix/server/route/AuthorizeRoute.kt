@@ -2,9 +2,8 @@ package io.imulab.nix.server.route
 
 import io.imulab.nix.oauth.client.ClientLookup
 import io.imulab.nix.oauth.space
-import io.imulab.nix.oidc.OidcRequestForm
-import io.imulab.nix.oidc.RequestStrategy
-import io.imulab.nix.oidc.StandardScope
+import io.imulab.nix.oidc.*
+import io.imulab.nix.server.assertType
 import io.imulab.nix.server.autoParameters
 import io.imulab.nix.server.toMutableMap
 import io.ktor.application.ApplicationCall
@@ -24,17 +23,14 @@ fun Routing.authorize(di: Kodein) {
 
 class AuthorizeRouteProvider(
     private val requestStrategy: RequestStrategy,
-    private val clientLookup: ClientLookup
+    private val clientLookup: ClientLookup,
+    private val requestProducer: OidcAuthorizeRequestProducer
 ) {
 
     fun accept(ctx: PipelineContext<Unit, ApplicationCall>) = runBlocking {
         val requestForm = OidcRequestForm(httpForm = ctx.context.autoParameters().toMutableMap())
 
-        // next: produce OidcAuthorizeRequest
-
-        // check if it contains openid scope
-
-        // if so, try requestStrategy and merge into a new unified request.
+        val authorizeRequest = requestProducer.produce(requestForm).assertType<OidcAuthorizeRequest>()
 
         // next up: preliminary validation (should understand what is re-entry and skip if it's an re-entry)
 
