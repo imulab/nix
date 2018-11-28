@@ -30,7 +30,7 @@ interface ClientAuthenticator {
  * depending on the supported method. If no authenticator was able to take on work, it
  * raises server_error.
  */
-class ClientAuthenticators(
+open class ClientAuthenticators(
     private val authenticators: List<ClientAuthenticator>,
     private val defaultMethod: String = AuthenticationMethod.clientSecretPost,
     private val methodFinder: suspend (OAuthRequestForm) -> String = { defaultMethod }
