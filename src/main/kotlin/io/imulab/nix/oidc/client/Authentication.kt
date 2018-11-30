@@ -76,7 +76,8 @@ class ClientSecretJwtAuthenticator(
  * - `sub` is set to client id.
  * - `aud` is set to the url of the authorization server token endpoint.
  *
- * During key resolution, the server tries to look for a `kid` value in the JWT header first. It is suggested that
+ * During key resolution, the server will use client secret as verification key if JWT uses a HMAC-SHA2 based algorithm.
+ * Otherwise, the server tries to look for a `kid` value in the JWT header first. It is suggested that
  * client set this header as a courtesy as it greatly simplifies the key resolution process. However, when `kid` is
  * not set, server tries to find a key within the client's registered json web key set whose algorithm matches the
  * `alg` JWT header, and is indeed purpose for signature (`use = signature`). If none of these methods yields a
@@ -116,13 +117,20 @@ class PrivateKeyJwtAuthenticator(
                 b.setVerificationKeyResolver { jws, _ ->
                     requireNotNull(jws) { "Json web signature must exist." }
 
-                    return@setVerificationKeyResolver when {
-                        jws.keyIdHeaderValue != null ->
-                            jwks.mustKeyWithId(jws.keyIdHeaderValue).resolvePublicKey()
-                        jws.algorithmHeaderValue != null ->
-                            jwks.findJsonWebKey(null, null, Use.SIGNATURE, jws.algorithmHeaderValue)
-                                ?.resolvePublicKey()
-                        else -> throw InvalidClient.authenticationFailedWithReason("verification key resolution failure")
+                    return@setVerificationKeyResolver when (jws.algorithmHeaderValue) {
+                        JwtSigningAlgorithm.HS256.algorithmIdentifier,
+                        JwtSigningAlgorithm.HS384.algorithmIdentifier,
+                        JwtSigningAlgorithm.HS512.algorithmIdentifier -> AesKey(client.secret)
+                        else -> {
+                            when {
+                                jws.keyIdHeaderValue != null ->
+                                    jwks.mustKeyWithId(jws.keyIdHeaderValue).resolvePublicKey()
+                                jws.algorithmHeaderValue != null ->
+                                    jwks.findJsonWebKey(null, null, Use.SIGNATURE, jws.algorithmHeaderValue)
+                                        ?.resolvePublicKey()
+                                else -> throw InvalidClient.authenticationFailedWithReason("verification key resolution failure")
+                            }
+                        }
                     }
                 }
                 b.setVerificationKey(AesKey(client.secret))
