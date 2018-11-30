@@ -300,10 +300,9 @@ class RequestObjectAwareOidcAuthorizeRequestProducer(
 /**
  * Open ID Connect User Session.
  */
-class OidcSession(
+open class OidcSession(
     subject: String = "",
     var authTime: LocalDateTime? = null,
-    var loginNonce: String = "",
     var acrValues: MutableList<String> = mutableListOf(),
     val claims: MutableMap<String, Any> = mutableMapOf()
 ) : OAuthSession(subject)

@@ -105,6 +105,14 @@ open class OAuthAuthorizeRequest(
     session: OAuthSession = OAuthSession()
 ) : OAuthRequest(client = client, session = session) {
 
+    /**
+     * Convenience method to grant a scope. The granted scope must be in the requested [scopes].
+     */
+    fun grantScope(scope: String) {
+        if (scopes.contains(scope))
+            grantedScopes.add(scope)
+    }
+
     class Builder(
         var responseTypes: MutableSet<String> = mutableSetOf(),
         var redirectUri: String = "",

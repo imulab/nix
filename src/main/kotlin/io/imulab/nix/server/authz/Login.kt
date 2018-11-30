@@ -1,11 +1,8 @@
-package io.imulab.nix.oidc.authn
+package io.imulab.nix.server.authz
 
 import io.imulab.nix.oauth.*
 import io.imulab.nix.oidc.*
 import io.imulab.nix.oidc.discovery.OidcContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.consumer.JwtConsumerBuilder
@@ -61,6 +58,8 @@ class LoginTokenStrategy(
 
             if (maxAge > 0)
                 c.setStringClaim(OidcParam.maxAge, maxAge.toString())
+            if (display.isNotEmpty())
+                c.setStringClaim(OidcParam.display, display)
             if (uiLocales.isNotEmpty())
                 c.setStringClaim(OidcParam.uiLocales, uiLocales.joinToString(separator = space))
             if (loginHint.isNotEmpty())
@@ -89,17 +88,12 @@ class LoginTokenAwareOidcRequestStrategy(
             "This strategy should not be called if there is no login_token"
         }
 
-        val originalRequest = try {
-            oidcAuthorizeRequestRepository.get(f.authorizeRequestId)
-                ?: throw AccessDenied.byServer("Cannot resume authentication session. Original request expired or lost.")
-        } finally {
-            withContext(Dispatchers.IO) {
-                launch { oidcAuthorizeRequestRepository.delete(f.authorizeRequestId) }
-            }
-        }
-
-        if (originalRequest.session.assertType<OidcSession>().loginNonce != f.nonce)
-            throw AccessDenied.byServer("Cannot resume authentication session. Nonce mismatch.")
+        /*
+        We don't delete the original request from repository. First, it should self expire automatically. Second, it
+        may provide possibility to including login and consent attempts in one go in the future, if desired.
+         */
+        val originalRequest = oidcAuthorizeRequestRepository.get(f.authorizeRequestId, f.nonce)
+            ?: throw AccessDenied.byServer("Cannot resume authentication session.")
 
         val loginTokenClaims = try {
             loginTokenStrategy.decodeLoginTokenResponse(f.loginToken)
