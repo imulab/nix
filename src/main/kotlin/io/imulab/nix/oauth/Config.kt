@@ -49,4 +49,28 @@ interface OAuthContext {
      * Minimum length for the state parameter.
      */
     val stateEntropy: Int
+
+    /**
+     * Validate the configured values
+     */
+    fun validate() {
+        check(issuerUrl.isNotEmpty()) { "issuerUrl must be set." }
+
+        check(authorizeEndpointUrl.isNotEmpty()) { "authorizeEndpointUrl must be set." }
+
+        check(tokenEndpointUrl.isNotEmpty()) { "tokenEndpointUrl must be set." }
+
+        check(defaultTokenEndpointAuthenticationMethod.isNotEmpty()) {
+            "defaultTokenEndpointAuthenticationMethod must be set"
+        }
+        OAuthClientAuthenticationMethodValidator.validate(defaultTokenEndpointAuthenticationMethod)
+
+        check(!authorizeCodeLifespan.isZero) { "authorizeCodeLifespan must not be zero." }
+
+        check(!accessTokenLifespan.isZero) { "accessTokenLifespan must not be zero." }
+
+        check(!refreshTokenLifespan.isZero) { "refreshTokenLifespan must not be zero." }
+
+        check(stateEntropy >= 0) { "state entropy must not be negative." }
+    }
 }

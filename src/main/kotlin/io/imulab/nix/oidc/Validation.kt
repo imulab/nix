@@ -1,13 +1,15 @@
 package io.imulab.nix.oidc
 
 import io.imulab.nix.oauth.*
+import io.imulab.nix.oidc.discovery.OidcContext
+import java.lang.Exception
 import java.time.LocalDateTime
 
 /**
  * An extension to [OAuthClientAuthenticationMethodValidator]. In OIDC spec, we have a few additional methods. Now,
  * the universe is `{client_secret_basic, client_secret_post, client_secret_jwt, private_key_jwt, none}`.
  */
-object OidcClientAuthenticationMethodValidator : ReservedWordValidator {
+object OidcClientAuthenticationMethodValidator : SpecDefinitionValidator {
     override fun validate(value: String): String {
         return try {
             OAuthClientAuthenticationMethodValidator.validate(value)
@@ -27,10 +29,35 @@ object OidcClientAuthenticationMethodValidator : ReservedWordValidator {
 }
 
 /**
+ * Validates the set relation: `response_type = {code, token}`.
+ * When in the context of a request, it must be registered/allowed by the client.
+ */
+object OidcResponseTypeValidator : SpecDefinitionValidator, OAuthRequestValidation {
+    override fun validate(value: String): String {
+        try {
+            return OAuthResponseTypeValidator.validate(value)
+        } catch (e: Exception) {
+            if (value == ResponseType.idToken)
+                return value
+            throw UnsupportedResponseType.unsupported(value)
+        }
+    }
+
+    override fun validate(request: OAuthRequest) {
+        val ar = request.assertType<OidcAuthorizeRequest>()
+        ar.responseTypes.forEach {
+            validate(it)
+            if (!ar.client.responseTypes.contains(it))
+                throw UnauthorizedClient.forbiddenResponseType(it)
+        }
+    }
+}
+
+/**
  * Validates parameter `response_mode`. The universe is `{query, fragment}`.
  * Because this parameter is optional, when used in the request, empty string is also allowed.
  */
-object ResponseModeValidator : ReservedWordValidator, OAuthRequestValidation {
+object ResponseModeValidator : SpecDefinitionValidator, OAuthRequestValidation {
     override fun validate(value: String): String {
         return when (value) {
             ResponseMode.query, ResponseMode.fragment -> value
@@ -42,6 +69,51 @@ object ResponseModeValidator : ReservedWordValidator, OAuthRequestValidation {
         val rm = request.assertType<OidcAuthorizeRequest>().responseMode
         if (rm.isNotEmpty())
             validate(rm)
+    }
+}
+
+/**
+ * Validates the JWT signing algorithm. The universe is everything specified in [JwtSigningAlgorithm].
+ */
+object SigningAlgorithmValidator: SpecDefinitionValidator {
+    override fun validate(value: String): String {
+        if (!JwtSigningAlgorithm.values().map { it.spec }.contains(value))
+            throw IllegalArgumentException("$value is not a valid signing algorithm.")
+        return value
+    }
+}
+
+/**
+ * Validates the JWE encryption algorithm. The universe is everything specified in [JweKeyManagementAlgorithm].
+ */
+object EncryptionAlgorithmValidator: SpecDefinitionValidator {
+    override fun validate(value: String): String {
+        if (!JweKeyManagementAlgorithm.values().map { it.spec }.contains(value))
+            throw IllegalArgumentException("$value is not a valid key management encryption algorithm.")
+        return value
+    }
+}
+
+/**
+ * Validates the JWE encryption algorithm. The universe is everything specified in [JweContentEncodingAlgorithm].
+ */
+object EncryptionEncodingValidator: SpecDefinitionValidator {
+    override fun validate(value: String): String {
+        if (!JweContentEncodingAlgorithm.values().map { it.spec }.contains(value))
+            throw IllegalArgumentException("$value is not a valid content encoding algorithm.")
+        return value
+    }
+}
+
+/**
+ * Validates the claim type configuration parameter. The universe is `{normal, aggregated, distributed}`.
+ */
+object ClaimTypeValidator: SpecDefinitionValidator {
+    override fun validate(value: String): String {
+        return when (value) {
+            ClaimType.normal, ClaimType.aggregated, ClaimType.distributed -> value
+            else -> throw IllegalArgumentException("$value is not a valid claim type.")
+        }
     }
 }
 
@@ -61,7 +133,7 @@ class NonceValidator(private val oidcContext: OidcContext): OAuthRequestValidati
  * Validates the `display` parameter. The universe if `{page, popup, touch, wap}`. Because this parameter is optional,
  * when used in a request, empty string is also allowed.
  */
-object DisplayValidator : ReservedWordValidator, OAuthRequestValidation {
+object DisplayValidator : SpecDefinitionValidator, OAuthRequestValidation {
     override fun validate(value: String): String {
         return when(value) {
             Display.page, Display.popup, Display.touch, Display.wap -> value
@@ -77,10 +149,22 @@ object DisplayValidator : ReservedWordValidator, OAuthRequestValidation {
 }
 
 /**
+ * Validates subject type values. The universe is `{public, pairwise}`.
+ */
+object SubjectTypeValidator : SpecDefinitionValidator {
+    override fun validate(value: String): String {
+        return when(value) {
+            SubjectType.public, SubjectType.pairwise -> value
+            else -> throw IllegalArgumentException("$value is not a valid subject type.")
+        }
+    }
+}
+
+/**
  * Validates the `prompt` parameter. The universe is `{none, login, consent, select_account}`. Because this parameter
  * is optional, empty set is allowed. However, `none` prompt must not be accompanied with other prompts.
  */
-object PromptValidator : ReservedWordValidator, OAuthRequestValidation {
+object PromptValidator : SpecDefinitionValidator, OAuthRequestValidation {
     override fun validate(request: OAuthRequest) {
         val prompts = request.assertType<OidcAuthorizeRequest>().prompts
         prompts.forEach { p -> validate(p) }

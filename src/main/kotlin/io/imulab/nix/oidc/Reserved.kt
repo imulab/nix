@@ -74,6 +74,14 @@ object StandardScope {
 }
 
 /**
+ * Supplement to [io.imulab.nix.oauth.ResponseType]. The OIDC specification defines a new
+ * response type `id_token`.
+ */
+object ResponseType {
+    const val idToken = "id_token"
+}
+
+/**
  * Authentication method applicable to client. This is an extension to
  * the values existing in [io.imulab.nix.oauth.AuthenticationMethod] and
  * represents the authentication method that wasn't mentioned in OAuth 2.0
@@ -112,6 +120,12 @@ object Prompt {
     const val login = "login"
     const val consent = "consent"
     const val selectAccount = "select_account"
+}
+
+object ClaimType {
+    const val normal = "normal"
+    const val aggregated = "aggregated"
+    const val distributed = "distributed"
 }
 
 typealias KmId = KeyManagementAlgorithmIdentifiers

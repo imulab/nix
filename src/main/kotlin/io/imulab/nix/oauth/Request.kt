@@ -185,7 +185,7 @@ interface OAuthRequestProducer {
  */
 open class OAuthAuthorizeRequestProducer(
     private val lookup: ClientLookup,
-    private val responseTypeValidator: ReservedWordValidator
+    private val responseTypeValidator: SpecDefinitionValidator
 ) : OAuthRequestProducer {
 
     override suspend fun produce(form: OAuthRequestForm): OAuthRequest {
@@ -222,7 +222,7 @@ open class OAuthAuthorizeRequestProducer(
  * are respected. Further validation needs to be performed by validators.
  */
 open class OAuthAccessRequestProducer(
-    private val grantTypeValidator: ReservedWordValidator,
+    private val grantTypeValidator: SpecDefinitionValidator,
     private val clientAuthenticators: ClientAuthenticators
 ) : OAuthRequestProducer {
 

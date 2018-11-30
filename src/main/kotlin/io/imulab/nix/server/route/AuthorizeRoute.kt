@@ -16,7 +16,7 @@ import org.kodein.di.erased.instance
 
 fun Routing.authorize(di: Kodein) {
     get("/oauth/authorize") {
-        val provider by di.instance<AuthorizeRouteProvider>()
+        val provider: AuthorizeRouteProvider by di.instance()
         provider.accept(this)
     }
 }

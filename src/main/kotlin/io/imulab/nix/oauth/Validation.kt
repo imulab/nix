@@ -60,7 +60,12 @@ class StateValidator(private val oauthContext: OAuthContext) : OAuthRequestValid
  * Validate the parameter `scope`. It must not be malformed according to OAuth spec and
  * it must be allowed by the requesting client.
  */
-object ScopeValidator : OAuthRequestValidation {
+object ScopeValidator : SpecDefinitionValidator, OAuthRequestValidation {
+    override fun validate(value: String): String {
+        value.mustNotMalformedScope()
+        return value
+    }
+
     override fun validate(request: OAuthRequest) {
         val ar = request.assertType<OAuthAuthorizeRequest>()
         ar.scopes.forEach { scope ->
@@ -71,14 +76,14 @@ object ScopeValidator : OAuthRequestValidation {
 }
 
 /**
- * Interface to validate a value belongs to a certain set of reserved works in OAuth.
+ * Interface to validate a value conforms to specification definition.
  *
  * This validator replaces the function which would otherwise be enforced by the use of Enum classes. However, because
  * we require extensibility by design, Enum classes cannot be used for this purpose. As a result, we have to defer to
  * the use of plain data types (such as, in this case, string) and require interfaces like this to validate values
  * manually.
  */
-interface ReservedWordValidator {
+interface SpecDefinitionValidator {
     fun validate(value: String): String
 }
 
@@ -86,7 +91,7 @@ interface ReservedWordValidator {
  * Validates the set relation: `response_type = {code, token}`.
  * When in the context of a request, it must be registered/allowed by the client.
  */
-object OAuthResponseTypeValidator : ReservedWordValidator, OAuthRequestValidation {
+object OAuthResponseTypeValidator : SpecDefinitionValidator, OAuthRequestValidation {
     override fun validate(value: String): String {
         return when (value) {
             ResponseType.code, ResponseType.token -> value
@@ -108,7 +113,7 @@ object OAuthResponseTypeValidator : ReservedWordValidator, OAuthRequestValidatio
  * Validates `grant_type = {authorization_code, implicit, password, client_credentials, refresh_token}`.
  * When in the context of a request, it must be registered/allowed by the client.
  */
-object OAuthGrantTypeValidator : ReservedWordValidator, OAuthRequestValidation {
+object OAuthGrantTypeValidator : SpecDefinitionValidator, OAuthRequestValidation {
     override fun validate(value: String): String {
         return when (value) {
             GrantType.authorizationCode,
@@ -133,7 +138,7 @@ object OAuthGrantTypeValidator : ReservedWordValidator, OAuthRequestValidation {
 /**
  * Validates `client_type = {public, confidential}`.
  */
-object ClientTypeValidator : ReservedWordValidator {
+object ClientTypeValidator : SpecDefinitionValidator {
     override fun validate(value: String): String {
         return when (value) {
             ClientType.public, ClientType.confidential -> value
@@ -145,7 +150,7 @@ object ClientTypeValidator : ReservedWordValidator {
 /**
  * Validates client authentication method is one of `{client_secret_basic, client_secret_post}`.
  */
-object OAuthClientAuthenticationMethodValidator : ReservedWordValidator {
+object OAuthClientAuthenticationMethodValidator : SpecDefinitionValidator {
     override fun validate(value: String): String {
         return when (value) {
             AuthenticationMethod.clientSecretBasic,

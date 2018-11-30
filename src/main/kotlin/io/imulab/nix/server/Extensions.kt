@@ -29,6 +29,16 @@ fun ApplicationConfig.stringPropertyOrNull(path: String): String? {
     return this.propertyOrNull(path)?.getString()
 }
 
+@UseExperimental(KtorExperimentalAPI::class)
+fun ApplicationConfig.stringListPropertyOrNull(path: String): List<String>? {
+    return this.propertyOrNull(path)?.getList()
+}
+
+@UseExperimental(KtorExperimentalAPI::class)
+fun ApplicationConfig.booleanPropertyOrNull(path: String): Boolean? {
+    return this.propertyOrNull(path)?.getString()?.toBoolean()
+}
+
 suspend fun ApplicationCall.autoParameters(): Parameters {
     return when (request.httpMethod) {
         HttpMethod.Get -> request.queryParameters

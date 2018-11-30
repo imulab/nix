@@ -128,7 +128,7 @@ object AccessDenied {
 // The authorization server does not support obtaining an
 // authorization code or access token using this method.
 object UnsupportedResponseType {
-    private const val code = "unsupported_response_type"
+    const val code = "unsupported_response_type"
     private const val status = 400
 
     val unsupported: (String) -> Throwable =
