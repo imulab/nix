@@ -1,6 +1,7 @@
 package io.imulab.nix.oidc
 
 import io.imulab.nix.oauth.*
+import io.imulab.nix.oidc.discovery.Discovery
 import io.imulab.nix.oidc.discovery.OidcContext
 import java.lang.Exception
 import java.time.LocalDateTime
@@ -234,6 +235,53 @@ object AuthTimeValidator : OAuthRequestValidation {
         if (ar.prompts.contains(Prompt.none)) {
             if (authTime.isAfter(ar.requestTime))
                 throw AccessDenied.byServer("New authentication took place (<none> prompt requested by <auth_time> is after request time).")
+        }
+    }
+}
+
+/**
+ * Validates if the incoming parameters are actually supported by the server. Support information is supplied through
+ * OIDC [Discovery] configuration.
+ */
+class SupportValidator(private val discovery: Discovery) : OAuthRequestValidation {
+    override fun validate(request: OAuthRequest) {
+        when (request) {
+            is OidcAuthorizeRequest -> validate(request)
+            is OAuthAccessRequest -> validate(request)
+        }
+    }
+
+    private fun validate(request: OidcAuthorizeRequest) {
+        request.responseTypes
+            .find { !discovery.responseTypesSupported.contains(it) }
+            .ifNotNullOrEmpty { throw UnsupportedResponseType.unsupported(it) }
+
+        request.acrValues
+            .find { !discovery.acrValuesSupported.contains(it) }
+            .ifNotNullOrEmpty { throw RequestNotSupported.unsupported(OidcParam.acrValues) }
+
+        request.claimsLocales
+            .find { !discovery.claimsLocalesSupported.contains(it) }
+            .ifNotNullOrEmpty { throw RequestNotSupported.unsupported(OidcParam.claimsLocales) }
+
+        request.uiLocales
+            .find { !discovery.uiLocalesSupported.contains(it) }
+            .ifNotNullOrEmpty { throw RequestNotSupported.unsupported(OidcParam.uiLocales) }
+
+        if (request.responseMode.isNotEmpty() && !discovery.responseModeSupported.contains(request.responseMode))
+            throw RequestNotSupported.unsupported(OidcParam.responseMode)
+
+        if (request.display.isNotEmpty() && !discovery.displayValuesSupported.contains(request.display))
+            throw RequestNotSupported.unsupported(OidcParam.display)
+
+        if (!request.claims.isEmpty() && !discovery.claimsParameterSupported)
+            throw RequestNotSupported.unsupported(OidcParam.claims)
+    }
+
+    private fun validate(request: OAuthAccessRequest) {
+        request.grantTypes.find { !discovery.grantTypesSupported.contains(it) }.let { unsupported ->
+            if (unsupported != null)
+                throw UnsupportedGrantType.unsupported(unsupported)
         }
     }
 }

@@ -106,8 +106,8 @@ object RequestNotSupported {
     private const val code = "request_not_supported"
     private const val status = 400
 
-    val unsupported: () -> Throwable =
-        { OAuthException(status, code, "The use of request parameter is not supported.") }
+    val unsupported: (String) -> Throwable =
+        { param -> OAuthException(status, code, "The value or use of request parameter <$param> is not supported.") }
 }
 
 // request_uri_not_supported

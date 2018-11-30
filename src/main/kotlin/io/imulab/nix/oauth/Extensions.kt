@@ -23,6 +23,13 @@ fun String.mustNotMalformedScope(): String {
     }
 }
 
+fun String?.ifNotNullOrEmpty(action: (String) -> Unit) {
+    this.let {
+        if (!it.isNullOrEmpty())
+            action(it)
+    }
+}
+
 @Suppress("unchecked_cast")
 inline fun <reified T : Any> Any?.assertType(): T {
     if (this == null)

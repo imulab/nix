@@ -4,6 +4,7 @@ import io.imulab.nix.oauth.*
 import io.imulab.nix.oauth.client.ClientLookup
 import io.imulab.nix.oidc.client.OidcClient
 import io.imulab.nix.oauth.assertType
+import io.imulab.nix.oidc.discovery.Discovery
 import io.imulab.nix.oidc.discovery.OidcContext
 import io.ktor.client.HttpClient
 import io.ktor.client.call.call
@@ -230,6 +231,7 @@ class OidcAuthorizeRequestProducer(
  * to directly parse a map.
  */
 class RequestObjectAwareOidcAuthorizeRequestProducer(
+    private val discovery: Discovery,
     private val firstPassProducer: OidcAuthorizeRequestProducer,
     private val requestStrategy: RequestStrategy,
     private val claimsJsonConverter: ClaimsJsonConverter
@@ -243,8 +245,8 @@ class RequestObjectAwareOidcAuthorizeRequestProducer(
 
         if (authorizeRequest.scopes.contains(StandardScope.openid)) {
             val request = requestStrategy.resolveRequest(
-                request = form.request,
-                requestUri = form.requestUri,
+                request = if (discovery.requestParameterSupported) form.request else "",
+                requestUri = if (discovery.requestUriParameterSupported) form.requestUri else "",
                 client = authorizeRequest.client.assertType()
             )
 
