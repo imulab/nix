@@ -40,13 +40,15 @@ object RedirectUriValidator : OAuthRequestValidation {
                     "localhost", "127.0.0.1" -> {}
                     else -> throw InvalidRequest.invalid(Param.redirectUri)
                 }
+            if (uri.rawFragment != null && uri.rawFragment.isNotEmpty())
+                throw InvalidRequest.invalid(Param.redirectUri)
         }
     }
 }
 
 /**
- * Validate the parameter `state`. Its entropy must not be less than [entropy]. Because this is an optional parameter,
- * empty string is allowed.
+ * Validate the parameter `state`. Its entropy must not be less than [OAuthContext.stateEntropy]. Because this is an
+ * optional parameter, empty string is allowed.
  */
 class StateValidator(private val oauthContext: OAuthContext) : OAuthRequestValidation {
     override fun validate(request: OAuthRequest) {
