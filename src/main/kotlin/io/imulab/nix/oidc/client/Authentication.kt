@@ -14,7 +14,14 @@ import org.jose4j.jwt.consumer.JwtConsumerBuilder
 import org.jose4j.keys.AesKey
 
 /**
- * Implementation of [ClientAuthenticator] that supports [AuthenticationMethod.clientSecretJwt].
+ * Implementation of [ClientAuthenticator] that supports [AuthenticationMethod.clientSecretJwt]. Note this authenticator
+ * works under the **important assumption** that client secret is still plain text. If every client secret is actually
+ * a hashed version of the actual secret, as in most secured implementations, the key verification process will most
+ * definitely fail.
+ *
+ * In the future, a possible resolution to the aforementioned assumption could be skip key verification, but manually
+ * extract the Json Web Signature object and obtain the signing key, which is assumed to be the plain text client
+ * secret. Then comparing the plain text client secret with the hashed version stored using a password encoder.
  *
  * This authenticator enforces `client_assertion_type` to be the value of [jwtBearerClientAssertionType] and the
  * `client_assertion` to contain a valid JWT token, signed by client's secret key using one the HMAC-SHA2 series
