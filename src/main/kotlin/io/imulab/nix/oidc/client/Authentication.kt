@@ -119,7 +119,13 @@ class PrivateKeyJwtAuthenticator(
                     AlgorithmConstraints(AlgorithmConstraints.ConstraintType.WHITELIST,
                         JwtSigningAlgorithm.HS256.algorithmIdentifier,
                         JwtSigningAlgorithm.HS384.algorithmIdentifier,
-                        JwtSigningAlgorithm.HS512.algorithmIdentifier)
+                        JwtSigningAlgorithm.HS512.algorithmIdentifier,
+                        JwtSigningAlgorithm.RS256.algorithmIdentifier,
+                        JwtSigningAlgorithm.RS384.algorithmIdentifier,
+                        JwtSigningAlgorithm.RS512.algorithmIdentifier,
+                        JwtSigningAlgorithm.PS256.algorithmIdentifier,
+                        JwtSigningAlgorithm.PS384.algorithmIdentifier,
+                        JwtSigningAlgorithm.PS512.algorithmIdentifier)
                 )
                 b.setVerificationKeyResolver { jws, _ ->
                     requireNotNull(jws) { "Json web signature must exist." }
@@ -140,7 +146,6 @@ class PrivateKeyJwtAuthenticator(
                         }
                     }
                 }
-                b.setVerificationKey(AesKey(client.secret))
             }.build().process(f.clientAssertion)
         } catch (e: InvalidJwtException) {
             throw InvalidClient.authenticationFailed()
