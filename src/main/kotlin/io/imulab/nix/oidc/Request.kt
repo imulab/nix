@@ -46,7 +46,8 @@ class OidcRequestForm(httpForm: MutableMap<String, List<String>>) : OAuthRequest
         "iss" to OidcParam.iss,
         "targetLinkUri" to OidcParam.targetLinkUri,
         "clientAssertion" to OidcParam.clientAssertion,
-        "clientAssertionType" to OidcParam.clientAssertionType
+        "clientAssertionType" to OidcParam.clientAssertionType,
+        "authorizeRequestId" to LoginTokenParam.authorizeRequestId
     )
 ) {
     var responseMode: String by Delegate
@@ -67,6 +68,7 @@ class OidcRequestForm(httpForm: MutableMap<String, List<String>>) : OAuthRequest
     var targetLinkUri: String by Delegate
     var clientAssertion: String by Delegate
     var clientAssertionType: String by Delegate
+    var authorizeRequestId: String by Delegate
 }
 
 /**
@@ -301,6 +303,8 @@ class RequestObjectAwareOidcAuthorizeRequestProducer(
 class OidcSession(
     subject: String = "",
     var authTime: LocalDateTime? = null,
+    var loginNonce: String = "",
+    var acrValues: MutableList<String> = mutableListOf(),
     val claims: MutableMap<String, Any> = mutableMapOf()
 ) : OAuthSession(subject)
 

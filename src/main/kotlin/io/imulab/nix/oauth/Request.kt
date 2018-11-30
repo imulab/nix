@@ -38,8 +38,9 @@ open class OAuthRequestForm(
         "grantType" to Param.grantType,
         "username" to Param.username,
         "password" to Param.password,
-
-        "authorizationHeader" to Header.authorization
+        "authorizationHeader" to Header.authorization,
+        "loginToken" to Param.Internal.loginToken,
+        "consentToken" to Param.Internal.consentToken
     )
 
     init {
@@ -58,6 +59,9 @@ open class OAuthRequestForm(
     var password: String by Delegate
 
     var authorizationHeader: String by Delegate
+
+    var loginToken: String by Delegate
+    var consentToken: String by Delegate
 
     protected object Delegate {
         operator fun getValue(thisRef: Any?, property: KProperty<*>): String {

@@ -60,6 +60,11 @@ object StandardClaim {
     }
 }
 
+object LoginTokenParam {
+    const val nonce = "nonce"
+    const val authorizeRequestId = "auth_req_id"
+}
+
 object IdTokenClaim {
     const val accessTokenHash = "at_hash"
     const val codeHash = "c_hash"

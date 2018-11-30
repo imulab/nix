@@ -29,6 +29,11 @@ object Param {
     const val error = "error"
     const val errorDescription = "error_description"
     const val errorUri = "error_uri"
+
+    object Internal {
+        const val loginToken = "login_token"
+        const val consentToken = "consent_token"
+    }
 }
 
 object Header {

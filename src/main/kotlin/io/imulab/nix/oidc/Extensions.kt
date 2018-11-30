@@ -4,6 +4,9 @@ import com.google.gson.GsonBuilder
 import io.imulab.nix.oauth.Param
 import io.imulab.nix.oauth.space
 import org.jose4j.jwt.JwtClaims
+import org.jose4j.jwt.NumericDate
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 fun JwtClaims.maybeString(name: String): String? =
     if (hasClaim(name))
@@ -70,3 +73,7 @@ fun JwtClaims.claimsLocales(): List<String> =
     (maybeString(OidcParam.claimsLocales) ?: "")
         .split(space)
         .filter { it.isNotBlank() }
+
+fun NumericDate.toLocalDateTime(): LocalDateTime {
+    return LocalDateTime.ofEpochSecond(this.value, 0, ZoneOffset.UTC)
+}

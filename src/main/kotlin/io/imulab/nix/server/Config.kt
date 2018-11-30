@@ -63,6 +63,8 @@ class ServerContext(
     override val idTokenSigningAlgorithmValuesSupported: List<String> by L("nix.idToken.signingAlgorithms")
     override val idTokenEncryptionAlgorithmValuesSupported: List<String> by L("nix.idToken.encryptionAlgorithms")
     override val idTokenEncryptionEncodingValuesSupported: List<String> by L("nix.idToken.encryptionEncodings")
+    val loginTokenLifespan: Duration by D("nix.loginToken.expirationSeconds", Duration.ofMinutes(10))
+    val consentTokenLifespan: Duration by D("nix.consentToken.expirationSeconds", Duration.ofMinutes(10))
     //endregion
 
     //region User info
