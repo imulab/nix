@@ -4,7 +4,9 @@ import io.imulab.nix.oauth.AccessDenied
 import io.imulab.nix.oauth.assertType
 import io.imulab.nix.oidc.*
 import io.imulab.nix.oidc.discovery.OidcContext
+import io.imulab.nix.server.ServerContext
 import io.imulab.nix.server.authz.LoginTokenStrategy
+import io.imulab.nix.server.authz.authn.obfs.SubjectObfuscator
 import io.imulab.nix.server.authz.repo.OidcAuthorizeRequestRepository
 import kotlinx.coroutines.*
 import java.util.*
@@ -21,7 +23,8 @@ class AuthenticationProvider(
     private val handlers: List<AuthenticationHandler>,
     private val requestRepository: OidcAuthorizeRequestRepository,
     private val loginTokenStrategy: LoginTokenStrategy,
-    private val oidcContext: OidcContext
+    private val subjectObfuscator: SubjectObfuscator,
+    private val serverContext: ServerContext
 ) {
 
     /**
@@ -48,6 +51,8 @@ class AuthenticationProvider(
      * cannot continue. A access_denied error is raised.
      * - If `prompt=login` and the request is not an **re-entry**, even when authentication can be established, we need
      * to follow client direction to request a login from user. In this case, the request will be redirected to login.
+     *
+     * In the end, if we are truly authenticated, [SubjectObfuscator] will be used to obfuscate the subject identifier.
      */
     suspend fun tryAuthenticate(form: OidcRequestForm, request: OidcAuthorizeRequest, rawCall: Any) {
         for (h in handlers) {
@@ -87,10 +92,16 @@ class AuthenticationProvider(
             }
             return@with
         }
+
+        request.session.assertType<OidcSession>().run {
+            // we should have totally authenticated by now.
+            check(subject.isNotEmpty())
+            subject = subjectObfuscator.obfuscate(subject, request.client.assertType())
+        }
     }
 
     private suspend fun prepareForRedirection(request: OidcAuthorizeRequest) {
-        val nonce = ByteArray(oidcContext.nonceEntropy)
+        val nonce = ByteArray(serverContext.nonceEntropy)
             .also { ThreadLocalRandom.current().nextBytes(it) }
             .let { Base64.getUrlEncoder().withoutPadding().encodeToString(it) }
 
@@ -101,7 +112,7 @@ class AuthenticationProvider(
         val loginToken = loginTokenStrategy.generateLoginTokenRequest(request)
 
         throw LoginRedirectionSignal(
-            loginEndpoint = "todo",
+            loginEndpoint = serverContext.loginProviderEndpoint,
             loginToken = loginToken,
             authorizeRequestId = request.id,
             nonce = nonce
