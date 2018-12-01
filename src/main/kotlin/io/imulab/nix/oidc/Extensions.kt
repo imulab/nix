@@ -74,6 +74,12 @@ fun JwtClaims.claimsLocales(): List<String> =
         .split(space)
         .filter { it.isNotBlank() }
 
+fun JwtClaims.authTime(): LocalDateTime? =
+    if (!hasClaim(IdTokenClaim.authTime))
+        null
+    else
+        getNumericDateClaimValue(IdTokenClaim.authTime).toLocalDateTime()
+
 fun NumericDate.toLocalDateTime(): LocalDateTime {
     return LocalDateTime.ofEpochSecond(this.value, 0, ZoneOffset.UTC)
 }
