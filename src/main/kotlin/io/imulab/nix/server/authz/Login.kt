@@ -3,6 +3,7 @@ package io.imulab.nix.server.authz
 import io.imulab.nix.oauth.*
 import io.imulab.nix.oidc.*
 import io.imulab.nix.oidc.discovery.OidcContext
+import io.imulab.nix.server.authz.repo.OidcAuthorizeRequestRepository
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.consumer.JwtConsumerBuilder
@@ -76,6 +77,8 @@ class LoginTokenStrategy(
  * associate the `login_token` with an original authorize request, whose data will be updated using the content
  * of `login_token`.
  */
+// TODO this should not try to expand the login_token, just use auth_req_id and nonce to revive original request.
+// TODO call it ReviveAuthorizeRequestProducer. And put the login_token in session.
 class LoginTokenAwareOidcRequestStrategy(
     private val oidcAuthorizeRequestRepository: OidcAuthorizeRequestRepository,
     private val loginTokenStrategy: LoginTokenStrategy

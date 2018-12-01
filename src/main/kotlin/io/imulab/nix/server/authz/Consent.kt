@@ -3,6 +3,7 @@ package io.imulab.nix.server.authz
 import io.imulab.nix.oauth.*
 import io.imulab.nix.oidc.*
 import io.imulab.nix.oidc.discovery.OidcContext
+import io.imulab.nix.server.authz.repo.OidcAuthorizeRequestRepository
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.consumer.JwtConsumerBuilder

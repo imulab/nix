@@ -1,17 +1,12 @@
 package io.imulab.nix.server
 
-import io.imulab.nix.oauth.*
-import io.imulab.nix.oidc.*
+import io.imulab.nix.oauth.assertType
+import io.imulab.nix.oidc.JsonWebKeySetRepository
 import io.imulab.nix.oidc.discovery.OidcContext
-import io.imulab.nix.server.route.AuthorizeRouteProvider
 import io.ktor.config.ApplicationConfig
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
 import org.jose4j.jwk.JsonWebKeySet
-import org.kodein.di.Kodein
-import org.kodein.di.erased.bind
-import org.kodein.di.erased.instance
-import org.kodein.di.erased.singleton
 import java.time.Duration
 import kotlin.reflect.KProperty
 
@@ -56,15 +51,25 @@ class ServerContext(
     //endregion
 
     //region Code and tokens
-    override val authorizeCodeLifespan: Duration by D("nix.authorizeCode.expirationSeconds", Duration.ofMinutes(10))
-    override val accessTokenLifespan: Duration by D("nix.accessToken.expirationSeconds", Duration.ofDays(1))
-    override val refreshTokenLifespan: Duration by D("nix.refreshToken.expirationSeconds", Duration.ofDays(14))
+    override val authorizeCodeLifespan: Duration by D("nix.authorizeCode.expirationSeconds",
+        Duration.ofMinutes(10)
+    )
+    override val accessTokenLifespan: Duration by D("nix.accessToken.expirationSeconds",
+        Duration.ofDays(1)
+    )
+    override val refreshTokenLifespan: Duration by D("nix.refreshToken.expirationSeconds",
+        Duration.ofDays(14)
+    )
     override val idTokenLifespan: Duration by D("nix.idToken.expirationSeconds", Duration.ofDays(1))
     override val idTokenSigningAlgorithmValuesSupported: List<String> by L("nix.idToken.signingAlgorithms")
     override val idTokenEncryptionAlgorithmValuesSupported: List<String> by L("nix.idToken.encryptionAlgorithms")
     override val idTokenEncryptionEncodingValuesSupported: List<String> by L("nix.idToken.encryptionEncodings")
-    val loginTokenLifespan: Duration by D("nix.loginToken.expirationSeconds", Duration.ofMinutes(10))
-    val consentTokenLifespan: Duration by D("nix.consentToken.expirationSeconds", Duration.ofMinutes(10))
+    val loginTokenLifespan: Duration by D("nix.loginToken.expirationSeconds",
+        Duration.ofMinutes(10)
+    )
+    val consentTokenLifespan: Duration by D("nix.consentToken.expirationSeconds",
+        Duration.ofMinutes(10)
+    )
     //endregion
 
     //region User info
@@ -141,33 +146,6 @@ class ServerContext(
     private class I(val propertyName: String, val default: Int = 0) {
         operator fun getValue(thisRef: Any?, property: KProperty<*>): Int {
             return thisRef.assertType<ServerContext>().config.intPropertyOrNull(propertyName) ?: default
-        }
-    }
-}
-
-/**
- * Declare dependency injection modules.
- */
-object DependencyInjection {
-
-    val configuration = Kodein.Module(name = "configuration") {
-        bind<OidcContext>() with singleton {
-            ServerContext(config = instance(), jsonWebKeySetRepository = instance())
-        }
-    }
-
-    val validators = Kodein.Module(name = "validators") {
-        bind() from singleton { StateValidator(oauthContext = instance()) }
-        bind() from singleton { NonceValidator(oidcContext = instance()) }
-    }
-
-    val routeProviders = Kodein.Module(name = "routeProviders") {
-        bind() from singleton {
-            AuthorizeRouteProvider(
-                requestProducer = instance("TODO"),
-                preValidation = instance("TODO"),
-                postValidation = instance("TODO")
-            )
         }
     }
 }
