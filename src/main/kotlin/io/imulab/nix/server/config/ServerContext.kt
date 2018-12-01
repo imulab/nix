@@ -1,8 +1,9 @@
-package io.imulab.nix.server
+package io.imulab.nix.server.config
 
 import io.imulab.nix.oauth.assertType
 import io.imulab.nix.oidc.jwk.JsonWebKeySetRepository
 import io.imulab.nix.oidc.discovery.OidcContext
+import io.imulab.nix.server.*
 import io.ktor.config.ApplicationConfig
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.runBlocking
@@ -46,37 +47,54 @@ class ServerContext(
     override val defaultTokenEndpointAuthenticationMethod: String
             by S("nix.security.tokenEndpointAuth.default")
     override val tokenEndpointAuthenticationMethodsSupported: List<String>
-            by L("nix.security.tokenEndpointAuth.supported", super.tokenEndpointAuthenticationMethodsSupported)
+            by L(
+                "nix.security.tokenEndpointAuth.supported",
+                super.tokenEndpointAuthenticationMethodsSupported
+            )
     override val tokenEndpointAuthenticationSigningAlgorithmValuesSupported: List<String>
             by L("nix.security.tokenEndpointAuth.signatureAlgorithms")
     //endregion
 
     //region Code and tokens
-    override val authorizeCodeLifespan: Duration by D("nix.authorizeCode.expirationSeconds",
+    override val authorizeCodeLifespan: Duration by D(
+        "nix.authorizeCode.expirationSeconds",
         Duration.ofMinutes(10)
     )
-    override val accessTokenLifespan: Duration by D("nix.accessToken.expirationSeconds",
+    override val accessTokenLifespan: Duration by D(
+        "nix.accessToken.expirationSeconds",
         Duration.ofDays(1)
     )
-    override val refreshTokenLifespan: Duration by D("nix.refreshToken.expirationSeconds",
+    override val refreshTokenLifespan: Duration by D(
+        "nix.refreshToken.expirationSeconds",
         Duration.ofDays(14)
     )
-    override val idTokenLifespan: Duration by D("nix.idToken.expirationSeconds", Duration.ofDays(1))
+    override val idTokenLifespan: Duration by D(
+        "nix.idToken.expirationSeconds",
+        Duration.ofDays(1)
+    )
     override val idTokenSigningAlgorithmValuesSupported: List<String> by L("nix.idToken.signingAlgorithms")
-    override val idTokenEncryptionAlgorithmValuesSupported: List<String> by L("nix.idToken.encryptionAlgorithms")
+    override val idTokenEncryptionAlgorithmValuesSupported: List<String> by L(
+        "nix.idToken.encryptionAlgorithms"
+    )
     override val idTokenEncryptionEncodingValuesSupported: List<String> by L("nix.idToken.encryptionEncodings")
-    val loginTokenLifespan: Duration by D("nix.loginToken.expirationSeconds",
+    val loginTokenLifespan: Duration by D(
+        "nix.loginToken.expirationSeconds",
         Duration.ofMinutes(10)
     )
-    val consentTokenLifespan: Duration by D("nix.consentToken.expirationSeconds",
+    val consentTokenLifespan: Duration by D(
+        "nix.consentToken.expirationSeconds",
         Duration.ofMinutes(10)
     )
     //endregion
 
     //region User info
     override val userInfoSigningAlgorithmValuesSupported: List<String> by L("nix.userInfo.signingAlgorithms")
-    override val userInfoEncryptionAlgorithmValuesSupported: List<String> by L("nix.userInfo.encryptionAlgorithms")
-    override val userInfoEncryptionEncodingValuesSupported: List<String> by L("nix.userInfo.encryptionEncodings")
+    override val userInfoEncryptionAlgorithmValuesSupported: List<String> by L(
+        "nix.userInfo.encryptionAlgorithms"
+    )
+    override val userInfoEncryptionEncodingValuesSupported: List<String> by L(
+        "nix.userInfo.encryptionEncodings"
+    )
     //endregion
 
     //region Request object
@@ -87,11 +105,20 @@ class ServerContext(
     override val requestObjectEncryptionEncodingValuesSupported: List<String>
             by L("nix.requestObject.encryptionEncodings")
     override val requestParameterSupported: Boolean
-            by B("nix.requestObject.supportRequestParameter", super.requestParameterSupported)
+            by B(
+                "nix.requestObject.supportRequestParameter",
+                super.requestParameterSupported
+            )
     override val requestUriParameterSupported: Boolean
-            by B("nix.requestObject.supportRequestUriParameter", super.requestUriParameterSupported)
+            by B(
+                "nix.requestObject.supportRequestUriParameter",
+                super.requestUriParameterSupported
+            )
     override val requireRequestUriRegistration: Boolean
-            by B("nix.requestObject.requireRequestUriRegistration", super.requireRequestUriRegistration)
+            by B(
+                "nix.requestObject.requireRequestUriRegistration",
+                super.requireRequestUriRegistration
+            )
     //endregion
 
     //region Claims

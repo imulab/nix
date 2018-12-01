@@ -1,6 +1,7 @@
 package io.imulab.nix.server
 
 import com.nhaarman.mockitokotlin2.mock
+import io.imulab.nix.server.config.ServerContext
 import io.ktor.config.MapApplicationConfig
 import io.ktor.util.KtorExperimentalAPI
 import org.assertj.core.api.Assertions.assertThat

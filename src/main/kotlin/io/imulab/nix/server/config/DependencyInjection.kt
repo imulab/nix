@@ -1,4 +1,4 @@
-package io.imulab.nix.server
+package io.imulab.nix.server.config
 
 import io.imulab.nix.oauth.request.OAuthRequestProducer
 import io.imulab.nix.oauth.validation.StateValidator
