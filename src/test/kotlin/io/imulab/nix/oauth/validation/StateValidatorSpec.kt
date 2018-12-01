@@ -3,6 +3,7 @@ package io.imulab.nix.oauth.validation
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import io.imulab.nix.oauth.*
+import io.imulab.nix.oauth.error.OAuthException
 import org.assertj.core.api.Assertions
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe

@@ -1,8 +1,7 @@
 package io.imulab.nix.server.route
 
-import io.imulab.nix.oauth.OAuthException
+import io.imulab.nix.oauth.error.OAuthException
 import io.imulab.nix.oauth.OAuthRequestValidation
-import io.imulab.nix.oauth.client.ClientLookup
 import io.imulab.nix.oidc.*
 import io.imulab.nix.oauth.assertType
 import io.imulab.nix.server.authz.authn.AuthenticationProvider

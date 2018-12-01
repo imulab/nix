@@ -3,7 +3,7 @@ package io.imulab.nix.oauth.validation
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import io.imulab.nix.oauth.OAuthAuthorizeRequest
-import io.imulab.nix.oauth.OAuthException
+import io.imulab.nix.oauth.error.OAuthException
 import io.imulab.nix.oauth.OAuthRequest
 import io.imulab.nix.oauth.RedirectUriValidator
 import io.imulab.nix.oauth.client.OAuthClient

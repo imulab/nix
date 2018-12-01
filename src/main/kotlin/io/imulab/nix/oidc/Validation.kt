@@ -1,6 +1,7 @@
 package io.imulab.nix.oidc
 
 import io.imulab.nix.oauth.*
+import io.imulab.nix.oauth.error.*
 import io.imulab.nix.oidc.discovery.Discovery
 import io.imulab.nix.oidc.discovery.OidcContext
 import java.lang.Exception

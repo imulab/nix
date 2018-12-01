@@ -1,6 +1,6 @@
 package io.imulab.nix.server
 
-import io.imulab.nix.oauth.InvalidRequest
+import io.imulab.nix.oauth.error.InvalidRequest
 import io.ktor.application.ApplicationCall
 import io.ktor.config.ApplicationConfig
 import io.ktor.http.ContentType

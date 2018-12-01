@@ -1,6 +1,6 @@
 package io.imulab.nix.oidc
 
-import io.imulab.nix.oauth.OAuthException
+import io.imulab.nix.oauth.error.OAuthException
 
 // interaction_required
 // --------------------
@@ -14,7 +14,13 @@ object InteractionRequired {
     private const val status = 400
 
     val nonePrompt: () -> Throwable =
-        { OAuthException(status, code, "Server requires user interaction to proceed, but prompt <none> was specified.") }
+        {
+            OAuthException(
+                status,
+                code,
+                "Server requires user interaction to proceed, but prompt <none> was specified."
+            )
+        }
 }
 
 // login_required
@@ -29,10 +35,22 @@ object LoginRequired {
     private const val status = 400
 
     val nonePrompt: () -> Throwable =
-        { OAuthException(status, code, "Server needs to display authentication UI to end user, but prompt <none> was specified.") }
+        {
+            OAuthException(
+                status,
+                code,
+                "Server needs to display authentication UI to end user, but prompt <none> was specified."
+            )
+        }
 
     val reEntryInVain : () -> Throwable =
-        { OAuthException(status, code, "Server cannot establish authentication after an active login attempt.") }
+        {
+            OAuthException(
+                status,
+                code,
+                "Server cannot establish authentication after an active login attempt."
+            )
+        }
 
     val error : (String) -> Throwable =
         { reason -> OAuthException(status, code, reason) }
@@ -52,7 +70,13 @@ object AccountSelectionRequired {
     private const val status = 400
 
     val nonePrompt: () -> Throwable =
-        { OAuthException(status, code, "Server needs to prompt the user to select among multiple active sessions, but prompt <none> was specified.") }
+        {
+            OAuthException(
+                status,
+                code,
+                "Server needs to prompt the user to select among multiple active sessions, but prompt <none> was specified."
+            )
+        }
 }
 
 // consent_required
@@ -66,7 +90,13 @@ object ConsentRequired {
     private const val status = 400
 
     val nonePrompt: () -> Throwable =
-        { OAuthException(status, code, "Server needs to prompt user for consent, but prompt <none> was specified.") }
+        {
+            OAuthException(
+                status,
+                code,
+                "Server needs to prompt user for consent, but prompt <none> was specified."
+            )
+        }
 }
 
 // invalid_request_uri
@@ -78,7 +108,13 @@ object InvalidRequestUri {
     private const val status = 400
 
     val none200: (Int) -> Throwable =
-        { i -> OAuthException(status, code, "Request URI returned invalid response status ($i).") }
+        { i ->
+            OAuthException(
+                status,
+                code,
+                "Request URI returned invalid response status ($i)."
+            )
+        }
 
     val invalid: () -> Throwable =
         { OAuthException(status, code, "Request URI returned invalid data.") }
@@ -113,7 +149,13 @@ object RequestNotSupported {
     private const val status = 400
 
     val unsupported: (String) -> Throwable =
-        { param -> OAuthException(status, code, "The value or use of request parameter <$param> is not supported.") }
+        { param ->
+            OAuthException(
+                status,
+                code,
+                "The value or use of request parameter <$param> is not supported."
+            )
+        }
 }
 
 // request_uri_not_supported
@@ -137,5 +179,11 @@ object RegistrationNotSupported {
     private const val status = 400
 
     val unsupported: () -> Throwable =
-        { OAuthException(status, code, "The use of registration parameter is not supported.") }
+        {
+            OAuthException(
+                status,
+                code,
+                "The use of registration parameter is not supported."
+            )
+        }
 }

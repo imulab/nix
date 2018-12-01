@@ -1,6 +1,8 @@
 package io.imulab.nix.oauth.client
 
-import io.imulab.nix.oauth.*
+import io.imulab.nix.oauth.error.InvalidRequest
+import io.imulab.nix.oauth.error.InvalidScope
+import io.imulab.nix.oauth.error.UnsupportedGrantType
 import io.imulab.nix.oauth.reserved.Param
 
 interface OAuthClient {
@@ -78,12 +80,12 @@ interface OAuthClient {
         return if (presented.isBlank()) {
             when {
                 redirectUris.size == 1 -> redirectUris.first()
-                else -> throw InvalidRequest.indetermined(Param.redirectUri)
+                else -> throw InvalidRequest.undetermined(Param.redirectUri)
             }
         } else {
             when {
                 redirectUris.contains(presented) -> presented
-                else -> throw InvalidRequest.indetermined(Param.redirectUri)
+                else -> throw InvalidRequest.undetermined(Param.redirectUri)
             }
         }
     }

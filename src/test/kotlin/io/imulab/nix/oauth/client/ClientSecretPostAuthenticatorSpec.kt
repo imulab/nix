@@ -4,8 +4,8 @@ import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
-import io.imulab.nix.oauth.InvalidClient
-import io.imulab.nix.oauth.OAuthException
+import io.imulab.nix.oauth.error.InvalidClient
+import io.imulab.nix.oauth.error.OAuthException
 import io.imulab.nix.oauth.OAuthRequestForm
 import io.imulab.nix.oauth.reserved.Param
 import io.imulab.nix.oauth.client.authn.ClientSecretPostAuthenticator

@@ -1,6 +1,6 @@
 package io.imulab.nix.oidc
 
-import io.imulab.nix.oauth.ServerError
+import io.imulab.nix.oauth.error.ServerError
 import io.imulab.nix.oidc.client.OidcClient
 import io.ktor.client.HttpClient
 import io.ktor.client.call.call

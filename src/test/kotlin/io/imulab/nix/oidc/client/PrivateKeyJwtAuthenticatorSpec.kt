@@ -4,7 +4,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import io.imulab.nix.oauth.OAuthContext
-import io.imulab.nix.oauth.OAuthException
+import io.imulab.nix.oauth.error.OAuthException
 import io.imulab.nix.oauth.reserved.Param
 import io.imulab.nix.oauth.client.ClientLookup
 import io.imulab.nix.oidc.*

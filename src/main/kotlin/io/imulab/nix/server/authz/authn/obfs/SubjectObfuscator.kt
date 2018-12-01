@@ -1,6 +1,6 @@
 package io.imulab.nix.server.authz.authn.obfs
 
-import io.imulab.nix.oauth.InvalidRequest
+import io.imulab.nix.oauth.error.InvalidRequest
 import io.imulab.nix.oidc.SubjectType
 import io.imulab.nix.oidc.client.OidcClient
 import java.net.URI

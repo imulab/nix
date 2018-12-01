@@ -1,5 +1,8 @@
 package io.imulab.nix.oauth
 
+import io.imulab.nix.oauth.error.InvalidRequest
+import io.imulab.nix.oauth.error.InvalidScope
+
 /**
  * Extension on Map to ensure a key has only one value (single element list).
  */

@@ -1,6 +1,6 @@
 package io.imulab.nix.server.authz.authn
 
-import io.imulab.nix.oauth.AccessDenied
+import io.imulab.nix.oauth.error.AccessDenied
 import io.imulab.nix.oauth.assertType
 import io.imulab.nix.oidc.*
 import io.imulab.nix.server.ServerContext

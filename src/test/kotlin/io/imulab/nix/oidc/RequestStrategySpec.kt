@@ -4,7 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.nhaarman.mockitokotlin2.*
-import io.imulab.nix.oauth.OAuthException
+import io.imulab.nix.oauth.error.OAuthException
 import io.imulab.nix.oidc.client.OidcClient
 import io.imulab.nix.oidc.discovery.OidcContext
 import io.ktor.client.HttpClient

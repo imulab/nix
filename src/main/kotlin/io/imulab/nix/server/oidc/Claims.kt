@@ -1,7 +1,7 @@
 package io.imulab.nix.server.oidc
 
 import com.google.gson.*
-import io.imulab.nix.oauth.InvalidRequest
+import io.imulab.nix.oauth.error.InvalidRequest
 import io.imulab.nix.oidc.ClaimInfo
 import io.imulab.nix.oidc.Claims
 import io.imulab.nix.oidc.ClaimsJsonConverter
