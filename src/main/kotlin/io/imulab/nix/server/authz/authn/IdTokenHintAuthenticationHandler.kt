@@ -1,9 +1,14 @@
 package io.imulab.nix.server.authz.authn
 
 import io.imulab.nix.oauth.assertType
-import io.imulab.nix.oidc.*
 import io.imulab.nix.oidc.client.OidcClient
 import io.imulab.nix.oidc.discovery.OidcContext
+import io.imulab.nix.oidc.jwk.JwtVerificationKeyResolver
+import io.imulab.nix.oidc.jwk.authTime
+import io.imulab.nix.oidc.request.OidcAuthorizeRequest
+import io.imulab.nix.oidc.request.OidcRequestForm
+import io.imulab.nix.oidc.request.OidcSession
+import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
 import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.consumer.JwtConsumerBuilder
 import java.lang.Exception
@@ -66,7 +71,10 @@ class IdTokenHintAuthenticationHandler(
                     .setRequireJwtId()
                     .setJwsAlgorithmConstraints(client.idTokenSignedResponseAlgorithm.whitelisted())
                     .setVerificationKeyResolver(
-                        JwtVerificationKeyResolver(oidcContext.masterJsonWebKeySet, client.idTokenSignedResponseAlgorithm)
+                        JwtVerificationKeyResolver(
+                            oidcContext.masterJsonWebKeySet,
+                            client.idTokenSignedResponseAlgorithm
+                        )
                     )
                     .setExpectedIssuer(oidcContext.issuerUrl)
                     .build()

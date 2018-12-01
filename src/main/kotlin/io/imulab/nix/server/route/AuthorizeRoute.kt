@@ -2,8 +2,10 @@ package io.imulab.nix.server.route
 
 import io.imulab.nix.oauth.error.OAuthException
 import io.imulab.nix.oauth.validation.OAuthRequestValidation
-import io.imulab.nix.oidc.*
 import io.imulab.nix.oauth.assertType
+import io.imulab.nix.oidc.request.OidcAuthorizeRequest
+import io.imulab.nix.oidc.request.OidcAuthorizeRequestProducer
+import io.imulab.nix.oidc.request.OidcRequestForm
 import io.imulab.nix.server.authz.authn.AuthenticationProvider
 import io.imulab.nix.server.authz.authn.LoginRedirectionSignal
 import io.imulab.nix.server.autoParameters
@@ -51,7 +53,8 @@ class AuthorizeRouteProvider(
     }
 
     private suspend fun doAccept(ctx: PipelineContext<Unit, ApplicationCall>) {
-        val requestForm = OidcRequestForm(httpForm = ctx.context.autoParameters().toMutableMap())
+        val requestForm =
+            OidcRequestForm(httpForm = ctx.context.autoParameters().toMutableMap())
 
         val authorizeRequest = requestProducer.produce(requestForm).assertType<OidcAuthorizeRequest>()
 

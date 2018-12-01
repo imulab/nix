@@ -2,7 +2,7 @@ package io.imulab.nix.server.authz.authn
 
 import io.imulab.nix.oauth.response.OAuthResponse
 import io.imulab.nix.oauth.reserved.Param
-import io.imulab.nix.oidc.LoginTokenParam
+import io.imulab.nix.oidc.reserved.LoginTokenParam
 
 /**
  * Special exception to signal an HTTP redirection to the login endpoint.

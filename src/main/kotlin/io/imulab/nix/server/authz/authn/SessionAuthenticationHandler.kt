@@ -1,9 +1,9 @@
 package io.imulab.nix.server.authz.authn
 
 import io.imulab.nix.oauth.assertType
-import io.imulab.nix.oidc.OidcAuthorizeRequest
-import io.imulab.nix.oidc.OidcRequestForm
-import io.imulab.nix.oidc.OidcSession
+import io.imulab.nix.oidc.request.OidcAuthorizeRequest
+import io.imulab.nix.oidc.request.OidcRequestForm
+import io.imulab.nix.oidc.request.OidcSession
 import io.imulab.nix.oidc.client.OidcClient
 import io.imulab.nix.server.authz.authn.session.SessionStrategy
 import io.ktor.application.ApplicationCall

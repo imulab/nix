@@ -1,7 +1,7 @@
 package io.imulab.nix.server
 
 import io.imulab.nix.oauth.assertType
-import io.imulab.nix.oidc.JsonWebKeySetRepository
+import io.imulab.nix.oidc.jwk.JsonWebKeySetRepository
 import io.imulab.nix.oidc.discovery.OidcContext
 import io.ktor.config.ApplicationConfig
 import io.ktor.util.KtorExperimentalAPI

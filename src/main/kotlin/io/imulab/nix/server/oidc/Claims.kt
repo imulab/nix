@@ -2,10 +2,10 @@ package io.imulab.nix.server.oidc
 
 import com.google.gson.*
 import io.imulab.nix.oauth.error.InvalidRequest
-import io.imulab.nix.oidc.ClaimInfo
-import io.imulab.nix.oidc.Claims
+import io.imulab.nix.oidc.claim.ClaimInfo
+import io.imulab.nix.oidc.claim.Claims
 import io.imulab.nix.oidc.ClaimsJsonConverter
-import io.imulab.nix.oidc.OidcParam
+import io.imulab.nix.oidc.reserved.OidcParam
 import java.lang.Exception
 import java.lang.reflect.Type
 

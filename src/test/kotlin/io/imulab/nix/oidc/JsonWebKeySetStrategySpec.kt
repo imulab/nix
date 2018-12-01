@@ -7,6 +7,8 @@ import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import io.imulab.nix.oidc.client.OidcClient
+import io.imulab.nix.oidc.jwk.JsonWebKeySetRepository
+import io.imulab.nix.oidc.jwk.JsonWebKeySetStrategy
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
 import kotlinx.coroutines.runBlocking

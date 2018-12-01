@@ -4,8 +4,8 @@ import io.imulab.nix.oauth.reserved.AuthenticationMethod
 import io.imulab.nix.oauth.reserved.ClientType
 import io.imulab.nix.oauth.validation.ClientTypeValidator
 import io.imulab.nix.oauth.reserved.ResponseType
-import io.imulab.nix.oidc.*
 import io.imulab.nix.oidc.client.OidcClient
+import io.imulab.nix.oidc.reserved.*
 import java.util.*
 import kotlin.collections.LinkedHashSet
 

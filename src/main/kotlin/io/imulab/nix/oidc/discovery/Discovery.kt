@@ -1,13 +1,14 @@
 package io.imulab.nix.oidc.discovery
 
-import io.imulab.nix.oauth.*
 import io.imulab.nix.oauth.reserved.AuthenticationMethod
 import io.imulab.nix.oauth.reserved.GrantType
 import io.imulab.nix.oauth.reserved.space
 import io.imulab.nix.oauth.validation.OAuthGrantTypeValidator
-import io.imulab.nix.oidc.*
-import org.jose4j.jwk.JsonWebKeySet
-import java.time.Duration
+import io.imulab.nix.oidc.reserved.ClaimType
+import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
+import io.imulab.nix.oidc.reserved.ResponseMode
+import io.imulab.nix.oidc.reserved.StandardScope
+import io.imulab.nix.oidc.validation.*
 
 interface Discovery {
 
@@ -69,7 +70,10 @@ interface Discovery {
      * `implicit`. If omitted, the default value is `authorization_code` and `implicit`.
      */
     val grantTypesSupported: List<String>
-        get() = listOf(GrantType.authorizationCode, GrantType.implicit)
+        get() = listOf(
+            GrantType.authorizationCode,
+            GrantType.implicit
+        )
 
     /**
      * OPTIONAL. JSON array containing a list of supported authentication context class values.
@@ -237,14 +241,21 @@ interface Discovery {
         check(scopesSupported.contains(StandardScope.openid))
 
         // response_type
-        check(responseTypesSupported.flatMap { it.split(space) }.toSet().map { OidcResponseTypeValidator.validate(it) }.isNotEmpty())
+        check(responseTypesSupported.flatMap { it.split(space) }.toSet().map {
+            OidcResponseTypeValidator.validate(
+                it
+            )
+        }.isNotEmpty())
 
         // response_mode
         check(responseModeSupported.map { ResponseModeValidator.validate(it) }.isNotEmpty())
 
         // grant_type
         check(grantTypesSupported.map { OAuthGrantTypeValidator.validate(it) }.containsAll(
-            listOf(GrantType.authorizationCode, GrantType.implicit))
+            listOf(
+                GrantType.authorizationCode,
+                GrantType.implicit
+            ))
         )
 
         // subject_type
@@ -265,51 +276,39 @@ interface Discovery {
         check(!(userInfoEncryptionAlgorithmValuesSupported.isNotEmpty() xor userInfoEncryptionEncodingValuesSupported.isNotEmpty()))
 
         // request object
-        check(requestObjectSigningAlgorithmValuesSupported.map { SigningAlgorithmValidator.validate(it) }.containsAll(
+        check(requestObjectSigningAlgorithmValuesSupported.map {
+            SigningAlgorithmValidator.validate(
+                it
+            )
+        }.containsAll(
             listOf(JwtSigningAlgorithm.RS256.spec, JwtSigningAlgorithm.None.spec))
         )
-        requestObjectEncryptionAlgorithmValuesSupported.forEach { EncryptionAlgorithmValidator.validate(it) }
-        requestObjectEncryptionEncodingValuesSupported.forEach { EncryptionEncodingValidator.validate(it) }
+        requestObjectEncryptionAlgorithmValuesSupported.forEach {
+            EncryptionAlgorithmValidator.validate(
+                it
+            )
+        }
+        requestObjectEncryptionEncodingValuesSupported.forEach {
+            EncryptionEncodingValidator.validate(
+                it
+            )
+        }
         check(!(requestObjectEncryptionAlgorithmValuesSupported.isNotEmpty() xor requestObjectEncryptionEncodingValuesSupported.isNotEmpty()))
 
         // token endpoint auth
-        check(tokenEndpointAuthenticationMethodsSupported.map { OidcClientAuthenticationMethodValidator.validate(it) }.isNotEmpty())
-        tokenEndpointAuthenticationSigningAlgorithmValuesSupported.forEach { SigningAlgorithmValidator.validate(it) }
+        check(tokenEndpointAuthenticationMethodsSupported.map {
+            OidcClientAuthenticationMethodValidator.validate(
+                it
+            )
+        }.isNotEmpty())
+        tokenEndpointAuthenticationSigningAlgorithmValuesSupported.forEach {
+            SigningAlgorithmValidator.validate(
+                it
+            )
+        }
 
         // misc
         displayValuesSupported.forEach { DisplayValidator.validate(it) }
         check(claimValuesSupported.map { ClaimTypeValidator.validate(it) }.isNotEmpty())
-    }
-}
-
-/**
- * Global server configuration data.
- */
-interface OidcContext : OAuthContext, Discovery {
-
-    /**
-     * Time to live for access token. Suggested value is 1 day.
-     */
-    val idTokenLifespan: Duration
-
-    /**
-     * Json web key set used by the server to perform signature/verification
-     * and encryption/decryption related tasks. Keys placed inside must have
-     * key use and key id set.
-     */
-    val masterJsonWebKeySet: JsonWebKeySet
-
-    /**
-     * Minimum length for the `nonce` parameter.
-     */
-    val nonceEntropy: Int
-
-    override fun validate() {
-        super<OAuthContext>.validate()
-        super<Discovery>.validate()
-
-        check(!idTokenLifespan.isZero) { "idTokenLifespan must not be zero." }
-
-        check(nonceEntropy >= 0) { "nonce entropy must not be negative." }
     }
 }

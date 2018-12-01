@@ -1,7 +1,7 @@
 package io.imulab.nix.server.authz.authn
 
-import io.imulab.nix.oidc.OidcAuthorizeRequest
-import io.imulab.nix.oidc.OidcRequestForm
+import io.imulab.nix.oidc.request.OidcAuthorizeRequest
+import io.imulab.nix.oidc.request.OidcRequestForm
 
 interface AuthenticationHandler {
 

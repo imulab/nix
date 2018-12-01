@@ -1,6 +1,6 @@
 package io.imulab.nix.server.authz.repo
 
-import io.imulab.nix.oidc.OidcAuthorizeRequest
+import io.imulab.nix.oidc.request.OidcAuthorizeRequest
 
 /**
  * Storage interface for saving an [OidcAuthorizeRequest] for re-entry.

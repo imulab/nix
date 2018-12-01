@@ -1,9 +1,9 @@
 package io.imulab.nix.oidc.client
 
 import io.imulab.nix.oauth.client.OAuthClient
-import io.imulab.nix.oidc.JweContentEncodingAlgorithm
-import io.imulab.nix.oidc.JweKeyManagementAlgorithm
-import io.imulab.nix.oidc.JwtSigningAlgorithm
+import io.imulab.nix.oidc.reserved.JweContentEncodingAlgorithm
+import io.imulab.nix.oidc.reserved.JweKeyManagementAlgorithm
+import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
 
 interface OidcClient : OAuthClient {
 

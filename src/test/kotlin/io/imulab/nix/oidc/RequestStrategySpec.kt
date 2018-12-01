@@ -7,6 +7,15 @@ import com.nhaarman.mockitokotlin2.*
 import io.imulab.nix.oauth.error.OAuthException
 import io.imulab.nix.oidc.client.OidcClient
 import io.imulab.nix.oidc.discovery.OidcContext
+import io.imulab.nix.oidc.jwk.JsonWebKeySetStrategy
+import io.imulab.nix.oidc.jwk.resolvePrivateKey
+import io.imulab.nix.oidc.jwk.resolvePublicKey
+import io.imulab.nix.oidc.request.CachedRequest
+import io.imulab.nix.oidc.request.CachedRequestRepository
+import io.imulab.nix.oidc.request.RequestStrategy
+import io.imulab.nix.oidc.reserved.JweContentEncodingAlgorithm
+import io.imulab.nix.oidc.reserved.JweKeyManagementAlgorithm
+import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache.Apache
 import kotlinx.coroutines.runBlocking

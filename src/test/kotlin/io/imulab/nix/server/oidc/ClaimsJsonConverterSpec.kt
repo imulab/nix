@@ -1,8 +1,8 @@
 package io.imulab.nix.server.oidc
 
-import io.imulab.nix.oidc.ClaimInfo
-import io.imulab.nix.oidc.Claims
-import io.imulab.nix.oidc.StandardClaim
+import io.imulab.nix.oidc.claim.ClaimInfo
+import io.imulab.nix.oidc.claim.Claims
+import io.imulab.nix.oidc.reserved.StandardClaim
 import org.assertj.core.api.Assertions.assertThat
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
