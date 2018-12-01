@@ -58,7 +58,7 @@ interface OidcClient : OAuthClient {
     /**
      * Optional. URL using https scheme whose host component will be utilized
      * during pairwise pseudonymous subject value calculation. The URL itself
-     * should point to a file with single JSON array of redirect_uri values.
+     * should point to a file with single JSON array of redirectUri values.
      */
     val sectorIdentifierUri: String
 

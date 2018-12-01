@@ -11,6 +11,7 @@ class LoginRedirectionSignal(
     private val loginEndpoint: String,
     private val loginToken: String,
     private val authorizeRequestId: String,
+    private val callbackUri: String,
     private val nonce: String
 ) : RuntimeException(), OAuthResponse {
     override val status: Int
@@ -21,6 +22,7 @@ class LoginRedirectionSignal(
         get() = mapOf(
             Param.Internal.loginToken to loginToken,
             LoginTokenParam.authorizeRequestId to authorizeRequestId,
-            LoginTokenParam.nonce to nonce
+            LoginTokenParam.nonce to nonce,
+            LoginTokenParam.redirectUri to callbackUri
         )
 }

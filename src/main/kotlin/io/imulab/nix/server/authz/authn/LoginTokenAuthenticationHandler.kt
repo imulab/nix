@@ -2,11 +2,14 @@ package io.imulab.nix.server.authz.authn
 
 import io.imulab.nix.oauth.AccessDenied
 import io.imulab.nix.oauth.assertType
-import io.imulab.nix.oidc.OidcAuthorizeRequest
-import io.imulab.nix.oidc.OidcRequestForm
-import io.imulab.nix.oidc.OidcSession
-import io.imulab.nix.oidc.toLocalDateTime
+import io.imulab.nix.oidc.*
+import io.imulab.nix.server.authz.authn.session.AuthenticationSession
+import io.imulab.nix.server.authz.authn.session.SessionStrategy
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.Exception
+import java.time.LocalDateTime
 
 /**
  * Implementation of [AuthenticationHandler] that handles the login flow re-entry logic.
@@ -15,9 +18,13 @@ import java.lang.Exception
  * request session `auth_time` to the token's `iat` claim.
  *
  * If the `login_token` is invalid, an access_denied error is raised.
+ *
+ * If the `login_token` contains a `remember` claim, this handler will write the authentication session information
+ * to session repository and set the expiry for that number of seconds.
  */
 class LoginTokenAuthenticationHandler(
-    private val loginTokenStrategy: LoginTokenStrategy
+    private val loginTokenStrategy: LoginTokenStrategy,
+    private val sessionStrategy: SessionStrategy
 ) : AuthenticationHandler {
 
     override suspend fun attemptAuthenticate(form: OidcRequestForm, request: OidcAuthorizeRequest, rawCall: Any) {
@@ -37,6 +44,21 @@ class LoginTokenAuthenticationHandler(
         with(request.session.assertType<OidcSession>()) {
             subject = loginClaims.subject
             authTime = loginClaims.issuedAt.toLocalDateTime()
+        }
+
+        if (loginClaims.hasClaim(LoginTokenClaim.remember)) {
+            val rememberForSeconds = loginClaims.getStringClaimValue(LoginTokenClaim.remember).toLongOrNull() ?: 0
+            if (rememberForSeconds > 0) {
+                withContext(Dispatchers.IO) {
+                    launch {
+                        sessionStrategy.write(rawCall, AuthenticationSession(
+                            subject = loginClaims.subject,
+                            authTime = loginClaims.issuedAt.toLocalDateTime(),
+                            expiry = LocalDateTime.now().plusSeconds(rememberForSeconds)
+                        ))
+                    }
+                }
+            }
         }
     }
 }

@@ -111,6 +111,7 @@ class AuthenticationProvider(
 
         throw LoginRedirectionSignal(
             loginEndpoint = serverContext.loginProviderEndpoint,
+            callbackUri = serverContext.authorizeEndpointUrl,
             loginToken = loginToken,
             authorizeRequestId = request.id,
             nonce = nonce

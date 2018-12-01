@@ -22,7 +22,7 @@ class OAuthRequestValidationChain(
 }
 
 /**
- * Validates the parameter `redirect_uri`. First, it must be pre-registered with the client. Second, if http
+ * Validates the parameter `redirectUri`. First, it must be pre-registered with the client. Second, if http
  * scheme is used, the host must be _localhost_ or _127.0.0.1_.
  */
 object RedirectUriValidator : OAuthRequestValidation {

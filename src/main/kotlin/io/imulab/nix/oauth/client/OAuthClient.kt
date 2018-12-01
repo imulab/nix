@@ -25,7 +25,7 @@ interface OAuthClient {
     val type: String
 
     /**
-     * List of pre-registered and pre-validated redirect_uri. These values will be
+     * List of pre-registered and pre-validated redirectUri. These values will be
      * consumed with the assumption that they are valid.
      */
     val redirectUris: Set<String>
@@ -70,8 +70,8 @@ interface OAuthClient {
 
     /**
      * Utility method to select a redirect uri from options:
-     * - if one is [presented], it must match one of the registered redirect_uri value, if any.
-     * - if one is not presented, there must be exactly one registered redirect_uri.
+     * - if one is [presented], it must match one of the registered redirectUri value, if any.
+     * - if one is not presented, there must be exactly one registered redirectUri.
      */
     fun determineRedirectUri(presented: String): String {
         return if (presented.isBlank()) {
