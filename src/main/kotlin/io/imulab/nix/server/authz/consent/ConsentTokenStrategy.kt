@@ -1,7 +1,7 @@
 package io.imulab.nix.server.authz.consent
 
-import io.imulab.nix.oauth.Param
-import io.imulab.nix.oauth.space
+import io.imulab.nix.oauth.reserved.Param
+import io.imulab.nix.oauth.reserved.space
 import io.imulab.nix.oidc.*
 import io.imulab.nix.oidc.discovery.OidcContext
 import org.jose4j.jws.JsonWebSignature

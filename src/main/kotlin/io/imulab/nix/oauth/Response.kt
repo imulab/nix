@@ -1,5 +1,8 @@
 package io.imulab.nix.oauth
 
+import io.imulab.nix.oauth.reserved.Param
+import io.imulab.nix.oauth.reserved.space
+
 /**
  * Interface to obtain response data for rendering as HTTP response.
  */

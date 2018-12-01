@@ -1,7 +1,7 @@
 package io.imulab.nix.oidc
 
 import io.imulab.nix.oauth.OAuthException
-import io.imulab.nix.oauth.Param
+import io.imulab.nix.oauth.reserved.Param
 import org.assertj.core.api.Assertions
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe

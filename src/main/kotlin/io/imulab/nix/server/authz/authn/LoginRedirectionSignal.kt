@@ -1,7 +1,7 @@
 package io.imulab.nix.server.authz.authn
 
 import io.imulab.nix.oauth.OAuthResponse
-import io.imulab.nix.oauth.Param
+import io.imulab.nix.oauth.reserved.Param
 import io.imulab.nix.oidc.LoginTokenParam
 
 /**

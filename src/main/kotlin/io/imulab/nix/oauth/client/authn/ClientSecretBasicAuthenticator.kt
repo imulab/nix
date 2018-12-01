@@ -1,12 +1,12 @@
 package io.imulab.nix.oauth.client.authn
 
-import io.imulab.nix.oauth.AuthenticationMethod
+import io.imulab.nix.oauth.reserved.AuthenticationMethod
 import io.imulab.nix.oauth.InvalidClient
 import io.imulab.nix.oauth.OAuthRequestForm
 import io.imulab.nix.oauth.client.ClientLookup
 import io.imulab.nix.oauth.client.OAuthClient
 import io.imulab.nix.oauth.client.pwd.PasswordEncoder
-import io.imulab.nix.oauth.colon
+import io.imulab.nix.oauth.reserved.colon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.charset.StandardCharsets

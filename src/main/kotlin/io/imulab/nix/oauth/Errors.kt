@@ -1,5 +1,7 @@
 package io.imulab.nix.oauth
 
+import io.imulab.nix.oauth.reserved.Param
+
 // invalid_request
 // ---------------
 // The request is missing a required parameter, includes an

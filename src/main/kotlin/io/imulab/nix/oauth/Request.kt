@@ -3,6 +3,9 @@ package io.imulab.nix.oauth
 import io.imulab.nix.oauth.client.authn.ClientAuthenticators
 import io.imulab.nix.oauth.client.ClientLookup
 import io.imulab.nix.oauth.client.OAuthClient
+import io.imulab.nix.oauth.reserved.Header
+import io.imulab.nix.oauth.reserved.Param
+import io.imulab.nix.oauth.reserved.space
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.reflect.KProperty

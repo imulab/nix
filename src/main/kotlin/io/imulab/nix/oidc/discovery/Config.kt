@@ -1,7 +1,9 @@
 package io.imulab.nix.oidc.discovery
 
 import io.imulab.nix.oauth.*
-import io.imulab.nix.oauth.AuthenticationMethod
+import io.imulab.nix.oauth.reserved.AuthenticationMethod
+import io.imulab.nix.oauth.reserved.GrantType
+import io.imulab.nix.oauth.reserved.space
 import io.imulab.nix.oidc.*
 import org.jose4j.jwk.JsonWebKeySet
 import java.time.Duration

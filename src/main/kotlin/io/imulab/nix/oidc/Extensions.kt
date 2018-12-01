@@ -1,8 +1,8 @@
 package io.imulab.nix.oidc
 
 import com.google.gson.GsonBuilder
-import io.imulab.nix.oauth.Param
-import io.imulab.nix.oauth.space
+import io.imulab.nix.oauth.reserved.Param
+import io.imulab.nix.oauth.reserved.space
 import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.NumericDate
 import java.time.LocalDateTime

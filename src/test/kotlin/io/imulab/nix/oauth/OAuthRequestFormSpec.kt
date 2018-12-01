@@ -1,5 +1,6 @@
 package io.imulab.nix.oauth
 
+import io.imulab.nix.oauth.reserved.Param
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.spekframework.spek2.Spek

@@ -1,9 +1,9 @@
 package io.imulab.nix.server.client
 
-import io.imulab.nix.oauth.AuthenticationMethod
-import io.imulab.nix.oauth.ClientType
+import io.imulab.nix.oauth.reserved.AuthenticationMethod
+import io.imulab.nix.oauth.reserved.ClientType
 import io.imulab.nix.oauth.ClientTypeValidator
-import io.imulab.nix.oauth.ResponseType
+import io.imulab.nix.oauth.reserved.ResponseType
 import io.imulab.nix.oidc.*
 import io.imulab.nix.oidc.client.OidcClient
 import java.util.*

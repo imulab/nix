@@ -1,6 +1,7 @@
 package io.imulab.nix.oauth.client
 
 import io.imulab.nix.oauth.*
+import io.imulab.nix.oauth.reserved.Param
 
 interface OAuthClient {
 

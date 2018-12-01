@@ -5,6 +5,8 @@ import io.imulab.nix.oauth.client.authn.ClientAuthenticator
 import io.imulab.nix.oauth.client.authn.ClientAuthenticators
 import io.imulab.nix.oauth.client.ClientLookup
 import io.imulab.nix.oauth.client.OAuthClient
+import io.imulab.nix.oauth.reserved.ClientType
+import io.imulab.nix.oauth.reserved.GrantType
 import io.imulab.nix.oidc.*
 import io.imulab.nix.oidc.AuthenticationMethod
 import org.jose4j.jwa.AlgorithmConstraints

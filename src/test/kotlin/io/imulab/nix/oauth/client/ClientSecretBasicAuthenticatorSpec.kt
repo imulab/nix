@@ -4,7 +4,7 @@ import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
-import io.imulab.nix.oauth.Header
+import io.imulab.nix.oauth.reserved.Header
 import io.imulab.nix.oauth.InvalidClient
 import io.imulab.nix.oauth.OAuthException
 import io.imulab.nix.oauth.OAuthRequestForm
