@@ -8,6 +8,8 @@ import io.imulab.nix.oauth.InvalidClient
 import io.imulab.nix.oauth.OAuthException
 import io.imulab.nix.oauth.OAuthRequestForm
 import io.imulab.nix.oauth.Param
+import io.imulab.nix.oauth.client.authn.ClientSecretPostAuthenticator
+import io.imulab.nix.oauth.client.pwd.BCryptPasswordEncoder
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions
 import org.spekframework.spek2.Spek

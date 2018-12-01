@@ -1,8 +1,8 @@
 package io.imulab.nix.oidc.client
 
 import io.imulab.nix.oauth.*
-import io.imulab.nix.oauth.client.ClientAuthenticator
-import io.imulab.nix.oauth.client.ClientAuthenticators
+import io.imulab.nix.oauth.client.authn.ClientAuthenticator
+import io.imulab.nix.oauth.client.authn.ClientAuthenticators
 import io.imulab.nix.oauth.client.ClientLookup
 import io.imulab.nix.oauth.client.OAuthClient
 import io.imulab.nix.oidc.*

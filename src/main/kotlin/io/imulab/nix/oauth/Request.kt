@@ -1,6 +1,6 @@
 package io.imulab.nix.oauth
 
-import io.imulab.nix.oauth.client.ClientAuthenticators
+import io.imulab.nix.oauth.client.authn.ClientAuthenticators
 import io.imulab.nix.oauth.client.ClientLookup
 import io.imulab.nix.oauth.client.OAuthClient
 import java.time.LocalDateTime
