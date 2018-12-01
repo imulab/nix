@@ -1,9 +1,9 @@
-package io.imulab.nix.server.authz
+package io.imulab.nix.server.authz.consent
 
-import io.imulab.nix.oauth.*
+import io.imulab.nix.oauth.Param
+import io.imulab.nix.oauth.space
 import io.imulab.nix.oidc.*
 import io.imulab.nix.oidc.discovery.OidcContext
-import io.imulab.nix.server.authz.repo.OidcAuthorizeRequestRepository
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.consumer.JwtConsumerBuilder
@@ -70,45 +70,5 @@ class ConsentTokenStrategy(
             // TODO right now, just include claim as a JSON string, this should be fixed later.
             c.setStringClaim(OidcParam.claims, claimsJsonConverter.toJson(claims))
         }
-    }
-}
-
-/**
- * An implementation of [OAuthRequestProducer] that handles re-entry requests that contain `consent_token` parameter.
- * When `consent_token` is present, parameter `auth_req_id` and `nonce` are also expected. These values will help
- * associate the `login_token` with an original authorize request, whose data will be updated using the content
- * of `consent_token`.
- */
-class ConsentTokenAwareOidcRequestStrategy(
-    private val oidcAuthorizeRequestRepository: OidcAuthorizeRequestRepository,
-    private val consentTokenStrategy: ConsentTokenStrategy
-) : OAuthRequestProducer {
-    override suspend fun produce(form: OAuthRequestForm): OAuthRequest {
-        val f = form.assertType<OidcRequestForm>()
-
-        require(form.consentToken.isNotEmpty()) {
-            "This strategy should not be called if there is no consent_token"
-        }
-
-        /*
-        We don't delete the original request from repository. First, it should self expire automatically. Second, it
-        may provide possibility to including login and consent attempts in one go in the future, if desired.
-         */
-        val originalRequest = oidcAuthorizeRequestRepository.get(f.authorizeRequestId, f.nonce)
-            ?: throw AccessDenied.byServer("Cannot resume authorization session.")
-
-        val consentTokenClaims = try {
-            consentTokenStrategy.decodeConsentTokenResponse(f.loginToken)
-        } catch (e: Exception) {
-            throw AccessDenied.byServer("Invalid consent token.")
-        }
-
-        if (originalRequest.session.subject != consentTokenClaims.subject)
-            throw AccessDenied.byServer("Consent subject mismatch.")
-
-        consentTokenClaims.scopes().forEach { originalRequest.grantScope(it) }
-        // TODO claims should be placed into session, we ignore it here temporarily until we figure out what's the type
-
-        return originalRequest
     }
 }

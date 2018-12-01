@@ -1,9 +1,8 @@
-package io.imulab.nix.server.authz
+package io.imulab.nix.server.authz.authn
 
-import io.imulab.nix.oauth.*
+import io.imulab.nix.oauth.space
 import io.imulab.nix.oidc.*
 import io.imulab.nix.oidc.discovery.OidcContext
-import io.imulab.nix.server.authz.repo.OidcAuthorizeRequestRepository
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.consumer.JwtConsumerBuilder
@@ -68,52 +67,5 @@ class LoginTokenStrategy(
             if (acrValues.isNotEmpty())
                 c.setStringClaim(OidcParam.acrValues, acrValues.joinToString(separator = space))
         }
-    }
-}
-
-/**
- * An implementation of [OAuthRequestProducer] that handles re-entry requests that contain `login_token` parameter.
- * When `login_token` is present, parameter `auth_req_id` and `nonce` are also expected. These values will help
- * associate the `login_token` with an original authorize request, whose data will be updated using the content
- * of `login_token`.
- */
-// TODO this should not try to expand the login_token, just use auth_req_id and nonce to revive original request.
-// TODO call it ReviveAuthorizeRequestProducer. And put the login_token in session.
-class LoginTokenAwareOidcRequestStrategy(
-    private val oidcAuthorizeRequestRepository: OidcAuthorizeRequestRepository,
-    private val loginTokenStrategy: LoginTokenStrategy
-) : OAuthRequestProducer {
-
-    override suspend fun produce(form: OAuthRequestForm): OAuthRequest {
-        val f = form.assertType<OidcRequestForm>()
-
-        require(form.loginToken.isNotEmpty()) {
-            "This strategy should not be called if there is no login_token"
-        }
-
-        /*
-        We don't delete the original request from repository. First, it should self expire automatically. Second, it
-        may provide possibility to including login and consent attempts in one go in the future, if desired.
-         */
-        val originalRequest = oidcAuthorizeRequestRepository.get(f.authorizeRequestId, f.nonce)
-            ?: throw AccessDenied.byServer("Cannot resume authentication session.")
-
-        val loginTokenClaims = try {
-            loginTokenStrategy.decodeLoginTokenResponse(f.loginToken)
-        } catch (e: Exception) {
-            throw AccessDenied.byServer("Invalid login token.")
-        }
-
-        return originalRequest.asBuilder().also { b ->
-            b.session.originalRequestTime = originalRequest.requestTime
-            b.session.subject = loginTokenClaims.subject            // TODO use subject obfuscator here
-            b.session.acrValues.also {
-                it.addAll(loginTokenClaims.acrValues())
-                if (it.isEmpty())
-                    it.add("0")
-            }
-            if (loginTokenClaims.hasClaim(IdTokenClaim.authTime))
-                b.session.authTime = loginTokenClaims.getNumericDateClaimValue(IdTokenClaim.authTime).toLocalDateTime()
-        }.build()
     }
 }
