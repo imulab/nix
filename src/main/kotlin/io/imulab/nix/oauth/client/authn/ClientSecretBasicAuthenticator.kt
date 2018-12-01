@@ -2,7 +2,7 @@ package io.imulab.nix.oauth.client.authn
 
 import io.imulab.nix.oauth.reserved.AuthenticationMethod
 import io.imulab.nix.oauth.error.InvalidClient
-import io.imulab.nix.oauth.OAuthRequestForm
+import io.imulab.nix.oauth.request.OAuthRequestForm
 import io.imulab.nix.oauth.client.ClientLookup
 import io.imulab.nix.oauth.client.OAuthClient
 import io.imulab.nix.oauth.client.pwd.PasswordEncoder

@@ -2,6 +2,9 @@ package io.imulab.nix.server.authz
 
 import io.imulab.nix.oauth.*
 import io.imulab.nix.oauth.error.ServerError
+import io.imulab.nix.oauth.request.OAuthRequest
+import io.imulab.nix.oauth.request.OAuthRequestForm
+import io.imulab.nix.oauth.request.OAuthRequestProducer
 import io.imulab.nix.oidc.OidcRequestForm
 import io.imulab.nix.server.authz.repo.OidcAuthorizeRequestRepository
 

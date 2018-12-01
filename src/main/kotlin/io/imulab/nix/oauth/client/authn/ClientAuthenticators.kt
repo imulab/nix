@@ -1,7 +1,7 @@
 package io.imulab.nix.oauth.client.authn
 
 import io.imulab.nix.oauth.reserved.AuthenticationMethod
-import io.imulab.nix.oauth.OAuthRequestForm
+import io.imulab.nix.oauth.request.OAuthRequestForm
 import io.imulab.nix.oauth.error.ServerError
 import io.imulab.nix.oauth.client.OAuthClient
 

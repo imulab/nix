@@ -1,6 +1,6 @@
 package io.imulab.nix.oauth.client.authn
 
-import io.imulab.nix.oauth.OAuthRequestForm
+import io.imulab.nix.oauth.request.OAuthRequestForm
 import io.imulab.nix.oauth.client.OAuthClient
 
 /**

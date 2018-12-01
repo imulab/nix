@@ -2,10 +2,9 @@ package io.imulab.nix.oauth.validation
 
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
-import io.imulab.nix.oauth.OAuthAuthorizeRequest
+import io.imulab.nix.oauth.request.OAuthAuthorizeRequest
 import io.imulab.nix.oauth.error.OAuthException
-import io.imulab.nix.oauth.OAuthRequest
-import io.imulab.nix.oauth.ScopeValidator
+import io.imulab.nix.oauth.request.OAuthRequest
 import io.imulab.nix.oauth.client.OAuthClient
 import org.assertj.core.api.Assertions
 import org.spekframework.spek2.Spek

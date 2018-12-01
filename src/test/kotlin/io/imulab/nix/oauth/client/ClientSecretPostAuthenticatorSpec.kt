@@ -6,7 +6,7 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import io.imulab.nix.oauth.error.InvalidClient
 import io.imulab.nix.oauth.error.OAuthException
-import io.imulab.nix.oauth.OAuthRequestForm
+import io.imulab.nix.oauth.request.OAuthRequestForm
 import io.imulab.nix.oauth.reserved.Param
 import io.imulab.nix.oauth.client.authn.ClientSecretPostAuthenticator
 import io.imulab.nix.oauth.client.pwd.BCryptPasswordEncoder
@@ -25,10 +25,12 @@ object ClientSecretPostAuthenticatorSpec: Spek({
 
     describe("authenticate client") {
         it("should return client when credential is sound") {
-            val form = OAuthRequestForm(httpForm = mutableMapOf(
-                Param.clientId to listOf("foo"),
-                Param.clientSecret to listOf("s3cret")
-            ))
+            val form = OAuthRequestForm(
+                httpForm = mutableMapOf(
+                    Param.clientId to listOf("foo"),
+                    Param.clientSecret to listOf("s3cret")
+                )
+            )
 
             runBlocking {
                 Assertions.assertThat(authenticator.authenticate(form)).extracting {
@@ -38,10 +40,12 @@ object ClientSecretPostAuthenticatorSpec: Spek({
         }
 
         it("should raise invalid_client error when credential is bad") {
-            val form = OAuthRequestForm(httpForm = mutableMapOf(
-                Param.clientId to listOf("foo"),
-                Param.clientSecret to listOf("bad")
-            ))
+            val form = OAuthRequestForm(
+                httpForm = mutableMapOf(
+                    Param.clientId to listOf("foo"),
+                    Param.clientSecret to listOf("bad")
+                )
+            )
 
             Assertions.assertThatExceptionOfType(OAuthException::class.java)
                 .isThrownBy {

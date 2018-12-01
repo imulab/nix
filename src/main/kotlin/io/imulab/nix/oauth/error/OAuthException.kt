@@ -1,6 +1,6 @@
 package io.imulab.nix.oauth.error
 
-import io.imulab.nix.oauth.OAuthResponse
+import io.imulab.nix.oauth.response.OAuthResponse
 import io.imulab.nix.oauth.reserved.Param
 
 class OAuthException(

@@ -7,7 +7,7 @@ import com.nhaarman.mockitokotlin2.mock
 import io.imulab.nix.oauth.reserved.Header
 import io.imulab.nix.oauth.error.InvalidClient
 import io.imulab.nix.oauth.error.OAuthException
-import io.imulab.nix.oauth.OAuthRequestForm
+import io.imulab.nix.oauth.request.OAuthRequestForm
 import io.imulab.nix.oauth.client.authn.ClientSecretBasicAuthenticator
 import io.imulab.nix.oauth.client.pwd.BCryptPasswordEncoder
 import kotlinx.coroutines.runBlocking
@@ -28,9 +28,11 @@ object ClientSecretBasicAuthenticatorSpec: Spek({
     describe("authenticate client") {
         it("should return client when credential is sound") {
             val goodHeader = "Basic " + Base64.getEncoder().encodeToString("foo:s3cret".toByteArray())
-            val form = OAuthRequestForm(httpForm = mutableMapOf(
-                Header.authorization to listOf(goodHeader)
-            ))
+            val form = OAuthRequestForm(
+                httpForm = mutableMapOf(
+                    Header.authorization to listOf(goodHeader)
+                )
+            )
 
             runBlocking {
                 assertThat(authenticator.authenticate(form)).extracting {
@@ -41,9 +43,11 @@ object ClientSecretBasicAuthenticatorSpec: Spek({
 
         it("should raise invalid_client error when credential is bad") {
             val badHeader = "Basic " + Base64.getEncoder().encodeToString("foo:bad".toByteArray())
-            val form = OAuthRequestForm(httpForm = mutableMapOf(
-                Header.authorization to listOf(badHeader)
-            ))
+            val form = OAuthRequestForm(
+                httpForm = mutableMapOf(
+                    Header.authorization to listOf(badHeader)
+                )
+            )
 
             assertThatExceptionOfType(OAuthException::class.java)
                 .isThrownBy {

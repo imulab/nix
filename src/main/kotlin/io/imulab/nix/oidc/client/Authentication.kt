@@ -7,6 +7,7 @@ import io.imulab.nix.oauth.client.ClientLookup
 import io.imulab.nix.oauth.client.OAuthClient
 import io.imulab.nix.oauth.error.InvalidClient
 import io.imulab.nix.oauth.error.InvalidRequest
+import io.imulab.nix.oauth.request.OAuthRequestForm
 import io.imulab.nix.oauth.reserved.ClientType
 import io.imulab.nix.oauth.reserved.GrantType
 import io.imulab.nix.oidc.*

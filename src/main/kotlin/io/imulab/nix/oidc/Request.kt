@@ -1,12 +1,13 @@
 package io.imulab.nix.oidc
 
-import io.imulab.nix.oauth.*
 import io.imulab.nix.oauth.client.ClientLookup
 import io.imulab.nix.oidc.client.OidcClient
 import io.imulab.nix.oauth.assertType
 import io.imulab.nix.oauth.error.OAuthException
+import io.imulab.nix.oauth.request.*
 import io.imulab.nix.oauth.reserved.Param
 import io.imulab.nix.oauth.reserved.space
+import io.imulab.nix.oauth.validation.SpecDefinitionValidator
 import io.imulab.nix.oidc.discovery.Discovery
 import io.imulab.nix.oidc.discovery.OidcContext
 import io.ktor.client.HttpClient

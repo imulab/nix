@@ -1,6 +1,7 @@
 package io.imulab.nix.oauth
 
 import io.imulab.nix.oauth.error.OAuthException
+import io.imulab.nix.oauth.request.OAuthRequestForm
 import io.imulab.nix.oauth.reserved.Param
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
@@ -11,9 +12,11 @@ object OAuthRequestFormSpec: Spek({
 
     describe("getting property through delegate") {
         it("should return value from httpForm when accessing through getter") {
-            val form = OAuthRequestForm(httpForm = mutableMapOf(
-                Param.clientId to listOf("foo")
-            ))
+            val form = OAuthRequestForm(
+                httpForm = mutableMapOf(
+                    Param.clientId to listOf("foo")
+                )
+            )
             assertThat(form.clientId).isEqualTo("foo")
         }
 
@@ -23,9 +26,11 @@ object OAuthRequestFormSpec: Spek({
         }
 
         it("should throw exception when accessing a value that has been provided multiple times") {
-            val form = OAuthRequestForm(httpForm = mutableMapOf(
-                Param.clientId to listOf("foo", "bar")
-            ))
+            val form = OAuthRequestForm(
+                httpForm = mutableMapOf(
+                    Param.clientId to listOf("foo", "bar")
+                )
+            )
             assertThatExceptionOfType(OAuthException::class.java)
                 .isThrownBy { form.clientId }
         }

@@ -1,5 +1,6 @@
 package io.imulab.nix.oauth
 
+import io.imulab.nix.oauth.validation.OAuthClientAuthenticationMethodValidator
 import java.time.Duration
 
 /**
