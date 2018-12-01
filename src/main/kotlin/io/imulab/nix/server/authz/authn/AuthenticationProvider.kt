@@ -49,9 +49,9 @@ class AuthenticationProvider(
      * - If `prompt=login` and the request is not an **re-entry**, even when authentication can be established, we need
      * to follow client direction to request a login from user. In this case, the request will be redirected to login.
      */
-    suspend fun tryAuthenticate(form: OidcRequestForm, request: OidcAuthorizeRequest) {
+    suspend fun tryAuthenticate(form: OidcRequestForm, request: OidcAuthorizeRequest, rawCall: Any) {
         for (h in handlers) {
-            h.attemptAuthenticate(form, request)
+            h.attemptAuthenticate(form, request, rawCall)
             if (request.isAuthenticated())
                 break
         }

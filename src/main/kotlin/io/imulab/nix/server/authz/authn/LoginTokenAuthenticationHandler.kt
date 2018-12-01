@@ -21,7 +21,7 @@ class LoginTokenAuthenticationHandler(
     private val loginTokenStrategy: LoginTokenStrategy
 ) : AuthenticationHandler {
 
-    override suspend fun attemptAuthenticate(form: OidcRequestForm, request: OidcAuthorizeRequest) {
+    override suspend fun attemptAuthenticate(form: OidcRequestForm, request: OidcAuthorizeRequest, rawCall: Any) {
         if (form.loginToken.isEmpty())
             return
 

@@ -26,7 +26,7 @@ class IdTokenHintAuthenticationHandler(
     private val oidcContext: OidcContext
 ) : AuthenticationHandler {
 
-    override suspend fun attemptAuthenticate(form: OidcRequestForm, request: OidcAuthorizeRequest) {
+    override suspend fun attemptAuthenticate(form: OidcRequestForm, request: OidcAuthorizeRequest, rawCall: Any) {
         if (form.idTokenHint.isEmpty())
             return
 

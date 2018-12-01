@@ -18,7 +18,7 @@ class AutoLoginAuthenticationHandler(
     private val authTimeLeeway: Duration = Duration.ofSeconds(5)
 ) : AuthenticationHandler {
 
-    override suspend fun attemptAuthenticate(form: OidcRequestForm, request: OidcAuthorizeRequest) {
+    override suspend fun attemptAuthenticate(form: OidcRequestForm, request: OidcAuthorizeRequest, rawCall: Any) {
         with(request.session.assertType<OidcSession>()) {
             subject = autoSubject
             authTime = LocalDateTime.now().minus(authTimeLeeway)

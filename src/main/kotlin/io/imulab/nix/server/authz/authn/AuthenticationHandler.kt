@@ -5,5 +5,8 @@ import io.imulab.nix.oidc.OidcRequestForm
 
 interface AuthenticationHandler {
 
-    suspend fun attemptAuthenticate(form: OidcRequestForm, request: OidcAuthorizeRequest)
+    suspend fun attemptAuthenticate(
+        form: OidcRequestForm,
+        request: OidcAuthorizeRequest,
+        rawCall: Any)
 }
