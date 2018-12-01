@@ -224,17 +224,17 @@ object AuthTimeValidator : OAuthRequestValidation {
 
         if (ar.maxAge > 0) {
             if (authTime.plusSeconds(ar.maxAge).isBefore(LocalDateTime.now()))
-                throw AccessDenied.byServer("Authentication expired (<auth_time> happened longer ago than <max_age>).")
+                throw AccessDenied.authenticationExpired()
         }
 
         if (ar.prompts.contains(Prompt.login)) {
             if (authTime.isBefore(session.originalRequestTime ?: ar.requestTime))
-                throw AccessDenied.byServer("Authentication did not happen (<login> prompt requested but <auth_time> is still before original request time).")
+                throw AccessDenied.oldAuthenticationOnLoginPrompt()
         }
 
         if (ar.prompts.contains(Prompt.none)) {
             if (authTime.isAfter(ar.requestTime))
-                throw AccessDenied.byServer("New authentication took place (<none> prompt requested by <auth_time> is after request time).")
+                throw AccessDenied.newAuthenticationOnNonePrompt()
         }
     }
 }

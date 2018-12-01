@@ -25,11 +25,17 @@ object InteractionRequired {
 // Request cannot be completed without displaying a user interface
 // for End-User authentication.
 object LoginRequired {
-    private const val code = "login_required"
+    const val code = "login_required"
     private const val status = 400
 
     val nonePrompt: () -> Throwable =
         { OAuthException(status, code, "Server needs to display authentication UI to end user, but prompt <none> was specified.") }
+
+    val reEntryInVain : () -> Throwable =
+        { OAuthException(status, code, "Server cannot establish authentication after an active login attempt.") }
+
+    val error : (String) -> Throwable =
+        { reason -> OAuthException(status, code, reason) }
 }
 
 // account_selection_required
