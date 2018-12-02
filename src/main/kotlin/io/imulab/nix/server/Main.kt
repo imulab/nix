@@ -8,7 +8,10 @@ import io.imulab.nix.server.route.token
 import io.ktor.application.Application
 import io.ktor.application.install
 import io.ktor.config.ApplicationConfig
+import io.ktor.config.HoconApplicationConfig
 import io.ktor.routing.routing
+import io.ktor.server.engine.applicationEngineEnvironment
+import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.sessions.SessionStorageMemory
@@ -36,8 +39,8 @@ fun Application.nix() {
     val kodein = Kodein {
         val di = DependencyInjection(environment.config)
 
-        import(di.configuration)
-        import(di.routeProviders)
+        importOnce(di.configuration, allowOverride = true)
+        importOnce(di.routeProviders, allowOverride = true)
 
         onReady {
             val config: ServerContext = instance()
@@ -52,10 +55,12 @@ fun Application.nix() {
 }
 
 fun main(args: Array<String>) {
-    embeddedServer(
-        Netty,
-        watchPaths = listOf("nix"),
-        port = 8080,
-        module = Application::nix
-    ).start(wait = true)
+    val env = applicationEngineEnvironment {
+        module { nix() }
+        connector {
+            port = 8080
+        }
+    }
+
+    embeddedServer(Netty, env).start(wait = true)
 }
