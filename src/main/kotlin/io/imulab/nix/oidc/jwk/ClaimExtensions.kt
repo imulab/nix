@@ -48,7 +48,7 @@ fun JwtClaims.display(): String =
     maybeString(OidcParam.display) ?: ""
 
 fun JwtClaims.maxAge(): Long =
-    maybe(OidcParam.maxAge) as? Long ?: 0
+    maybeString(OidcParam.maxAge)?.toLongOrNull() ?: 0
 
 fun JwtClaims.uiLocales(): List<String> =
     (maybeString(OidcParam.uiLocales) ?: "")

@@ -5,11 +5,15 @@ import io.imulab.nix.oauth.reserved.space
 import io.imulab.nix.oidc.claim.ClaimsJsonConverter
 import io.imulab.nix.oidc.discovery.OidcContext
 import io.imulab.nix.oidc.jwk.JwtVerificationKeyResolver
+import io.imulab.nix.oidc.jwk.mustKeyForJweKeyManagement
 import io.imulab.nix.oidc.jwk.mustKeyForSignature
 import io.imulab.nix.oidc.jwk.resolvePrivateKey
 import io.imulab.nix.oidc.request.OidcAuthorizeRequest
+import io.imulab.nix.oidc.reserved.JweContentEncodingAlgorithm
+import io.imulab.nix.oidc.reserved.JweKeyManagementAlgorithm
 import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
 import io.imulab.nix.oidc.reserved.OidcParam
+import org.jose4j.jwe.JsonWebEncryption
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.consumer.JwtConsumerBuilder
@@ -20,19 +24,20 @@ import java.time.Duration
  * internal consent provider. This strategy is responsible for generating a request token and decode the
  * response token.
  *
- * Note that right now, this strategy only supports signing the token. Encryption support may be provided
- * in the future.
+ * Note that right now, this strategy only supports signing the request token and encrypted response token.
  */
 class ConsentTokenStrategy(
     private val oidcContext: OidcContext,
-    private val signingAlgorithm: JwtSigningAlgorithm = JwtSigningAlgorithm.RS256,
+    private val requestSigningAlgorithm: JwtSigningAlgorithm = JwtSigningAlgorithm.RS256,
+    private val responseEncryptionAlgorithm: JweKeyManagementAlgorithm = JweKeyManagementAlgorithm.RSA1_5,
+    private val responseEncryptionEncoding: JweContentEncodingAlgorithm = JweContentEncodingAlgorithm.A128GCM,
     private val tokenLifespan: Duration = Duration.ofMinutes(10),
     private val tokenAudience: String,
     private val claimsJsonConverter: ClaimsJsonConverter
 ) {
 
     fun generateConsentTokenRequest(request: OidcAuthorizeRequest): String {
-        val jwk = oidcContext.masterJsonWebKeySet.mustKeyForSignature(signingAlgorithm)
+        val jwk = oidcContext.masterJsonWebKeySet.mustKeyForSignature(requestSigningAlgorithm)
         return JsonWebSignature().also { jws ->
             jws.payload = request.getClaims().toJson()
             jws.keyIdHeaderValue = jwk.keyId
@@ -42,16 +47,24 @@ class ConsentTokenStrategy(
     }
 
     fun decodeConsentTokenResponse(token: String): JwtClaims {
+        val jwt = JsonWebEncryption().also {
+            it.setAlgorithmConstraints(responseEncryptionAlgorithm.whitelisted())
+            it.setContentEncryptionAlgorithmConstraints(responseEncryptionEncoding.whitelisted())
+            it.compactSerialization = token
+            it.key = oidcContext.masterJsonWebKeySet
+                .mustKeyForJweKeyManagement(responseEncryptionAlgorithm)
+                .resolvePrivateKey()
+        }.plaintextString
+
         return JwtConsumerBuilder()
             .setRequireJwtId()
-            .setJwsAlgorithmConstraints(signingAlgorithm.whitelisted())
-            .setVerificationKeyResolver(
-                JwtVerificationKeyResolver(oidcContext.masterJsonWebKeySet, signingAlgorithm)
-            )
+            .setJwsAlgorithmConstraints(JwtSigningAlgorithm.None.whitelisted())
+            .setSkipVerificationKeyResolutionOnNone()
+            .setSkipSignatureVerification()
             .setExpectedIssuer(tokenAudience)
-            .setExpectedAudience(oidcContext.issuerUrl)
+            .setExpectedAudience(oidcContext.authorizeEndpointUrl)
             .build()
-            .processToClaims(token)
+            .processToClaims(jwt)
     }
 
     private fun OidcAuthorizeRequest.getClaims(): JwtClaims {
@@ -60,7 +73,7 @@ class ConsentTokenStrategy(
             c.setIssuedAtToNow()
             c.setNotBeforeMinutesInThePast(0f)
             c.setExpirationTimeMinutesInTheFuture(tokenLifespan.seconds.div(60).toFloat())
-            c.issuer = oidcContext.issuer
+            c.issuer = oidcContext.authorizeEndpointUrl
             c.setAudience(tokenAudience, client.id)
             c.subject = session.subject
 

@@ -8,10 +8,10 @@ import io.imulab.nix.oauth.request.OAuthRequest
 import io.imulab.nix.oauth.request.OAuthRequestForm
 import io.imulab.nix.oauth.reserved.space
 import io.imulab.nix.oauth.validation.SpecDefinitionValidator
-import io.imulab.nix.oidc.ClaimsJsonConverter
+import io.imulab.nix.oidc.claim.ClaimsJsonConverter
 
 /**
- * Implementation of [OAuthRequestProducer] to produce a [OidcAuthorizeRequest]. This class utilizes
+ * Extension of [OAuthAuthorizeRequestProducer] to produce a [OidcAuthorizeRequest]. This class utilizes
  * [OAuthAuthorizeRequestProducer] to do the basis work and transform built value back to
  * [OidcAuthorizeRequest.Builder].
  */

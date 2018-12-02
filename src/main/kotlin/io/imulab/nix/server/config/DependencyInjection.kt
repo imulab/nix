@@ -53,7 +53,8 @@ object DependencyInjection {
             AuthorizeRouteProvider(
                 requestProducer = instance("TODO"),
                 preValidation = instance("TODO"),
-                postValidation = instance("TODO")
+                postValidation = instance("TODO"),
+                authenticationProvider = instance("TODO")
             )
         }
     }

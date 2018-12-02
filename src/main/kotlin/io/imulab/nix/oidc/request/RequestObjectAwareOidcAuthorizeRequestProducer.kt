@@ -5,6 +5,7 @@ import io.imulab.nix.oauth.request.OAuthRequest
 import io.imulab.nix.oauth.request.OAuthRequestForm
 import io.imulab.nix.oauth.request.OAuthRequestProducer
 import io.imulab.nix.oauth.reserved.Param
+import io.imulab.nix.oidc.claim.ClaimsJsonConverter
 import io.imulab.nix.oidc.discovery.Discovery
 import io.imulab.nix.oidc.jwk.*
 import io.imulab.nix.oidc.reserved.OidcParam
