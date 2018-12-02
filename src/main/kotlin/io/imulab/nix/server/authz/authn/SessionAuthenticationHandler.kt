@@ -24,8 +24,6 @@ class SessionAuthenticationHandler(
 ) : AuthenticationHandler {
 
     override suspend fun attemptAuthenticate(form: OidcRequestForm, request: OidcAuthorizeRequest, rawCall: Any) {
-        check(rawCall is ApplicationCall)
-
         val authSession = sessionStrategy.retrieveAuthentication(rawCall)
             ?.let { if (it.expiry.isBefore(LocalDateTime.now())) null else it }
             ?: return
