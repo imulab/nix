@@ -8,6 +8,8 @@ import io.imulab.nix.oidc.request.OidcAuthorizeRequestProducer
 import io.imulab.nix.oidc.request.OidcRequestForm
 import io.imulab.nix.server.authz.authn.AuthenticationProvider
 import io.imulab.nix.server.authz.authn.LoginRedirectionSignal
+import io.imulab.nix.server.authz.consent.ConsentProvider
+import io.imulab.nix.server.authz.consent.ConsentRedirectionSignal
 import io.imulab.nix.server.autoParameters
 import io.imulab.nix.server.toMutableMap
 import io.ktor.application.ApplicationCall
@@ -31,6 +33,7 @@ class AuthorizeRouteProvider(
     private val requestProducer: OidcAuthorizeRequestProducer,
     private val preValidation: OAuthRequestValidation,
     private val authenticationProvider: AuthenticationProvider,
+    private val consentProvider: ConsentProvider,
     private val postValidation: OAuthRequestValidation
 ) {
 
@@ -40,6 +43,9 @@ class AuthorizeRouteProvider(
         } catch (e: Exception) {
             when (e) {
                 is LoginRedirectionSignal -> {
+
+                }
+                is ConsentRedirectionSignal -> {
 
                 }
                 is OAuthException -> {
@@ -65,6 +71,7 @@ class AuthorizeRouteProvider(
         authenticationProvider.tryAuthenticate(requestForm, authorizeRequest, ctx.call)
 
         // consent
+        consentProvider.tryAuthorize(requestForm, authorizeRequest, ctx.call)
 
         // post validation (everything should be nice and sound)
         postValidation.validate(authorizeRequest)

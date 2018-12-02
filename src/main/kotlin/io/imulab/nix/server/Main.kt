@@ -33,11 +33,11 @@ fun Application.nix() {
         }
     }
 
-    val di = Kodein {
-        bind<ApplicationConfig>() with singleton { environment.config }
+    val kodein = Kodein {
+        val di = DependencyInjection(environment.config)
 
-        import(DependencyInjection.configuration)
-        import(DependencyInjection.routeProviders)
+        import(di.configuration)
+        import(di.routeProviders)
 
         onReady {
             val config: ServerContext = instance()
@@ -46,8 +46,8 @@ fun Application.nix() {
     }
 
     routing {
-        authorize(di)
-        token(di)
+        authorize(kodein)
+        token(kodein)
     }
 }
 

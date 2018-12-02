@@ -14,6 +14,7 @@ import io.imulab.nix.oidc.reserved.JweKeyManagementAlgorithm
 import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
 import io.imulab.nix.server.authz.ConsentTokenStrategySpec.generateResponseToken
 import io.imulab.nix.server.authz.consent.ConsentTokenStrategy
+import io.imulab.nix.server.config.ServerContext
 import io.imulab.nix.server.oidc.GsonClaimsConverter
 import org.assertj.core.api.Assertions
 import org.jose4j.jwe.JsonWebEncryption
@@ -30,7 +31,7 @@ import java.time.LocalDateTime
 object ConsentTokenStrategySpec : Spek({
 
     val strategy = ConsentTokenStrategy(
-        oidcContext = BOM.oidcContext,
+        serverContext = BOM.oidcContext,
         tokenAudience = BOM.consentProvider,
         claimsJsonConverter = GsonClaimsConverter
     )
@@ -93,7 +94,7 @@ object ConsentTokenStrategySpec : Spek({
             })
         }
 
-        val oidcContext = mock<OidcContext> {
+        val oidcContext = mock<ServerContext> {
             onGeneric { authorizeEndpointUrl } doReturn "https://nix.com/oauth/authorize"
             onGeneric { masterJsonWebKeySet } doReturn jwks
         }

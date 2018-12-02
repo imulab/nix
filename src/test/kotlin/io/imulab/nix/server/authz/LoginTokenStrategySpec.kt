@@ -2,7 +2,6 @@ package io.imulab.nix.server.authz
 
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
-import io.imulab.nix.oidc.client.OidcClient
 import io.imulab.nix.oidc.discovery.OidcContext
 import io.imulab.nix.oidc.jwk.loginHint
 import io.imulab.nix.oidc.jwk.maxAge
@@ -14,6 +13,7 @@ import io.imulab.nix.oidc.reserved.JweKeyManagementAlgorithm
 import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
 import io.imulab.nix.server.authz.LoginTokenStrategySpec.generateResponseToken
 import io.imulab.nix.server.authz.authn.LoginTokenStrategy
+import io.imulab.nix.server.config.ServerContext
 import org.assertj.core.api.Assertions.assertThat
 import org.jose4j.jwe.JsonWebEncryption
 import org.jose4j.jwk.JsonWebKeySet
@@ -28,7 +28,7 @@ import org.spekframework.spek2.style.specification.describe
 object LoginTokenStrategySpec : Spek({
 
     val strategy = LoginTokenStrategy(
-        oidcContext = BOM.oidcContext,
+        serverContext = BOM.oidcContext,
         tokenAudience = BOM.loginProvider
     )
 
@@ -89,7 +89,7 @@ object LoginTokenStrategySpec : Spek({
             })
         }
 
-        val oidcContext = mock<OidcContext> {
+        val oidcContext = mock<ServerContext> {
             onGeneric { authorizeEndpointUrl } doReturn "https://nix.com/oauth/authorize"
             onGeneric { masterJsonWebKeySet } doReturn jwks
         }
