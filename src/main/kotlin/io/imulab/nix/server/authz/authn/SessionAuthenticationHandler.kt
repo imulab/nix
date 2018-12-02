@@ -5,13 +5,13 @@ import io.imulab.nix.oidc.request.OidcAuthorizeRequest
 import io.imulab.nix.oidc.request.OidcRequestForm
 import io.imulab.nix.oidc.request.OidcSession
 import io.imulab.nix.oidc.client.OidcClient
-import io.imulab.nix.server.authz.authn.session.SessionStrategy
+import io.imulab.nix.server.authz.authn.session.AuthenticationSessionStrategy
 import io.ktor.application.ApplicationCall
 import java.time.LocalDateTime
 
 /**
  * Implementation of [AuthenticationHandler] that uses the session to restore authentication information. The session
- * is provided via [SessionStrategy].
+ * is provided via [AuthenticationSessionStrategy].
  *
  * When a session is successfully restored, its expiry is first checked. If a max age property is provided (either
  * directly through request or through [OidcClient.defaultMaxAge]), session auth_time is also ensured to have not
@@ -20,13 +20,13 @@ import java.time.LocalDateTime
  * If all conditions are met, request session is set. Else, handler simply returns.
  */
 class SessionAuthenticationHandler(
-    private val sessionStrategy: SessionStrategy
+    private val sessionStrategy: AuthenticationSessionStrategy
 ) : AuthenticationHandler {
 
     override suspend fun attemptAuthenticate(form: OidcRequestForm, request: OidcAuthorizeRequest, rawCall: Any) {
         check(rawCall is ApplicationCall)
 
-        val authSession = sessionStrategy.retrieve(rawCall)
+        val authSession = sessionStrategy.retrieveAuthentication(rawCall)
             ?.let { if (it.expiry.isBefore(LocalDateTime.now())) null else it }
             ?: return
         val maxAge = if (request.maxAge > 0) request.maxAge else

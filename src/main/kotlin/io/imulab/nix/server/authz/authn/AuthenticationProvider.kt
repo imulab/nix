@@ -98,7 +98,7 @@ class AuthenticationProvider(
         request.session.assertType<OidcSession>().run {
             // we should have totally authenticated by now.
             check(subject.isNotEmpty())
-            subject = subjectObfuscator.obfuscate(subject, request.client.assertType())
+            obfuscatedSubject = subjectObfuscator.obfuscate(subject, request.client.assertType())
         }
     }
 

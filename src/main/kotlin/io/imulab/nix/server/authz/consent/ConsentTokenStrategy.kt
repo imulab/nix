@@ -2,6 +2,7 @@ package io.imulab.nix.server.authz.consent
 
 import io.imulab.nix.oauth.reserved.Param
 import io.imulab.nix.oauth.reserved.space
+import io.imulab.nix.oidc.claim.ClaimsJsonConverter
 import io.imulab.nix.oidc.discovery.OidcContext
 import io.imulab.nix.oidc.jwk.JwtVerificationKeyResolver
 import io.imulab.nix.oidc.jwk.mustKeyForSignature
@@ -62,6 +63,8 @@ class ConsentTokenStrategy(
             c.issuer = oidcContext.issuer
             c.setAudience(tokenAudience, client.id)
             c.subject = session.subject
+
+            // TODO set client information.
 
             if (display.isNotEmpty())
                 c.setStringClaim(OidcParam.display, display)

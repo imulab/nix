@@ -47,7 +47,7 @@ object JsonWebKeySetVorSpec : Spek({
             magicJwks
         }
         onBlocking { write(any(), any(), anyOrNull()) } doAnswer { iom ->
-            println("${Thread.currentThread().name} write")
+            println("${Thread.currentThread().name} writeAuthentication")
             println(iom.arguments[2].toString())
             runBlocking { delay(200L) }
         }

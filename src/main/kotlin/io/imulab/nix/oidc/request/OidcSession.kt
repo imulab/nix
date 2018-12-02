@@ -8,6 +8,7 @@ import java.time.LocalDateTime
  */
 open class OidcSession(
     subject: String = "",
+    var obfuscatedSubject: String = "",
     var authTime: LocalDateTime? = null,
     var acrValues: MutableList<String> = mutableListOf(),
     val claims: MutableMap<String, Any> = mutableMapOf()

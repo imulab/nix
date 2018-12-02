@@ -137,7 +137,7 @@ interface OidcClient : OAuthClient {
 
     /**
      * OPTIONAL. Array of request_uri values that are pre-registered by the RP for use at the OP.
-     * Servers MAY repository the contents of the files referenced by these URIs and not retrieve them at the time they are
+     * Servers MAY repository the contents of the files referenced by these URIs and not retrieveAuthentication them at the time they are
      * used in a request. OPs can require that request_uri values used be pre-registered with the
      * require_request_uri_registration discovery parameter. If the contents of the request file could ever change,
      * these URI values SHOULD include the base64url encoded SHA-256 hash value of the file contents referenced

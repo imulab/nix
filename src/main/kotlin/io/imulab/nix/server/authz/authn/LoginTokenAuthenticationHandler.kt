@@ -8,7 +8,7 @@ import io.imulab.nix.oidc.request.OidcRequestForm
 import io.imulab.nix.oidc.request.OidcSession
 import io.imulab.nix.oidc.reserved.LoginTokenClaim
 import io.imulab.nix.server.authz.authn.session.AuthenticationSession
-import io.imulab.nix.server.authz.authn.session.SessionStrategy
+import io.imulab.nix.server.authz.authn.session.AuthenticationSessionStrategy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -23,12 +23,12 @@ import java.time.LocalDateTime
  *
  * If the `login_token` is invalid, an access_denied error is raised.
  *
- * If the `login_token` contains a `remember` claim, this handler will write the authentication session information
+ * If the `login_token` contains a `remember` claim, this handler will writeAuthentication the authentication session information
  * to session repository and set the expiry for that number of seconds.
  */
 class LoginTokenAuthenticationHandler(
     private val loginTokenStrategy: LoginTokenStrategy,
-    private val sessionStrategy: SessionStrategy
+    private val sessionStrategy: AuthenticationSessionStrategy
 ) : AuthenticationHandler {
 
     override suspend fun attemptAuthenticate(form: OidcRequestForm, request: OidcAuthorizeRequest, rawCall: Any) {
@@ -55,7 +55,7 @@ class LoginTokenAuthenticationHandler(
             if (rememberForSeconds > 0) {
                 withContext(Dispatchers.IO) {
                     launch {
-                        sessionStrategy.write(rawCall, AuthenticationSession(
+                        sessionStrategy.writeAuthentication(rawCall, AuthenticationSession(
                             subject = loginClaims.subject,
                             authTime = loginClaims.issuedAt.toLocalDateTime(),
                             expiry = LocalDateTime.now().plusSeconds(rememberForSeconds)

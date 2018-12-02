@@ -41,6 +41,7 @@ class ServerContext(
     override val jwksUri: String by S("nix.endpoint.jwks")
     override val registrationEndpoint: String by S("nix.endpoint.registration")
     val loginProviderEndpoint: String by S("nix.endpoint.login")
+    val consentProviderEndpoint: String by S("nix.endpoint.consent")
     //endregion
 
     //region Token endpoint authentication
