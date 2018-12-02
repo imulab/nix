@@ -2,19 +2,20 @@ package io.imulab.nix.server.authz
 
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
+import io.imulab.nix.oauth.reserved.Param
 import io.imulab.nix.oidc.client.OidcClient
 import io.imulab.nix.oidc.discovery.OidcContext
-import io.imulab.nix.oidc.jwk.loginHint
-import io.imulab.nix.oidc.jwk.maxAge
 import io.imulab.nix.oidc.jwk.mustKeyForJweKeyManagement
 import io.imulab.nix.oidc.jwk.resolvePublicKey
 import io.imulab.nix.oidc.request.OidcAuthorizeRequest
+import io.imulab.nix.oidc.reserved.ConsentTokenClaim
 import io.imulab.nix.oidc.reserved.JweContentEncodingAlgorithm
 import io.imulab.nix.oidc.reserved.JweKeyManagementAlgorithm
 import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
-import io.imulab.nix.server.authz.LoginTokenStrategySpec.generateResponseToken
-import io.imulab.nix.server.authz.authn.LoginTokenStrategy
-import org.assertj.core.api.Assertions.assertThat
+import io.imulab.nix.server.authz.ConsentTokenStrategySpec.generateResponseToken
+import io.imulab.nix.server.authz.consent.ConsentTokenStrategy
+import io.imulab.nix.server.oidc.GsonClaimsConverter
+import org.assertj.core.api.Assertions
 import org.jose4j.jwe.JsonWebEncryption
 import org.jose4j.jwk.JsonWebKeySet
 import org.jose4j.jwk.RsaJwkGenerator
@@ -24,57 +25,60 @@ import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.consumer.JwtConsumerBuilder
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
+import java.time.LocalDateTime
 
-object LoginTokenStrategySpec : Spek({
+object ConsentTokenStrategySpec : Spek({
 
-    val strategy = LoginTokenStrategy(
+    val strategy = ConsentTokenStrategy(
         oidcContext = BOM.oidcContext,
-        tokenAudience = BOM.loginProvider
+        tokenAudience = BOM.consentProvider,
+        claimsJsonConverter = GsonClaimsConverter
     )
 
-    describe("Issue login token") {
+    describe("Issue consent token") {
 
         var token = ""
         val request = OidcAuthorizeRequest.Builder().also { b ->
-            b.client = mock()
+            b.client = BOM.client
+            b.scopes = mutableSetOf("foo", "bar")
             b.maxAge = 3600
-            b.loginHint = "email"
+            b.session.subject = "foo@bar.com"
+            b.session.authTime = LocalDateTime.now().minusSeconds(5)
         }.build()
 
-        it("should generate login token") {
-            token = strategy.generateLoginTokenRequest(request)
-            assertThat(token).isNotEmpty()
+        it("should generate token") {
+            token = strategy.generateConsentTokenRequest(request)
         }
 
-        it("login provider should be able to decode token") {
+        it("consent provider should be able to decode token") {
             val claims = JwtConsumerBuilder().also { b ->
                 b.setRequireJwtId()
                 b.setVerificationKey(BOM.jwks.findJsonWebKey(null, null, Use.SIGNATURE, null).resolvePublicKey())
                 b.setExpectedIssuer(BOM.oidcContext.authorizeEndpointUrl)
-                b.setExpectedAudience(BOM.loginProvider)
+                b.setExpectedAudience(BOM.consentProvider)
             }.build().processToClaims(token)
-            assertThat(claims.maxAge()).isEqualTo(3600)
-            assertThat(claims.loginHint()).isEqualTo("email")
+            Assertions.assertThat(claims.subject).isEqualTo("foo@bar.com")
+            Assertions.assertThat(claims.getStringClaimValue(ConsentTokenClaim.clientName)).isEqualTo(BOM.client.name)
+            Assertions.assertThat(claims.getStringClaimValue(Param.scope)).contains("foo", "bar")
         }
     }
 
     describe("Decode response token") {
-        val loginToken = generateResponseToken()
+        val consentToken = generateResponseToken()
         var claims = JwtClaims()
 
         it("strategy should be able to process token") {
-            claims = strategy.decodeLoginTokenResponse(loginToken)
+            claims = strategy.decodeConsentTokenResponse(consentToken)
         }
 
         it("claims should reflect authentication status") {
-            assertThat(claims.subject).isEqualTo("foo@bar.com")
+            Assertions.assertThat(claims.subject).isEqualTo("foo@bar.com")
         }
     }
-
 }) {
-    private object BOM {
 
-        const val loginProvider = "https://login.nix.com"
+    private object BOM {
+        const val consentProvider = "https://login.nix.com"
 
         val jwks = JsonWebKeySet().also { jwks ->
             jwks.addJsonWebKey(RsaJwkGenerator.generateJwk(2048).also { k ->
@@ -93,6 +97,11 @@ object LoginTokenStrategySpec : Spek({
             onGeneric { authorizeEndpointUrl } doReturn "https://nix.com/oauth/authorize"
             onGeneric { masterJsonWebKeySet } doReturn jwks
         }
+
+        val client = mock<OidcClient> {
+            onGeneric { id } doReturn "777aaf77-50be-44bc-afcb-853192c2918b"
+            onGeneric { name } doReturn "Test Client"
+        }
     }
 
     fun generateResponseToken(): String {
@@ -103,9 +112,11 @@ object LoginTokenStrategySpec : Spek({
                 c.setGeneratedJwtId()
                 c.setIssuedAtToNow()
                 c.setExpirationTimeMinutesInTheFuture(10f)
-                c.issuer = BOM.loginProvider
+                c.issuer = BOM.consentProvider
                 c.setAudience(BOM.oidcContext.authorizeEndpointUrl)
                 c.subject = "foo@bar.com"
+                c.setClaim(ConsentTokenClaim.scope, "foo bar")
+                c.setClaim(ConsentTokenClaim.remember, 1018080)
             }.toJson()
         }.compactSerialization
 

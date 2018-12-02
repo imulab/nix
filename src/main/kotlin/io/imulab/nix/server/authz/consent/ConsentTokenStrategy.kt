@@ -9,10 +9,7 @@ import io.imulab.nix.oidc.jwk.mustKeyForJweKeyManagement
 import io.imulab.nix.oidc.jwk.mustKeyForSignature
 import io.imulab.nix.oidc.jwk.resolvePrivateKey
 import io.imulab.nix.oidc.request.OidcAuthorizeRequest
-import io.imulab.nix.oidc.reserved.JweContentEncodingAlgorithm
-import io.imulab.nix.oidc.reserved.JweKeyManagementAlgorithm
-import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
-import io.imulab.nix.oidc.reserved.OidcParam
+import io.imulab.nix.oidc.reserved.*
 import org.jose4j.jwe.JsonWebEncryption
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
@@ -61,6 +58,7 @@ class ConsentTokenStrategy(
             .setJwsAlgorithmConstraints(JwtSigningAlgorithm.None.whitelisted())
             .setSkipVerificationKeyResolutionOnNone()
             .setSkipSignatureVerification()
+            .setDisableRequireSignature()
             .setExpectedIssuer(tokenAudience)
             .setExpectedAudience(oidcContext.authorizeEndpointUrl)
             .build()
@@ -77,7 +75,8 @@ class ConsentTokenStrategy(
             c.setAudience(tokenAudience, client.id)
             c.subject = session.subject
 
-            // TODO set client information.
+            // TODO set more client information (i.e. TOS, contact...).
+            c.setStringClaim(ConsentTokenClaim.clientName, client.name)
 
             if (display.isNotEmpty())
                 c.setStringClaim(OidcParam.display, display)
