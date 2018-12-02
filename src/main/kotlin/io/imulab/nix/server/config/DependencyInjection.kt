@@ -3,8 +3,13 @@ package io.imulab.nix.server.config
 import io.imulab.nix.oauth.request.OAuthRequestProducer
 import io.imulab.nix.oauth.validation.StateValidator
 import io.imulab.nix.oidc.discovery.OidcContext
+import io.imulab.nix.oidc.jwk.JsonWebKeySetRepository
+import io.imulab.nix.oidc.jwk.MemoryJsonWebKeySetRepository
 import io.imulab.nix.oidc.request.OidcAuthorizeRequestProducer
 import io.imulab.nix.oidc.request.RequestObjectAwareOidcAuthorizeRequestProducer
+import io.imulab.nix.oidc.request.RequestStrategy
+import io.imulab.nix.oidc.reserved.JweKeyManagementAlgorithm
+import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
 import io.imulab.nix.oidc.validation.NonceValidator
 import io.imulab.nix.oidc.validation.OidcResponseTypeValidator
 import io.imulab.nix.server.authz.KtorSessionStrategy
@@ -19,6 +24,9 @@ import io.imulab.nix.server.route.AuthorizeRouteProvider
 import io.imulab.nix.server.stringPropertyOrNull
 import io.ktor.config.ApplicationConfig
 import io.ktor.util.KtorExperimentalAPI
+import org.jose4j.jwk.JsonWebKeySet
+import org.jose4j.jwk.RsaJwkGenerator
+import org.jose4j.jwk.Use
 import org.kodein.di.Kodein
 import org.kodein.di.erased.bind
 import org.kodein.di.erased.instance
@@ -30,27 +38,48 @@ import org.kodein.di.erased.singleton
 @UseExperimental(KtorExperimentalAPI::class)
 class DependencyInjection(private val config: ApplicationConfig) {
 
-    private val shared = Kodein.Module(name = "shared") {
+    private val defaultPersistence = Kodein.Module(name = "defaultPersistence") {
         bind<OidcAuthorizeRequestRepository>() with singleton { MemoryOidcAuthorizeRequestRepository() }
+        bind<JsonWebKeySetRepository>() with singleton {
+            MemoryJsonWebKeySetRepository(serverJwks = JsonWebKeySet().also { s ->
+                s.addJsonWebKey(RsaJwkGenerator.generateJwk(2048).also { k ->
+                    k.keyId = "c7b318fa-4fc0-4beb-baef-91285c7ba628"
+                    k.use = Use.SIGNATURE
+                    k.algorithm = JwtSigningAlgorithm.RS256.algorithmIdentifier
+                })
+                s.addJsonWebKey(RsaJwkGenerator.generateJwk(2048).also { k ->
+                    k.keyId = "1eb56508-347b-4c8e-b040-5113aa18f26b"
+                    k.use = Use.ENCRYPTION
+                    k.algorithm = JweKeyManagementAlgorithm.RSA1_5.algorithmIdentifier
+                })
+            })
+        }
+    }
+
+    private val shared = Kodein.Module(name = "shared") {
+
     }
 
     val configuration = Kodein.Module(name = "configuration") {
-        bind<OidcContext>() with singleton {
+        importOnce(defaultPersistence)
+        bind<ServerContext>() with singleton {
             ServerContext(config = config, jsonWebKeySetRepository = instance())
         }
     }
 
     private val requestProducers = Kodein.Module(name = "requestProducers") {
-        bind<OAuthRequestProducer>() with singleton {
+        importOnce(configuration)
+        importOnce(defaultPersistence, allowOverride = true)
+        bind<OAuthRequestProducer>(tag = "masterRequestProducer") with singleton {
             ResumeOidcAuthorizeRequestProducer(
                 oidcAuthorizeRequestRepository = instance("TODO"),
                 defaultProducer = RequestObjectAwareOidcAuthorizeRequestProducer(
-                    discovery = instance("TODO"),
+                    discovery = instance(),
                     requestStrategy = instance("TODO"),
-                    claimsJsonConverter = instance("TODO"),
+                    claimsJsonConverter = GsonClaimsConverter,
                     firstPassProducer = OidcAuthorizeRequestProducer(
                         lookup = instance("TODO"),
-                        claimsJsonConverter = instance("TODO"),
+                        claimsJsonConverter = GsonClaimsConverter,
                         responseTypeValidator = OidcResponseTypeValidator
                     )
                 )
@@ -59,8 +88,8 @@ class DependencyInjection(private val config: ApplicationConfig) {
     }
 
     private val authenticationProvider = Kodein.Module(name = "authenticationProvider") {
-        import(shared)
         import(configuration)
+        import(defaultPersistence, allowOverride = true)
         bind<SubjectObfuscator>() with singleton {
             SubjectObfuscator((config.stringPropertyOrNull("nix.security.subjectSalt") ?: "").toByteArray())
         }
@@ -93,8 +122,8 @@ class DependencyInjection(private val config: ApplicationConfig) {
     }
 
     private val consentProvider = Kodein.Module(name = "consentProvider") {
-        importOnce(shared)
         importOnce(configuration)
+        importOnce(defaultPersistence, allowOverride = true)
         bind<ConsentTokenStrategy>() with singleton {
             ConsentTokenStrategy(
                 serverContext = instance(),
@@ -134,14 +163,13 @@ class DependencyInjection(private val config: ApplicationConfig) {
     }
 
     val routeProviders = Kodein.Module(name = "routeProviders") {
-        importOnce(shared)
         importOnce(requestProducers)
         importOnce(validators)
         importOnce(authenticationProvider)
         importOnce(consentProvider)
         bind() from singleton {
             AuthorizeRouteProvider(
-                requestProducer = instance("TODO"),
+                requestProducer = instance(tag = "masterRequestProducer"),
                 preValidation = instance("TODO"),
                 postValidation = instance("TODO"),
                 authenticationProvider = instance(),
