@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 /**
- * Super class of all OAuth requests.
+ * Super class of all OAuthConfig requests.
  */
 open class OAuthRequest(
     val id: String = UUID.randomUUID().toString(),

@@ -5,7 +5,7 @@ import io.imulab.nix.oauth.error.InvalidRequest
 import io.imulab.nix.oauth.reserved.Param
 
 /**
- * An OAuth access request
+ * An OAuthConfig access request
  */
 open class OAuthAccessRequest(
     val grantTypes: Set<String>,

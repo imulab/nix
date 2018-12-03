@@ -7,7 +7,7 @@ import io.imulab.nix.oauth.validation.SpecDefinitionValidator
 import io.imulab.nix.oidc.reserved.AuthenticationMethod
 
 /**
- * An extension to [OAuthClientAuthenticationMethodValidator]. In OIDC spec, we have a few additional methods. Now,
+ * An extension to [OAuthClientAuthenticationMethodValidator]. In OidcConfig spec, we have a few additional methods. Now,
  * the universe is `{client_secret_basic, client_secret_post, client_secret_jwt, private_key_jwt, none}`.
  */
 object OidcClientAuthenticationMethodValidator : SpecDefinitionValidator {

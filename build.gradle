@@ -1,3 +1,19 @@
+buildscript {
+    ext {
+        kotlinVersion = '1.3.10'
+        springBootVersion = '2.1.1.RELEASE'
+    }
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
+    }
+}
+
 plugins {
     id 'java'
     id 'application'
@@ -9,40 +25,73 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '4.0.2'
 }
 
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-spring'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
 apply from: "$rootDir/gradle/constants.gradle"
 apply from: "$rootDir/gradle/test.gradle"
-apply from: "$rootDir/gradle/coverage.gradle"
-apply from: "$rootDir/gradle/dokka.gradle"
+//apply from: "$rootDir/gradle/coverage.gradle"
+//apply from: "$rootDir/gradle/dokka.gradle"
 
 group = "io.imulab"
 version = "0.0.1"
-
-mainClassName = "$mainClass"
-
 sourceCompatibility = 1.8
 compileKotlin {
     kotlinOptions {
         jvmTarget = "1.8"
-        freeCompilerArgs = ["-Xuse-experimental=kotlin.Experimental"]
+        freeCompilerArgs = ["-Xuse-experimental=kotlin.Experimental", "-Xjsr305=strict"]
     }
 }
 compileTestKotlin {
     kotlinOptions {
         jvmTarget = "1.8"
-        freeCompilerArgs = ["-Xuse-experimental=kotlin.Experimental"]
+        freeCompilerArgs = ["-Xuse-experimental=kotlin.Experimental", "-Xjsr305=strict"]
     }
 }
 
 repositories {
     mavenCentral()
     jcenter()
+    maven { url "https://repo.spring.io/milestone" }
+    maven { url 'https://dl.bintray.com/konrad-kaminski/maven' }
     maven { url 'https://dl.bintray.com/kotlin/ktor' }
     maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     maven { url 'https://artifactory.imulab.io/artifactory/gradle-dev-local/' }
 }
 
+ext {
+    springCloudVersion = "Greenwich.M3"
+    kotlinCoroutineVersion = "1.0.1"
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$v_kotlin"
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
+
+    implementation('org.springframework.boot:spring-boot-starter-actuator')
+    //implementation('org.springframework.boot:spring-boot-starter-cache')
+    //implementation('org.springframework.boot:spring-boot-starter-data-redis-reactive')
+    implementation('org.springframework.boot:spring-boot-starter-webflux')
+    implementation('com.fasterxml.jackson.module:jackson-module-kotlin')
+    //implementation('org.mybatis.spring.boot:mybatis-spring-boot-starter:1.3.2')
+    //implementation('org.springframework.cloud:spring-cloud-starter-vault-config')
+    //implementation('org.springframework.session:spring-session-data-redis')
+
+    runtimeOnly('org.springframework.boot:spring-boot-devtools')
+    compileOnly('org.springframework.boot:spring-boot-configuration-processor')
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test')
+    testImplementation('io.projectreactor:reactor-test')
+
     implementation "io.ktor:ktor-server-netty:$v_ktor"
     implementation "io.ktor:ktor-client-apache:$v_ktor"
     implementation "io.ktor:ktor-gson:$v_ktor"

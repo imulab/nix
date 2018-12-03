@@ -129,14 +129,14 @@ class ServerContext(
     override val claimsLocalesSupported: List<String> by L("nix.claims.locales")
     //endregion
 
-    //region OAuth
+    //region OAuthConfig
     override val stateEntropy: Int by I("nix.oauth.stateEntropy")
     override val scopesSupported: List<String> by L("nix.oauth.scopes")
     override val responseTypesSupported: List<String> by L("nix.oauth.responseTypes")
     override val grantTypesSupported: List<String> by L("nix.oauth.grantTypes")
     //endregion
 
-    //region OIDC
+    //region OidcConfig
     override val nonceEntropy: Int by I("nix.oidc.nonceEntropy")
     override val acrValuesSupported: List<String> by L("nix.oidc.acrValues")
     override val subjectTypesSupported: List<String> by L("nix.oidc.subjectTypes")

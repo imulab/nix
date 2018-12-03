@@ -5,7 +5,7 @@ import io.imulab.nix.oauth.error.InvalidRequest
 import io.imulab.nix.oauth.reserved.Param
 
 /**
- * An OAuth authorize request
+ * An OAuthConfig authorize request
  */
 open class OAuthAuthorizeRequest(
     client: OAuthClient,

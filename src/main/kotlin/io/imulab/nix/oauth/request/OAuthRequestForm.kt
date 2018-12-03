@@ -10,7 +10,7 @@ import kotlin.reflect.KProperty
  * to a type safe request form for processing. This class exposes all request parameters
  * as plain strings. Downstream processors may elect to parse them into the desired type.
  *
- * This class also achieves the effect that, according to OAuth 2.0 Spec, unknown request
+ * This class also achieves the effect that, according to OAuthConfig 2.0 Spec, unknown request
  * parameters are discarded.
  *
  * This class should only be used to access request parameters briefly, and not used for
@@ -18,7 +18,7 @@ import kotlin.reflect.KProperty
  * slow to access.
  *
  * Possible usage scenarios include (but not restricted to) consolidating request parameter
- * values from multiple sources. For instance, resolving OIDC request object.
+ * values from multiple sources. For instance, resolving OidcConfig request object.
  */
 open class OAuthRequestForm(
     val httpForm: MutableMap<String, List<String>>,

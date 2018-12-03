@@ -12,7 +12,7 @@ import io.imulab.nix.oidc.reserved.*
 
 /**
  * Validates if the incoming parameters are actually supported by the server. Support information is supplied through
- * OIDC [Discovery] configuration.
+ * OidcConfig [Discovery] configuration.
  */
 class SupportValidator(private val discovery: Discovery) : OAuthRequestValidation {
     override fun validate(request: OAuthRequest) {

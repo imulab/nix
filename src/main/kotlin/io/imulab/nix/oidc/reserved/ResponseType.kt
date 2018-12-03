@@ -1,7 +1,7 @@
 package io.imulab.nix.oidc.reserved
 
 /**
- * Supplement to [io.imulab.nix.oauth.ResponseType]. The OIDC specification defines a new
+ * Supplement to [io.imulab.nix.oauth.ResponseType]. The OidcConfig specification defines a new
  * response type `id_token`.
  */
 object ResponseType {

@@ -6,7 +6,7 @@ import io.imulab.nix.oauth.request.OAuthAuthorizeRequest
 import io.imulab.nix.oauth.request.OAuthRequest
 
 /**
- * Validate the parameter `scope`. It must not be malformed according to OAuth spec and
+ * Validate the parameter `scope`. It must not be malformed according to OAuthConfig spec and
  * it must be allowed by the requesting client.
  */
 object ScopeValidator : SpecDefinitionValidator,

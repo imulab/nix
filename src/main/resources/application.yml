@@ -1,0 +1,69 @@
+nix:
+  endpoints:
+    issuer: http://localhost:8080
+    jwks: http://localhost:8080/nix.jwks
+    authorize: http://localhost:8080/oauth/authorize
+    token: http://localhost:8080/oauth/token
+    userinfo: http://localhost:8080/userinfo
+    registration: http://localhost:8080/client
+    login: http://localhost:8081/login
+    consent: http://localhost:8081/consent
+  oauth:
+    stateEntropy: 8
+    scopes:
+      - openid
+    responseTypes:
+      - code
+      - token
+      - id_token
+  oidc:
+    nonceEntropy: 8
+    subjectTypes:
+      - public
+      - pairwise
+    responseModes:
+      - query
+      - fragment
+    display:
+      - page
+  security:
+    tokenEndpointAuth:
+      default: client_secret_basic
+      supported:
+        - client_secret_basic
+        - client_secret_post
+        - client_secret_jwt
+        - private_key_jwt
+      signatureAlgorithms:
+        - RS256
+    subjectSalt: "c2693a2e26a0438a965363d3ba5d12ec"
+  authorizeCode:
+    expiration: 10m
+  accessToken:
+    expiration: 1h
+  refreshToken:
+    expiration: 14d
+  loginToken:
+    expiration: 10m
+  consentToken:
+    expiration: 10m
+  idToken:
+    expiration: 1h
+    signingAlgorithms:
+      - RS256
+  userInfo:
+    signingAlgorithms:
+      - RS256
+  requestObject:
+    signingAlgorithms:
+      - RS256
+      - none
+    supportRequestParameter: true
+    supportRequestUriParameter: true
+    requireRequestUriRegistration: true
+  claims:
+    supported: true
+    values:
+      - auth_time
+    types:
+      - normal

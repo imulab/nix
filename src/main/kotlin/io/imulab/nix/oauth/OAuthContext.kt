@@ -14,12 +14,12 @@ interface OAuthContext {
     val issuerUrl: String
 
     /**
-     * Absolute URL for OAuth authorize endpoint
+     * Absolute URL for OAuthConfig authorize endpoint
      */
     val authorizeEndpointUrl: String
 
     /**
-     * Absolute URL for OAuth token endpoint
+     * Absolute URL for OAuthConfig token endpoint
      */
     val tokenEndpointUrl: String
 
