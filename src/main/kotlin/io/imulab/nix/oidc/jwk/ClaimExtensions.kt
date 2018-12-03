@@ -36,6 +36,10 @@ fun JwtClaims.responseMode(): String =
 fun JwtClaims.nonce(): String =
     maybeString(OidcParam.nonce) ?: ""
 
+fun JwtClaims.setNonce(nonce: String) {
+    setStringClaim(OidcParam.nonce, nonce)
+}
+
 fun JwtClaims.display(): String =
     maybeString(OidcParam.display) ?: ""
 
@@ -58,6 +62,10 @@ fun JwtClaims.acrValues(): List<String> =
         .split(space)
         .filter { it.isNotBlank() }
 
+fun JwtClaims.setAcr(acrValues: List<String>) {
+    setStringClaim(IdTokenClaim.acr, acrValues.joinToString(separator = space))
+}
+
 fun JwtClaims.claimsInJson(): String =
     maybe(OidcParam.claims)
         ?.let { GsonBuilder().serializeNulls().create().toJson(it) }
@@ -74,6 +82,12 @@ fun JwtClaims.authTime(): LocalDateTime? =
     else
         getNumericDateClaimValue(IdTokenClaim.authTime).toLocalDateTime()
 
-fun NumericDate.toLocalDateTime(): LocalDateTime {
-    return LocalDateTime.ofEpochSecond(this.value, 0, ZoneOffset.UTC)
+fun JwtClaims.setAuthTime(time: LocalDateTime) {
+    setNumericDateClaim(IdTokenClaim.authTime, time.toNumericDate())
 }
+
+fun NumericDate.toLocalDateTime(): LocalDateTime =
+    LocalDateTime.ofEpochSecond(this.value, 0, ZoneOffset.UTC)
+
+fun LocalDateTime.toNumericDate(): NumericDate =
+    NumericDate.fromSeconds(this.toEpochSecond(ZoneOffset.UTC))

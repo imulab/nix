@@ -6,4 +6,6 @@ object IdTokenClaim {
     const val nonce = "nonce"
     const val sub = "sub"
     const val authTime = "auth_time"
+    const val acr = "acr"
+    const val azp ="azp"
 }
