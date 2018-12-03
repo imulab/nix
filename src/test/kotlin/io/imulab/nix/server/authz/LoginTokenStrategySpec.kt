@@ -2,7 +2,6 @@ package io.imulab.nix.server.authz
 
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
-import io.imulab.nix.oidc.discovery.OidcContext
 import io.imulab.nix.oidc.jwk.loginHint
 import io.imulab.nix.oidc.jwk.maxAge
 import io.imulab.nix.oidc.jwk.mustKeyForJweKeyManagement
@@ -28,7 +27,7 @@ import org.spekframework.spek2.style.specification.describe
 object LoginTokenStrategySpec : Spek({
 
     val strategy = LoginTokenStrategy(
-        serverContext = BOM.oidcContext,
+        oidcContext = BOM.oidcContext,
         tokenAudience = BOM.loginProvider
     )
 

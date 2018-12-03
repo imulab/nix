@@ -3,6 +3,7 @@ package io.imulab.nix.server.authz.consent
 import io.imulab.nix.oauth.reserved.Param
 import io.imulab.nix.oauth.reserved.space
 import io.imulab.nix.oidc.claim.ClaimsJsonConverter
+import io.imulab.nix.oidc.discovery.OidcContext
 import io.imulab.nix.oidc.jwk.mustKeyForJweKeyManagement
 import io.imulab.nix.oidc.jwk.mustKeyForSignature
 import io.imulab.nix.oidc.jwk.resolvePrivateKey
@@ -23,17 +24,17 @@ import java.time.Duration
  * Note that right now, this strategy only supports signing the request token and encrypted response token.
  */
 class ConsentTokenStrategy(
-    private val serverContext: ServerContext,
+    private val oidcContext: OidcContext,
     private val requestSigningAlgorithm: JwtSigningAlgorithm = JwtSigningAlgorithm.RS256,
     private val responseEncryptionAlgorithm: JweKeyManagementAlgorithm = JweKeyManagementAlgorithm.RSA1_5,
     private val responseEncryptionEncoding: JweContentEncodingAlgorithm = JweContentEncodingAlgorithm.A128GCM,
     private val tokenLifespan: Duration = Duration.ofMinutes(10),
-    private val tokenAudience: String = serverContext.consentProviderEndpoint,
+    private val tokenAudience: String,
     private val claimsJsonConverter: ClaimsJsonConverter
 ) {
 
     fun generateConsentTokenRequest(request: OidcAuthorizeRequest): String {
-        val jwk = serverContext.masterJsonWebKeySet.mustKeyForSignature(requestSigningAlgorithm)
+        val jwk = oidcContext.masterJsonWebKeySet.mustKeyForSignature(requestSigningAlgorithm)
         return JsonWebSignature().also { jws ->
             jws.payload = request.getClaims().toJson()
             jws.keyIdHeaderValue = jwk.keyId
@@ -47,7 +48,7 @@ class ConsentTokenStrategy(
             it.setAlgorithmConstraints(responseEncryptionAlgorithm.whitelisted())
             it.setContentEncryptionAlgorithmConstraints(responseEncryptionEncoding.whitelisted())
             it.compactSerialization = token
-            it.key = serverContext.masterJsonWebKeySet
+            it.key = oidcContext.masterJsonWebKeySet
                 .mustKeyForJweKeyManagement(responseEncryptionAlgorithm)
                 .resolvePrivateKey()
         }.plaintextString
@@ -59,7 +60,7 @@ class ConsentTokenStrategy(
             .setSkipSignatureVerification()
             .setDisableRequireSignature()
             .setExpectedIssuer(tokenAudience)
-            .setExpectedAudience(serverContext.authorizeEndpointUrl)
+            .setExpectedAudience(oidcContext.authorizeEndpointUrl)
             .build()
             .processToClaims(jwt)
     }
@@ -70,7 +71,7 @@ class ConsentTokenStrategy(
             c.setIssuedAtToNow()
             c.setNotBeforeMinutesInThePast(0f)
             c.setExpirationTimeMinutesInTheFuture(tokenLifespan.seconds.div(60).toFloat())
-            c.issuer = serverContext.authorizeEndpointUrl
+            c.issuer = oidcContext.authorizeEndpointUrl
             c.setAudience(tokenAudience, client.id)
             c.subject = session.subject
 

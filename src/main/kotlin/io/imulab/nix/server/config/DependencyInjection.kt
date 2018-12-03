@@ -3,7 +3,6 @@ package io.imulab.nix.server.config
 import io.imulab.nix.oauth.request.OAuthRequestProducer
 import io.imulab.nix.oauth.validation.StateValidator
 import io.imulab.nix.oidc.client.MemoryClientStorage
-import io.imulab.nix.oidc.discovery.OidcContext
 import io.imulab.nix.oidc.jwk.JsonWebKeySetRepository
 import io.imulab.nix.oidc.jwk.JsonWebKeySetStrategy
 import io.imulab.nix.oidc.jwk.MemoryJsonWebKeySetRepository
@@ -22,8 +21,6 @@ import io.imulab.nix.server.authz.repo.OidcAuthorizeRequestRepository
 import io.imulab.nix.server.oidc.GsonClaimsConverter
 import io.imulab.nix.server.route.AuthorizeRouteProvider
 import io.imulab.nix.server.stringPropertyOrNull
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.apache.Apache
 import io.ktor.config.ApplicationConfig
 import io.ktor.util.KtorExperimentalAPI
 import org.jose4j.jwk.JsonWebKeySet
@@ -65,7 +62,7 @@ class DependencyInjection(private val config: ApplicationConfig) {
         bind<JsonWebKeySetStrategy>() with singleton {
             JsonWebKeySetStrategy(
                 jsonWebKeySetRepository = instance(),
-                httpClient = HttpClient(Apache)
+                httpClient = instance("mocked")
             )
         }
     }
@@ -86,7 +83,7 @@ class DependencyInjection(private val config: ApplicationConfig) {
                 repository = instance(),
                 serverContext = instance(),
                 jsonWebKeySetStrategy = instance(),
-                httpClient = HttpClient(Apache)
+                httpClient = instance()
             )
         }
         bind<OAuthRequestProducer>(tag = "masterRequestProducer") with singleton {
@@ -112,7 +109,7 @@ class DependencyInjection(private val config: ApplicationConfig) {
         bind<SubjectObfuscator>() with singleton {
             SubjectObfuscator((config.stringPropertyOrNull("nix.security.subjectSalt") ?: "").toByteArray())
         }
-        bind<LoginTokenStrategy>() with singleton { LoginTokenStrategy(serverContext = instance()) }
+        //bind<LoginTokenStrategy>() with singleton { LoginTokenStrategy(oidcContext = instance()) }
         bind<LoginTokenAuthenticationHandler>(tag = LoginTokenAuthenticationHandler::class) with singleton {
             LoginTokenAuthenticationHandler(
                 loginTokenStrategy = instance(),
@@ -125,30 +122,29 @@ class DependencyInjection(private val config: ApplicationConfig) {
         bind<AutoLoginAuthenticationHandler>(tag = AutoLoginAuthenticationHandler::class) with singleton {
             AutoLoginAuthenticationHandler()
         }
-        bind<AuthenticationProvider>() with singleton {
-            AuthenticationProvider(
-                subjectObfuscator = instance(),
-                serverContext = instance(),
-                handlers = listOf(
-                    instance(tag = LoginTokenAuthenticationHandler::class),
-                    instance(tag = SessionAuthenticationHandler::class),
-                    instance(tag = AutoLoginAuthenticationHandler::class)
-                ),
-                loginTokenStrategy = instance(),
-                requestRepository = instance()
-            )
-        }
+//        bind<AuthenticationProvider>() with singleton {
+//            AuthenticationProvider(
+//                subjectObfuscator = instance(),
+//                handlers = listOf(
+//                    instance(tag = LoginTokenAuthenticationHandler::class),
+//                    instance(tag = SessionAuthenticationHandler::class),
+//                    instance(tag = AutoLoginAuthenticationHandler::class)
+//                ),
+//                loginTokenStrategy = instance(),
+//                requestRepository = instance()
+//            )
+//        }
     }
 
     private val consentProvider = Kodein.Module(name = "consentProvider") {
         importOnce(configuration)
         importOnce(defaultPersistence, allowOverride = true)
-        bind<ConsentTokenStrategy>() with singleton {
-            ConsentTokenStrategy(
-                serverContext = instance(),
-                claimsJsonConverter = GsonClaimsConverter
-            )
-        }
+//        bind<ConsentTokenStrategy>() with singleton {
+//            ConsentTokenStrategy(
+//                serverContext = instance(),
+//                claimsJsonConverter = GsonClaimsConverter
+//            )
+//        }
         bind<ConsentTokenConsentHandler>(tag = ConsentTokenConsentHandler::class) with singleton {
             ConsentTokenConsentHandler(
                 consentTokenStrategy = instance(),
@@ -161,19 +157,19 @@ class DependencyInjection(private val config: ApplicationConfig) {
         bind<AutoGrantConsentHandler>(tag = AutoGrantConsentHandler::class) with singleton {
             AutoGrantConsentHandler()
         }
-        bind<ConsentProvider>() with singleton {
-            ConsentProvider(
-                handlers = listOf(
-                    instance(tag = ConsentTokenConsentHandler::class),
-                    instance(tag = SessionConsentHandler::class),
-                    instance(tag = AutoGrantConsentHandler::class)
-                ),
-                requestRepository = instance(),
-                serverContext = instance(),
-                consentTokenStrategy = instance(),
-                requireAuthentication = true
-            )
-        }
+//        bind<ConsentProvider>() with singleton {
+//            ConsentProvider(
+//                handlers = listOf(
+//                    instance(tag = ConsentTokenConsentHandler::class),
+//                    instance(tag = SessionConsentHandler::class),
+//                    instance(tag = AutoGrantConsentHandler::class)
+//                ),
+//                requestRepository = instance(),
+//                serverContext = instance(),
+//                consentTokenStrategy = instance(),
+//                requireAuthentication = true
+//            )
+//        }
     }
 
     private val validators = Kodein.Module(name = "validators") {

@@ -2,6 +2,7 @@ package io.imulab.nix.server.authz.authn
 
 import io.imulab.nix.oauth.error.AccessDenied
 import io.imulab.nix.oauth.assertType
+import io.imulab.nix.oidc.discovery.OidcContext
 import io.imulab.nix.oidc.error.LoginRequired
 import io.imulab.nix.oidc.request.OidcAuthorizeRequest
 import io.imulab.nix.oidc.request.OidcRequestForm
@@ -26,7 +27,8 @@ class AuthenticationProvider(
     private val requestRepository: OidcAuthorizeRequestRepository,
     private val loginTokenStrategy: LoginTokenStrategy,
     private val subjectObfuscator: SubjectObfuscator,
-    private val serverContext: ServerContext
+    private val loginProviderEndpoint: String,
+    private val oidcContext: OidcContext
 ) {
 
     /**
@@ -103,7 +105,7 @@ class AuthenticationProvider(
     }
 
     private suspend fun prepareForRedirection(request: OidcAuthorizeRequest) {
-        val nonce = ByteArray(serverContext.nonceEntropy)
+        val nonce = ByteArray(oidcContext.nonceEntropy)
             .also { ThreadLocalRandom.current().nextBytes(it) }
             .let { Base64.getUrlEncoder().withoutPadding().encodeToString(it) }
 
@@ -114,8 +116,8 @@ class AuthenticationProvider(
         val loginToken = loginTokenStrategy.generateLoginTokenRequest(request)
 
         throw LoginRedirectionSignal(
-            loginEndpoint = serverContext.loginProviderEndpoint,
-            callbackUri = serverContext.authorizeEndpointUrl,
+            loginEndpoint = loginProviderEndpoint,
+            callbackUri = oidcContext.authorizeEndpointUrl,
             loginToken = loginToken,
             authorizeRequestId = request.id,
             nonce = nonce

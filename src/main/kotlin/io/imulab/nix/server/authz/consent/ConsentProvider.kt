@@ -1,12 +1,12 @@
 package io.imulab.nix.server.authz.consent
 
+import io.imulab.nix.oidc.discovery.OidcContext
 import io.imulab.nix.oidc.error.InteractionRequired
 import io.imulab.nix.oidc.request.OidcAuthorizeRequest
 import io.imulab.nix.oidc.request.OidcRequestForm
 import io.imulab.nix.oidc.reserved.Prompt
 import io.imulab.nix.server.authz.authn.AuthenticationProvider
 import io.imulab.nix.server.authz.repo.OidcAuthorizeRequestRepository
-import io.imulab.nix.server.config.ServerContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -25,7 +25,8 @@ class ConsentProvider(
     private val consentTokenStrategy: ConsentTokenStrategy,
     private val requestRepository: OidcAuthorizeRequestRepository,
     private val requireAuthentication: Boolean = true,
-    private val serverContext: ServerContext
+    private val oidcContext: OidcContext,
+    private val consentProviderEndpoint: String
 ) {
 
     /**
@@ -84,7 +85,7 @@ class ConsentProvider(
             this.scopes.isEmpty() || this.grantedScopes.isNotEmpty()
 
     private suspend fun prepareForRedirection(request: OidcAuthorizeRequest) {
-        val nonce = ByteArray(serverContext.nonceEntropy)
+        val nonce = ByteArray(oidcContext.nonceEntropy)
             .also { ThreadLocalRandom.current().nextBytes(it) }
             .let { Base64.getUrlEncoder().withoutPadding().encodeToString(it) }
 
@@ -95,8 +96,8 @@ class ConsentProvider(
         val consentToken = consentTokenStrategy.generateConsentTokenRequest(request)
 
         throw ConsentRedirectionSignal(
-            consentEndpoint = serverContext.consentProviderEndpoint,
-            callbackUri = serverContext.authorizeEndpointUrl,
+            consentEndpoint = consentProviderEndpoint,
+            callbackUri = oidcContext.authorizeEndpointUrl,
             consentToken = consentToken,
             authorizeRequestId = request.id,
             nonce = nonce

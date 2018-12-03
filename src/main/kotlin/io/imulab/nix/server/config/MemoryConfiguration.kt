@@ -12,8 +12,12 @@ import org.jose4j.jwk.Use
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
+import org.springframework.session.ReactiveMapSessionRepository
+import org.springframework.session.config.annotation.web.server.EnableSpringWebSession
+import java.util.concurrent.ConcurrentHashMap
 
 @Configuration
+@EnableSpringWebSession
 @Profile("memory")
 class MemoryConfiguration {
 
@@ -39,4 +43,7 @@ class MemoryConfiguration {
 
     @Bean
     fun memoryClientStorage() = MemoryClientStorage()   // todo: add some fake clients here
+
+    @Bean
+    fun webSessionRepository() = ReactiveMapSessionRepository(ConcurrentHashMap())
 }

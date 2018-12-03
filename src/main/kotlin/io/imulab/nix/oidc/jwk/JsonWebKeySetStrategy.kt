@@ -2,10 +2,7 @@ package io.imulab.nix.oidc.jwk
 
 import io.imulab.nix.oauth.error.ServerError
 import io.imulab.nix.oidc.client.OidcClient
-import io.ktor.client.HttpClient
-import io.ktor.client.call.call
-import io.ktor.client.call.receive
-import io.ktor.http.HttpStatusCode
+import io.imulab.nix.oidc.spi.SimpleHttpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -28,7 +25,7 @@ import org.jose4j.lang.JoseException
  */
 class JsonWebKeySetStrategy(
     private val jsonWebKeySetRepository: JsonWebKeySetRepository,
-    private val httpClient: HttpClient
+    private val httpClient: SimpleHttpClient
 ) {
 
     suspend fun resolveKeySet(client: OidcClient): JsonWebKeySet = try {
@@ -62,21 +59,19 @@ class JsonWebKeySetStrategy(
     private suspend fun fetchFromRemote(jwksUri: String): JsonWebKeySet =
         withContext(Dispatchers.IO) {
             run {
-                httpClient.call(jwksUri).response.let { httpResponse ->
-                    when (httpResponse.status) {
-                        HttpStatusCode.OK -> {
-                            httpResponse.receive<String>().let { v ->
-                                JsonWebKeySet(v).also {
-                                    launch {
-                                        jsonWebKeySetRepository.writeClientJsonWebKeySet(
-                                            jwksUri = jwksUri,
-                                            keySet = it
-                                        )
-                                    }
+                httpClient.get(jwksUri).let { httpResponse ->
+                    when (httpResponse.status()) {
+                        200 -> {
+                            JsonWebKeySet(httpResponse.body()).also {
+                                launch {
+                                    jsonWebKeySetRepository.writeClientJsonWebKeySet(
+                                        jwksUri = jwksUri,
+                                        keySet = it
+                                    )
                                 }
                             }
                         }
-                        else -> throw ServerError.internal("call to jwks_uri returned ${httpResponse.status.value}.")
+                        else -> throw ServerError.internal("call to jwks_uri returned ${httpResponse.status()}.")
                     }
                 }
             }

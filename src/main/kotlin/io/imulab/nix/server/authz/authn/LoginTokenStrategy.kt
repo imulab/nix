@@ -1,6 +1,7 @@
 package io.imulab.nix.server.authz.authn
 
 import io.imulab.nix.oauth.reserved.space
+import io.imulab.nix.oidc.discovery.OidcContext
 import io.imulab.nix.oidc.jwk.mustKeyForJweKeyManagement
 import io.imulab.nix.oidc.jwk.mustKeyForSignature
 import io.imulab.nix.oidc.jwk.resolvePrivateKey
@@ -9,7 +10,6 @@ import io.imulab.nix.oidc.reserved.JweContentEncodingAlgorithm
 import io.imulab.nix.oidc.reserved.JweKeyManagementAlgorithm
 import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
 import io.imulab.nix.oidc.reserved.OidcParam
-import io.imulab.nix.server.config.ServerContext
 import org.jose4j.jwe.JsonWebEncryption
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
@@ -25,16 +25,16 @@ import java.time.Duration
  * in the future.
  */
 class LoginTokenStrategy(
-    private val serverContext: ServerContext,
+    private val oidcContext: OidcContext,
     private val requestSigningAlgorithm: JwtSigningAlgorithm = JwtSigningAlgorithm.RS256,
     private val responseEncryptionAlgorithm: JweKeyManagementAlgorithm = JweKeyManagementAlgorithm.RSA1_5,
     private val responseEncryptionEncoding: JweContentEncodingAlgorithm = JweContentEncodingAlgorithm.A128GCM,
     private val tokenLifespan: Duration = Duration.ofMinutes(10),
-    private val tokenAudience: String = serverContext.loginProviderEndpoint
+    private val tokenAudience: String
 ) {
 
     fun generateLoginTokenRequest(request: OidcAuthorizeRequest): String {
-        val jwk = serverContext.masterJsonWebKeySet.mustKeyForSignature(requestSigningAlgorithm)
+        val jwk = oidcContext.masterJsonWebKeySet.mustKeyForSignature(requestSigningAlgorithm)
         return JsonWebSignature().also { jws ->
             jws.payload = request.getClaims().toJson()
             jws.keyIdHeaderValue = jwk.keyId
@@ -48,7 +48,7 @@ class LoginTokenStrategy(
             it.setAlgorithmConstraints(responseEncryptionAlgorithm.whitelisted())
             it.setContentEncryptionAlgorithmConstraints(responseEncryptionEncoding.whitelisted())
             it.compactSerialization = token
-            it.key = serverContext.masterJsonWebKeySet
+            it.key = oidcContext.masterJsonWebKeySet
                 .mustKeyForJweKeyManagement(responseEncryptionAlgorithm)
                 .resolvePrivateKey()
         }.plaintextString
@@ -60,7 +60,7 @@ class LoginTokenStrategy(
             .setSkipSignatureVerification()
             .setDisableRequireSignature()
             .setExpectedIssuer(tokenAudience)
-            .setExpectedAudience(serverContext.authorizeEndpointUrl)
+            .setExpectedAudience(oidcContext.authorizeEndpointUrl)
             .build()
             .processToClaims(jwt)
     }
@@ -71,7 +71,7 @@ class LoginTokenStrategy(
             c.setIssuedAtToNow()
             c.setNotBeforeMinutesInThePast(0f)
             c.setExpirationTimeMinutesInTheFuture(tokenLifespan.seconds.div(60).toFloat())
-            c.issuer = serverContext.authorizeEndpointUrl
+            c.issuer = oidcContext.authorizeEndpointUrl
             c.setAudience(tokenAudience, client.id)
             c.subject = "login"
 

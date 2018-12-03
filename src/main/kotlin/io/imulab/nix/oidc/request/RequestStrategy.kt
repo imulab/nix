@@ -1,10 +1,7 @@
 package io.imulab.nix.oidc.request
 
-import io.imulab.nix.oidc.client.OidcClient
 import io.imulab.nix.oauth.error.OAuthException
-import io.imulab.nix.oidc.reserved.JweContentEncodingAlgorithm
-import io.imulab.nix.oidc.reserved.JweKeyManagementAlgorithm
-import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
+import io.imulab.nix.oidc.client.OidcClient
 import io.imulab.nix.oidc.discovery.OidcContext
 import io.imulab.nix.oidc.error.InvalidRequestObject
 import io.imulab.nix.oidc.error.InvalidRequestUri
@@ -12,10 +9,10 @@ import io.imulab.nix.oidc.jwk.JsonWebKeySetStrategy
 import io.imulab.nix.oidc.jwk.JwtVerificationKeyResolver
 import io.imulab.nix.oidc.jwk.mustKeyForJweKeyManagement
 import io.imulab.nix.oidc.jwk.resolvePrivateKey
-import io.ktor.client.HttpClient
-import io.ktor.client.call.call
-import io.ktor.client.call.receive
-import io.ktor.http.HttpStatusCode
+import io.imulab.nix.oidc.reserved.JweContentEncodingAlgorithm
+import io.imulab.nix.oidc.reserved.JweKeyManagementAlgorithm
+import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
+import io.imulab.nix.oidc.spi.SimpleHttpClient
 import io.ktor.http.URLBuilder
 import io.ktor.http.Url
 import kotlinx.coroutines.Dispatchers
@@ -51,7 +48,7 @@ import java.util.*
  */
 class RequestStrategy(
     private val repository: CachedRequestRepository,
-    private val httpClient: HttpClient,
+    private val httpClient: SimpleHttpClient,
     private val jsonWebKeySetStrategy: JsonWebKeySetStrategy,
     private val serverContext: OidcContext,
     private val requestCacheLifespan: Duration? = Duration.ofDays(30)
@@ -128,10 +125,10 @@ class RequestStrategy(
     private suspend fun fetchFromRemote(requestUri: String, client: OidcClient): String {
         val request = withContext(Dispatchers.IO) {
             run {
-                httpClient.call(requestUri).response.let { httpResponse ->
-                    when (httpResponse.status) {
-                        HttpStatusCode.OK -> httpResponse.receive<String>()
-                        else -> throw InvalidRequestUri.none200(httpResponse.status.value)
+                httpClient.get(requestUri).let { httpResponse ->
+                    when (httpResponse.status()) {
+                        200 -> httpResponse.body()
+                        else -> throw InvalidRequestUri.none200(httpResponse.status())
                     }
                 }
             }

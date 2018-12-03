@@ -39,6 +39,8 @@ nix:
       signatureAlgorithms:
         - RS256
     subjectSalt: "c2693a2e26a0438a965363d3ba5d12ec"
+    autoLogin: false
+    autoConsent: true
   authorizeCode:
     expiration: 10m
   accessToken:
