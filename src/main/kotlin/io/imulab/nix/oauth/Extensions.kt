@@ -15,6 +15,11 @@ fun Map<String, List<String>>.singleOrNull(key: String): String? {
     }
 }
 
+fun MutableMap<String, String>.putIfNotEmpty(key: String, value: String) {
+    if (value.isNotEmpty())
+        put(key, value)
+}
+
 fun String.mustNotMalformedScope(): String {
     val chars = this.toCharArray().toSortedSet()
     return when {
