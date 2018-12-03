@@ -1,6 +1,8 @@
-package io.imulab.nix.server.config.prop
+package io.imulab.nix.server.config
 
 import io.imulab.nix.oidc.discovery.OidcContext
+import io.imulab.nix.oidc.jwk.JsonWebKeySetRepository
+import kotlinx.coroutines.runBlocking
 import org.jose4j.jwk.JsonWebKeySet
 import org.springframework.beans.factory.InitializingBean
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -9,7 +11,9 @@ import java.time.Duration
 
 @Configuration
 @ConfigurationProperties(prefix = "nix")
-class NixProperties : OidcContext, InitializingBean {
+class NixProperties(
+    private val jwksRepo: JsonWebKeySetRepository
+) : OidcContext, InitializingBean {
 
     val endpoints = EndpointConfig()
     val oauth = OAuthConfig()
@@ -102,7 +106,7 @@ class NixProperties : OidcContext, InitializingBean {
     override val idTokenLifespan: Duration
         get() = idToken.expiration
     override val masterJsonWebKeySet: JsonWebKeySet
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = runBlocking { jwksRepo.getServerJsonWebKeySet() }
     override val nonceEntropy: Int
         get() = oidc.nonceEntropy
     override val issuerUrl: String

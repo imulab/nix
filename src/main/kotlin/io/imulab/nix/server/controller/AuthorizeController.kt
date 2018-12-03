@@ -1,6 +1,6 @@
 package io.imulab.nix.server.controller
 
-import io.imulab.nix.server.config.prop.NixProperties
+import io.imulab.nix.server.config.NixProperties
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
