@@ -8,8 +8,8 @@ import io.imulab.nix.oauth.error.OAuthException
 import io.imulab.nix.oidc.client.OidcClient
 import io.imulab.nix.oidc.discovery.OidcContext
 import io.imulab.nix.oidc.jwk.JsonWebKeySetStrategy
-import io.imulab.nix.oidc.jwk.resolvePrivateKey
-import io.imulab.nix.oidc.jwk.resolvePublicKey
+import io.imulab.nix.oauth.token.resolvePrivateKey
+import io.imulab.nix.oauth.token.resolvePublicKey
 import io.imulab.nix.oidc.request.CachedRequest
 import io.imulab.nix.oidc.request.CachedRequestRepository
 import io.imulab.nix.oidc.request.RequestStrategy
@@ -62,7 +62,7 @@ object RequestStrategySpec: Spek({
             onGeneric { requestObjectEncryptionEncoding } doReturn JweContentEncodingAlgorithm.None
         }
 
-        it("should resolve jwt claims") { expectJwtClaimsFromValue(request, client) }
+        it("should resolve jwt idTokenClaims") { expectJwtClaimsFromValue(request, client) }
     }
 
     describe("resolve signed and encrypted request object from parameter") {
@@ -73,7 +73,7 @@ object RequestStrategySpec: Spek({
             onGeneric { requestObjectEncryptionEncoding } doReturn JweContentEncodingAlgorithm.A256GCM
         }
 
-        it("should resolve jwt claims") { expectJwtClaimsFromValue(request, client) }
+        it("should resolve jwt idTokenClaims") { expectJwtClaimsFromValue(request, client) }
     }
 
     describe("resolve encrypted only request object from parameter") {
@@ -84,7 +84,7 @@ object RequestStrategySpec: Spek({
             onGeneric { requestObjectEncryptionEncoding } doReturn JweContentEncodingAlgorithm.A256GCM
         }
 
-        it("should resolve jwt claims") { expectJwtClaimsFromValue(request, client) }
+        it("should resolve jwt idTokenClaims") { expectJwtClaimsFromValue(request, client) }
     }
 
     describe("resolve naked request object from parameter") {
@@ -95,7 +95,7 @@ object RequestStrategySpec: Spek({
             onGeneric { requestObjectEncryptionEncoding } doReturn JweContentEncodingAlgorithm.A256GCM
         }
 
-        it("should resolve jwt claims") { expectJwtClaimsFromValue(request, client) }
+        it("should resolve jwt idTokenClaims") { expectJwtClaimsFromValue(request, client) }
     }
 
     describe("resolve request object from repository") {
@@ -106,7 +106,7 @@ object RequestStrategySpec: Spek({
             onGeneric { requestUris } doReturn listOf("https://client.test.com/sample.jwt")
         }
 
-        it("should resolve jwt claims") {
+        it("should resolve jwt idTokenClaims") {
             expectJwtClaimsFromReference("https://client.test.com/sample.jwt", client)
         }
     }
@@ -128,7 +128,7 @@ object RequestStrategySpec: Spek({
             }
         }
 
-        it("should resolve jwt claims") {
+        it("should resolve jwt idTokenClaims") {
             val client = mock<OidcClient> {
                 onGeneric { requestObjectSigningAlgorithm } doReturn JwtSigningAlgorithm.RS256
                 onGeneric { requestObjectEncryptionAlgorithm } doReturn JweKeyManagementAlgorithm.None
@@ -138,7 +138,7 @@ object RequestStrategySpec: Spek({
             expectJwtClaimsFromReference("${server.baseUrl()}/test.jwt", client)
         }
 
-        it("should resolve jwt claims, with hash checked") {
+        it("should resolve jwt idTokenClaims, with hash checked") {
             val client = mock<OidcClient> {
                 onGeneric { requestObjectSigningAlgorithm } doReturn JwtSigningAlgorithm.RS256
                 onGeneric { requestObjectEncryptionAlgorithm } doReturn JweKeyManagementAlgorithm.None

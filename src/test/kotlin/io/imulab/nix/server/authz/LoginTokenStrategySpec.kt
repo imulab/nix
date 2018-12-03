@@ -4,8 +4,8 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import io.imulab.nix.oidc.jwk.loginHint
 import io.imulab.nix.oidc.jwk.maxAge
-import io.imulab.nix.oidc.jwk.mustKeyForJweKeyManagement
-import io.imulab.nix.oidc.jwk.resolvePublicKey
+import io.imulab.nix.oauth.token.mustKeyForJweKeyManagement
+import io.imulab.nix.oauth.token.resolvePublicKey
 import io.imulab.nix.oidc.request.OidcAuthorizeRequest
 import io.imulab.nix.oidc.reserved.JweContentEncodingAlgorithm
 import io.imulab.nix.oidc.reserved.JweKeyManagementAlgorithm
@@ -65,7 +65,7 @@ object LoginTokenStrategySpec : Spek({
             claims = strategy.decodeLoginTokenResponse(loginToken)
         }
 
-        it("claims should reflect authentication status") {
+        it("idTokenClaims should reflect authentication status") {
             assertThat(claims.subject).isEqualTo("foo@bar.com")
         }
     }

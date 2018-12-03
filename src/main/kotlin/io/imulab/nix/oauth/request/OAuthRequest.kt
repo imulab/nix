@@ -11,5 +11,6 @@ open class OAuthRequest(
     val id: String = UUID.randomUUID().toString(),
     val requestTime: LocalDateTime = LocalDateTime.now(),
     val client: OAuthClient,
+    val grantedScopes: MutableSet<String> = mutableSetOf(),
     val session: OAuthSession = OAuthSession()
 )

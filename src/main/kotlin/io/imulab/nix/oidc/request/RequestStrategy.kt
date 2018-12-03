@@ -7,8 +7,8 @@ import io.imulab.nix.oidc.error.InvalidRequestObject
 import io.imulab.nix.oidc.error.InvalidRequestUri
 import io.imulab.nix.oidc.jwk.JsonWebKeySetStrategy
 import io.imulab.nix.oidc.jwk.JwtVerificationKeyResolver
-import io.imulab.nix.oidc.jwk.mustKeyForJweKeyManagement
-import io.imulab.nix.oidc.jwk.resolvePrivateKey
+import io.imulab.nix.oauth.token.mustKeyForJweKeyManagement
+import io.imulab.nix.oauth.token.resolvePrivateKey
 import io.imulab.nix.oidc.reserved.JweContentEncodingAlgorithm
 import io.imulab.nix.oidc.reserved.JweKeyManagementAlgorithm
 import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm

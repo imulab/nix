@@ -9,8 +9,8 @@ import io.imulab.nix.oauth.reserved.Param
 import io.imulab.nix.oauth.client.ClientLookup
 import io.imulab.nix.oidc.client.authn.PrivateKeyJwtAuthenticator
 import io.imulab.nix.oidc.jwk.JsonWebKeySetStrategy
-import io.imulab.nix.oidc.jwk.mustKeyWithId
-import io.imulab.nix.oidc.jwk.resolvePrivateKey
+import io.imulab.nix.oauth.token.mustKeyWithId
+import io.imulab.nix.oauth.token.resolvePrivateKey
 import io.imulab.nix.oidc.request.OidcRequestForm
 import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
 import io.imulab.nix.oidc.reserved.OidcParam

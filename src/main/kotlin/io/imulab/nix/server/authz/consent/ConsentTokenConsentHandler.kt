@@ -40,7 +40,7 @@ class ConsentTokenConsentHandler(
                 .filter { it.isNotBlank() }
                 .forEach { request.grantScope(it) }
 
-        // TODO check what's the map structure, and then transfer them to session.claims
+        // TODO check what's the map structure, and then transfer them to session.idTokenClaims
 
         if (consentClaims.hasClaim(ConsentTokenClaim.remember)) {
             val rememberForSeconds = consentClaims.getStringClaimValue(ConsentTokenClaim.remember).toLongOrNull() ?: 0
@@ -51,7 +51,7 @@ class ConsentTokenConsentHandler(
                             subject = request.session.subject,
                             expiry = LocalDateTime.now().plusSeconds(rememberForSeconds),
                             grantedScopes = request.grantedScopes,
-                            claims = request.session.assertType<OidcSession>().claims.toMap()
+                            claims = request.session.assertType<OidcSession>().idTokenClaims.toMap()
                         ))
                     }
                 }

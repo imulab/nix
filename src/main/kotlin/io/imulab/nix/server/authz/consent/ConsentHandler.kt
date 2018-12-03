@@ -4,7 +4,7 @@ import io.imulab.nix.oidc.request.OidcAuthorizeRequest
 import io.imulab.nix.oidc.request.OidcRequestForm
 
 /**
- * Function to attempt acquire consent from user for the requested scopes and claims. Implementations may resort to
+ * Function to attempt acquire consent from user for the requested scopes and idTokenClaims. Implementations may resort to
  * different approaches to obtain consent from user or recover a previous (still valid) consent. When unable to acquire
  * a consent, implementation may opt to raise an error (if it is convinced that no other implementation will succeed,
  * or that other implementation should not be allowed to make an attempt), or simply return to allow other implementations

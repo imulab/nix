@@ -16,7 +16,7 @@ import io.imulab.nix.oidc.reserved.StandardScope
  * (provided as `request` parameter or `request_uri` parameter) back to the [OidcAuthorizeRequest] parsed by
  * [OidcAuthorizeRequestProducer].
  *
- * Note: as of now, the deserialization of the 'claims' parameter take a round trip to and from JSON. This is very
+ * Note: as of now, the deserialization of the 'idTokenClaims' parameter take a round trip to and from JSON. This is very
  * inefficient. We intend to fix this in the future. Potentially, [ClaimsJsonConverter] will provide a capability
  * to directly parse a map.
  */

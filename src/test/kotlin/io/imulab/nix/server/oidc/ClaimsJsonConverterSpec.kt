@@ -9,7 +9,7 @@ import org.spekframework.spek2.style.specification.describe
 
 object ClaimsJsonConverterSpec : Spek({
 
-    val expectJson = "{\"userinfo\":{\"given_name\":{\"essential\":true},\"nickname\":null,\"email_verified\":{\"essential\":true},\"picture\":null,\"http://example.info/claims/groups\":null},\"id_token\":{\"auth_time\":{\"essential\":true},\"acr\":{\"essential\":false,\"value\":\"urn:mace:incommon:iap:silver\"}}}\n"
+    val expectJson = "{\"userinfo\":{\"given_name\":{\"essential\":true},\"nickname\":null,\"email_verified\":{\"essential\":true},\"picture\":null,\"http://example.info/idTokenClaims/groups\":null},\"id_token\":{\"auth_time\":{\"essential\":true},\"acr\":{\"essential\":false,\"value\":\"urn:mace:incommon:iap:silver\"}}}\n"
 
     describe("serialize json") {
         it("should produce correct json") {
@@ -19,7 +19,7 @@ object ClaimsJsonConverterSpec : Spek({
                     StandardClaim.nickname to null,
                     StandardClaim.emailVerified to ClaimInfo(essential = true),
                     StandardClaim.picture to null,
-                    "http://example.info/claims/groups" to null
+                    "http://example.info/idTokenClaims/groups" to null
                 ),
                 idToken = mapOf(
                     "auth_time" to ClaimInfo(essential = true),
@@ -33,7 +33,7 @@ object ClaimsJsonConverterSpec : Spek({
     }
 
     describe("deserialize json") {
-        it("should produce correct claims object") {
+        it("should produce correct idTokenClaims object") {
             val claims = GsonClaimsConverter.fromJson(expectJson)
 
             assertThat(claims.userInfo).isNotNull
@@ -47,8 +47,8 @@ object ClaimsJsonConverterSpec : Spek({
                 .extracting { it!!.essential }.isEqualTo(true)
             assertThat(claims.userInfo!!).containsKey(StandardClaim.picture)
             assertThat(claims.userInfo!![StandardClaim.picture]).isNull()
-            assertThat(claims.userInfo!!).containsKey("http://example.info/claims/groups")
-            assertThat(claims.userInfo!!["http://example.info/claims/groups"]).isNull()
+            assertThat(claims.userInfo!!).containsKey("http://example.info/idTokenClaims/groups")
+            assertThat(claims.userInfo!!["http://example.info/idTokenClaims/groups"]).isNull()
 
             assertThat(claims.idToken!!["auth_time"]).isNotNull
                 .extracting { it!!.essential }.isEqualTo(true)

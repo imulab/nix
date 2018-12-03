@@ -4,9 +4,8 @@ import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import io.imulab.nix.oauth.reserved.Param
 import io.imulab.nix.oidc.client.OidcClient
-import io.imulab.nix.oidc.discovery.OidcContext
-import io.imulab.nix.oidc.jwk.mustKeyForJweKeyManagement
-import io.imulab.nix.oidc.jwk.resolvePublicKey
+import io.imulab.nix.oauth.token.mustKeyForJweKeyManagement
+import io.imulab.nix.oauth.token.resolvePublicKey
 import io.imulab.nix.oidc.request.OidcAuthorizeRequest
 import io.imulab.nix.oidc.reserved.ConsentTokenClaim
 import io.imulab.nix.oidc.reserved.JweContentEncodingAlgorithm
@@ -72,7 +71,7 @@ object ConsentTokenStrategySpec : Spek({
             claims = strategy.decodeConsentTokenResponse(consentToken)
         }
 
-        it("claims should reflect authentication status") {
+        it("idTokenClaims should reflect authentication status") {
             Assertions.assertThat(claims.subject).isEqualTo("foo@bar.com")
         }
     }

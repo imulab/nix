@@ -10,8 +10,8 @@ import io.imulab.nix.oauth.error.InvalidRequest
 import io.imulab.nix.oauth.request.OAuthRequestForm
 import io.imulab.nix.oidc.client.OidcClient
 import io.imulab.nix.oidc.jwk.JsonWebKeySetStrategy
-import io.imulab.nix.oidc.jwk.mustKeyWithId
-import io.imulab.nix.oidc.jwk.resolvePublicKey
+import io.imulab.nix.oauth.token.mustKeyWithId
+import io.imulab.nix.oauth.token.resolvePublicKey
 import io.imulab.nix.oidc.request.OidcRequestForm
 import io.imulab.nix.oidc.reserved.AuthenticationMethod
 import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm

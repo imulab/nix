@@ -1,4 +1,4 @@
-package io.imulab.nix.oidc.jwk
+package io.imulab.nix.oauth.token
 
 import io.imulab.nix.oauth.error.ServerError
 import io.imulab.nix.oidc.reserved.JweKeyManagementAlgorithm

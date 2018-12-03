@@ -192,7 +192,7 @@ interface Discovery {
     val uiLocalesSupported: List<String>
 
     /**
-     * OPTIONAL. Boolean value specifying whether the OP supports use of the `claims` parameter, with `true`
+     * OPTIONAL. Boolean value specifying whether the OP supports use of the `idTokenClaims` parameter, with `true`
      * indicating support. If omitted, the default value is `false`.
      */
     val claimsParameterSupported: Boolean

@@ -123,10 +123,10 @@ class ServerContext(
     //endregion
 
     //region Claims
-    override val claimsParameterSupported: Boolean by B("nix.claims.supported")
-    override val claimsSupported: List<String> by L("nix.claims.values")
-    override val claimValuesSupported: List<String> by L("nix.claims.types")
-    override val claimsLocalesSupported: List<String> by L("nix.claims.locales")
+    override val claimsParameterSupported: Boolean by B("nix.idTokenClaims.supported")
+    override val claimsSupported: List<String> by L("nix.idTokenClaims.values")
+    override val claimValuesSupported: List<String> by L("nix.idTokenClaims.types")
+    override val claimsLocalesSupported: List<String> by L("nix.idTokenClaims.locales")
     //endregion
 
     //region OAuthConfig

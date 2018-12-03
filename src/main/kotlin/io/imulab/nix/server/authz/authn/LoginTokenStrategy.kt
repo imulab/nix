@@ -2,9 +2,9 @@ package io.imulab.nix.server.authz.authn
 
 import io.imulab.nix.oauth.reserved.space
 import io.imulab.nix.oidc.discovery.OidcContext
-import io.imulab.nix.oidc.jwk.mustKeyForJweKeyManagement
-import io.imulab.nix.oidc.jwk.mustKeyForSignature
-import io.imulab.nix.oidc.jwk.resolvePrivateKey
+import io.imulab.nix.oauth.token.mustKeyForJweKeyManagement
+import io.imulab.nix.oauth.token.mustKeyForSignature
+import io.imulab.nix.oauth.token.resolvePrivateKey
 import io.imulab.nix.oidc.request.OidcAuthorizeRequest
 import io.imulab.nix.oidc.reserved.JweContentEncodingAlgorithm
 import io.imulab.nix.oidc.reserved.JweKeyManagementAlgorithm

@@ -1,5 +1,8 @@
 package io.imulab.nix.oidc.jwk
 
+import io.imulab.nix.oauth.token.mustKeyForSignature
+import io.imulab.nix.oauth.token.mustKeyWithId
+import io.imulab.nix.oauth.token.resolvePublicKey
 import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
 import org.jose4j.jwk.JsonWebKeySet
 import org.jose4j.jws.JsonWebSignature

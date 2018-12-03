@@ -4,5 +4,6 @@ import java.time.LocalDateTime
 
 open class OAuthSession(
     var subject: String = "",
-    var originalRequestTime: LocalDateTime? = null
+    var originalRequestTime: LocalDateTime? = null,
+    val accessTokenClaims: MutableMap<String, Any> = mutableMapOf()
 )

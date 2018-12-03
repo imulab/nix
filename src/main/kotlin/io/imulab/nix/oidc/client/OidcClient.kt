@@ -155,7 +155,7 @@ interface OidcClient : OAuthClient {
     /**
      * Optional. Boolean value indicating that auth_time claim is required. By default, the
      * value is false. However, even when false, auth_time can still be dynamically requested
-     * by requests utilizing the claims field.
+     * by requests utilizing the idTokenClaims field.
      */
     val requireAuthTime: Boolean
 

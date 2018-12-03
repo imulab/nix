@@ -13,7 +13,6 @@ open class OAuthAuthorizeRequest(
     val redirectUri: String,
     val scopes: Set<String>,
     val state: String,
-    val grantedScopes: MutableSet<String> = mutableSetOf(),
     session: OAuthSession = OAuthSession()
 ) : OAuthRequest(client = client, session = session) {
 

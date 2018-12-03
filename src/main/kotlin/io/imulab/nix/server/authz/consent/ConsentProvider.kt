@@ -17,7 +17,7 @@ import java.util.concurrent.ThreadLocalRandom
  * Point of entry to acquire user consent for the current request. This provider sources actual authorization
  * acquiring attempts to various [ConsentHandler] and only processes the logic of their result.
  *
- * When authorization has been successful, the grant scopes and optionally claims of the request will be set. Otherwise,
+ * When authorization has been successful, the grant scopes and optionally idTokenClaims of the request will be set. Otherwise,
  * either a consent redirection or an error will result.
  */
 class ConsentProvider(

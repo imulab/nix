@@ -3,22 +3,14 @@ package io.imulab.nix.oidc.jwk
 import com.google.gson.GsonBuilder
 import io.imulab.nix.oauth.reserved.Param
 import io.imulab.nix.oauth.reserved.space
+import io.imulab.nix.oauth.token.maybe
+import io.imulab.nix.oauth.token.maybeString
 import io.imulab.nix.oidc.reserved.IdTokenClaim
 import io.imulab.nix.oidc.reserved.OidcParam
 import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.NumericDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-
-fun JwtClaims.maybeString(name: String): String? =
-    if (hasClaim(name))
-        getStringClaimValue(name)
-    else null
-
-fun JwtClaims.maybe(name: String): Any? =
-    if (hasClaim(name))
-        getClaimValue(name)
-    else null
 
 fun JwtClaims.responseTypes(): Set<String> =
     (maybeString(Param.responseType) ?: "")

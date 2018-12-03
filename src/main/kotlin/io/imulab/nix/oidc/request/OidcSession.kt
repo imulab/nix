@@ -11,5 +11,5 @@ open class OidcSession(
     var obfuscatedSubject: String = "",
     var authTime: LocalDateTime? = null,
     var acrValues: MutableList<String> = mutableListOf(),
-    val claims: MutableMap<String, Any> = mutableMapOf()
+    val idTokenClaims: MutableMap<String, Any> = mutableMapOf()
 ) : OAuthSession(subject)

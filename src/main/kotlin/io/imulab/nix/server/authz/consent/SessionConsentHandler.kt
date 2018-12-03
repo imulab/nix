@@ -12,7 +12,7 @@ import java.time.LocalDateTime
  * is provided via [ConsentSessionStrategy].
  *
  * When a session is successfully restored, its expiry is first checked. If it hasn't expired, this strategy
- * will grant all previously granted scopes found in the session and restore all claims into the request session.
+ * will grant all previously granted scopes found in the session and restore all idTokenClaims into the request session.
  */
 class SessionConsentHandler(
     private val sessionStrategy: ConsentSessionStrategy
@@ -26,7 +26,7 @@ class SessionConsentHandler(
         consentSession.grantedScopes.forEach { request.grantScope(it) }
 
         with(request.session.assertType<OidcSession>()) {
-            claims.putAll(consentSession.claims)
+            idTokenClaims.putAll(consentSession.claims)
         }
     }
 }
