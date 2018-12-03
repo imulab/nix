@@ -50,7 +50,7 @@ class ConsentTokenConsentHandler(
                         sessionStrategy.writeConsent(rawCall, ConsentSession(
                             subject = request.session.subject,
                             expiry = LocalDateTime.now().plusSeconds(rememberForSeconds),
-                            grantedScopes = request.grantedScopes,
+                            grantedScopes = request.session.grantedScopes,
                             claims = request.session.assertType<OidcSession>().idTokenClaims.toMap()
                         ))
                     }

@@ -82,7 +82,7 @@ class ConsentProvider(
      * its granted scopes are not empty or it does not require scopes to be granted in the first place.
      */
     private fun OidcAuthorizeRequest.hasAuthorization(): Boolean =
-            this.scopes.isEmpty() || this.grantedScopes.isNotEmpty()
+            this.scopes.isEmpty() || this.session.grantedScopes.isNotEmpty()
 
     private suspend fun prepareForRedirection(request: OidcAuthorizeRequest) {
         val nonce = ByteArray(oidcContext.nonceEntropy)

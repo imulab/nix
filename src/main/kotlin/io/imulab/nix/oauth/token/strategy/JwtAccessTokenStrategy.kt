@@ -62,7 +62,7 @@ class JwtAccessTokenStrategy(
                 c.issuer = oauthContext.issuerUrl
                 c.subject = request.session.subject
                 c.setAudience(request.client.id)
-                c.setScope(request.grantedScopes)
+                c.setScope(request.session.grantedScopes)
                 request.session.accessTokenClaims
                     .filterKeys { !reservedClaims.contains(it) }
                     .forEach { t, u -> c.setClaim(t, u) }

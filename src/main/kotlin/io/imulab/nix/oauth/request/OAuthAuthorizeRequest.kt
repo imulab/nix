@@ -21,7 +21,7 @@ open class OAuthAuthorizeRequest(
      */
     fun grantScope(scope: String) {
         if (scopes.contains(scope))
-            grantedScopes.add(scope)
+            session.grantedScopes.add(scope)
     }
 
     class Builder(
