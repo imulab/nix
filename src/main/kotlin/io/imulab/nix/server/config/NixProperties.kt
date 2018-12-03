@@ -68,9 +68,18 @@ class NixProperties(
         )
     }
 
-    class AuthorizeCodeConfig(var expiration: Duration = Duration.ZERO)
+    class AuthorizeCodeConfig(
+        var key: String = "",
+        var expiration: Duration = Duration.ZERO
+    )
+
     class AccessTokenConfig(var expiration: Duration = Duration.ZERO)
-    class RefreshTokenConfig(var expiration: Duration = Duration.ZERO)
+
+    class RefreshTokenConfig(
+        var key: String = "",
+        var expiration: Duration = Duration.ZERO
+    )
+
     class LoginTokenConfig(var expiration: Duration = Duration.ZERO)
     class ConsentTokenConfig(var expiration: Duration = Duration.ZERO)
 

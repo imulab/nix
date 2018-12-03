@@ -20,6 +20,9 @@ import org.springframework.session.ReactiveMapSessionRepository
 import org.springframework.session.config.annotation.web.server.EnableSpringWebSession
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * This class configures all in memory repositories.
+ */
 @Configuration
 @EnableSpringWebSession
 @Profile("memory")

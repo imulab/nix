@@ -42,10 +42,12 @@ nix:
     autoLogin: false
     autoConsent: true
   authorizeCode:
+    key: "eeb9674cc4d54901bdcf862dd7d46ec87492a99a1ca44d2e9832e841434371f9"
     expiration: 10m
   accessToken:
     expiration: 1h
   refreshToken:
+    key: "c5fd58c3a56443308adf78e24ff02ad6bf47dc96969546fa8ec3fd4345c088a4"
     expiration: 14d
   loginToken:
     expiration: 10m
