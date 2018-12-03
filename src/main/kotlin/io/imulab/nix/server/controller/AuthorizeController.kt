@@ -5,9 +5,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.reactive.function.server.ServerRequest
+import org.springframework.web.reactive.function.server.ServerResponse
+import reactor.core.publisher.Mono
 
-@RestController
+//@RestController
 class AuthorizeController(
     private val nixProperties: NixProperties
 ) {
@@ -22,5 +24,11 @@ class AuthorizeController(
             }
         }
         "hello $word"
+    }
+
+    @GetMapping("/oauth/authorize2")
+    fun authorize2(request: ServerRequest): Mono<ServerResponse> {
+        println(request.attributes())
+        return ServerResponse.ok().syncBody("")
     }
 }

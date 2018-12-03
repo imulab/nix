@@ -183,7 +183,7 @@ class DependencyInjection(private val config: ApplicationConfig) {
         importOnce(validators)
         importOnce(authenticationProvider)
         importOnce(consentProvider)
-        bind() from singleton {
+        /*bind() from singleton {
             AuthorizeRouteProvider(
                 requestProducer = instance(tag = "masterRequestProducer"),
                 preValidation = instance("TODO"),
@@ -191,6 +191,6 @@ class DependencyInjection(private val config: ApplicationConfig) {
                 authenticationProvider = instance(),
                 consentProvider = instance()
             )
-        }
+        }*/
     }
 }

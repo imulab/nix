@@ -9,7 +9,6 @@ import io.imulab.nix.oidc.jwk.mustKeyForSignature
 import io.imulab.nix.oidc.jwk.resolvePrivateKey
 import io.imulab.nix.oidc.request.OidcAuthorizeRequest
 import io.imulab.nix.oidc.reserved.*
-import io.imulab.nix.server.config.ServerContext
 import org.jose4j.jwe.JsonWebEncryption
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwt.JwtClaims
