@@ -1,4 +1,4 @@
-package io.imulab.nix.oauth.token
+package io.imulab.nix.oauth.token.strategy
 
 import io.imulab.nix.oauth.request.OAuthRequest
 
@@ -6,6 +6,11 @@ import io.imulab.nix.oauth.request.OAuthRequest
  * Strategy to generate and verify an access token.
  */
 interface AccessTokenStrategy {
+
+    /**
+     * Get the identifier of this token.
+     */
+    fun computeIdentifier(token: String): String
 
     /**
      * Generate a new access token.

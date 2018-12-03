@@ -1,7 +1,7 @@
-package io.imulab.nix.oauth.token
+package io.imulab.nix.oauth.token.strategy
 
 import io.imulab.nix.oauth.error.InvalidGrant
-import io.imulab.nix.oauth.request.OAuthAuthorizeRequest
+import io.imulab.nix.oauth.request.OAuthRequest
 import io.imulab.nix.oauth.reserved.dot
 import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
 import org.jose4j.jca.ProviderContext
@@ -10,11 +10,11 @@ import java.security.Key
 import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 
-class HmacSha2AuthorizeCodeStrategy(
+class HmacSha2RefreshTokenStrategy(
     private val key: Key,
-    private val codeLength: Int = 16,
+    private val tokenLength: Int = 32,
     signingAlgorithm: JwtSigningAlgorithm
-) : AuthorizeCodeStrategy {
+) : RefreshTokenStrategy {
 
     private val encoder = Base64.getUrlEncoder().withoutPadding()
     private val decoder = Base64.getUrlDecoder()
@@ -25,14 +25,21 @@ class HmacSha2AuthorizeCodeStrategy(
         else -> throw IllegalArgumentException("not an hmac-sha2 algorithm.")
     }
 
-    override suspend fun generateCode(request: OAuthAuthorizeRequest): String {
-        val randomBytes = ByteArray(codeLength).also { ThreadLocalRandom.current().nextBytes(it) }
+    override fun computeIdentifier(token: String): String {
+        val parts = token.split(dot)
+        if (parts.size != 2)
+            throw InvalidGrant.invalid()
+        return parts[1]
+    }
+
+    override suspend fun generateToken(request: OAuthRequest): String {
+        val randomBytes = ByteArray(tokenLength).also { ThreadLocalRandom.current().nextBytes(it) }
         val signatureBytes = hmac.sign(key, randomBytes, ProviderContext())
         return encoder.encodeToString(randomBytes) + dot + encoder.encodeToString(signatureBytes)
     }
 
-    override suspend fun verifyCode(code: String, request: OAuthAuthorizeRequest) {
-        val parts = code.split(dot)
+    override suspend fun verifyToken(token: String, request: OAuthRequest) {
+        val parts = token.split(dot)
         if (parts.size != 2)
             throw InvalidGrant.invalid()
 

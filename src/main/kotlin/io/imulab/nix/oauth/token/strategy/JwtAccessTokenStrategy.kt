@@ -1,9 +1,13 @@
-package io.imulab.nix.oauth.token
+package io.imulab.nix.oauth.token.strategy
 
 import io.imulab.nix.oauth.OAuthContext
 import io.imulab.nix.oauth.error.InvalidGrant
 import io.imulab.nix.oauth.request.OAuthRequest
 import io.imulab.nix.oauth.reserved.Param
+import io.imulab.nix.oauth.token.mustKeyForSignature
+import io.imulab.nix.oauth.token.resolvePrivateKey
+import io.imulab.nix.oauth.token.resolvePublicKey
+import io.imulab.nix.oauth.token.setScope
 import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
 import org.jose4j.jwk.JsonWebKeySet
 import org.jose4j.jws.JsonWebSignature
@@ -12,6 +16,7 @@ import org.jose4j.jwt.ReservedClaimNames
 import org.jose4j.jwt.consumer.ErrorCodes
 import org.jose4j.jwt.consumer.InvalidJwtException
 import org.jose4j.jwt.consumer.JwtConsumerBuilder
+import java.lang.Exception
 
 class JwtAccessTokenStrategy(
     private val oauthContext: OAuthContext,
@@ -30,6 +35,18 @@ class JwtAccessTokenStrategy(
         ReservedClaimNames.AUDIENCE,
         Param.scope
     )
+
+    override fun computeIdentifier(token: String): String {
+        return try {
+            JwtConsumerBuilder()
+                .setSkipAllValidators()
+                .setRequireJwtId()
+                .build()
+                .processToClaims(token).jwtId
+        } catch (e: Exception) {
+            throw InvalidGrant.invalid()
+        }
+    }
 
     override suspend fun generateToken(request: OAuthRequest): String {
         return JsonWebSignature().also { jws ->

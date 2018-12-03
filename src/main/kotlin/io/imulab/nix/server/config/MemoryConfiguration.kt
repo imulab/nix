@@ -1,7 +1,11 @@
 package io.imulab.nix.server.config
 
+import io.imulab.nix.oauth.token.storage.MemoryAccessTokenRepository
+import io.imulab.nix.oauth.token.storage.MemoryAuthorizeCodeRepository
+import io.imulab.nix.oauth.token.storage.MemoryRefreshTokenRepository
 import io.imulab.nix.oidc.client.MemoryClientStorage
 import io.imulab.nix.oidc.jwk.MemoryJsonWebKeySetRepository
+import io.imulab.nix.oidc.request.MemoryOidcSessionRepository
 import io.imulab.nix.oidc.request.MemoryRequestRepository
 import io.imulab.nix.oidc.reserved.JweKeyManagementAlgorithm
 import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
@@ -46,4 +50,16 @@ class MemoryConfiguration {
 
     @Bean
     fun webSessionRepository() = ReactiveMapSessionRepository(ConcurrentHashMap())
+
+    @Bean
+    fun authorizeCodeRepository() = MemoryAuthorizeCodeRepository()
+
+    @Bean
+    fun accessTokenRepository() = MemoryAccessTokenRepository()
+
+    @Bean
+    fun refreshTokenRepository() = MemoryRefreshTokenRepository()
+
+    @Bean
+    fun oidcSessionRepository() = MemoryOidcSessionRepository()
 }
