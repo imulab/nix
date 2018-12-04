@@ -112,7 +112,6 @@ object OAuthAuthorizeCodeHandlerSpec : Spek({
 
             then("an access token should have been issued in response") {
                 assertThat(response.accessToken).isNotEmpty()
-                println(response.data)
             }
 
             then("token type should have been set in response") {
@@ -163,7 +162,6 @@ object OAuthAuthorizeCodeHandlerSpec : Spek({
 
             then("an refresh token should have been issued in response") {
                 assertThat(response.refreshToken).isNotEmpty()
-                println(response.data)
             }
         }
     }
