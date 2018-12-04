@@ -44,7 +44,8 @@ class OidcAuthorizeRequestProducer(
                 b.idTokenHint = idTokenHint
                 b.loginHint = loginHint
                 b.acrValues.addAll(acrValues.split(space).filter { it.isNotBlank() })
-                b.claims = claimsJsonConverter.fromJson(claims)
+                //b.claims = claimsJsonConverter.fromJson(claims)
+                // TODO
                 b.claimsLocales.addAll(claimsLocales.split(space).filter { it.isNotBlank() })
                 b.iss = iss
                 b.targetLinkUri = targetLinkUri

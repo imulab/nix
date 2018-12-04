@@ -18,7 +18,7 @@ class OidcRequestForm(httpForm: MutableMap<String, List<String>>) : OAuthRequest
         "idTokenHint" to OidcParam.idTokenHint,
         "loginHint" to OidcParam.loginHint,
         "acrValues" to OidcParam.acrValues,
-        "idTokenClaims" to OidcParam.claims,
+        "claims" to OidcParam.claims,
         "claimsLocales" to OidcParam.claimsLocales,
         "request" to OidcParam.request,
         "requestUri" to OidcParam.requestUri,

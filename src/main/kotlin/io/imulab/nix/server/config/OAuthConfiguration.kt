@@ -14,6 +14,8 @@ import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
 import org.jose4j.keys.AesKey
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 import java.nio.charset.StandardCharsets
 
 /**
@@ -87,6 +89,7 @@ class OAuthConfiguration {
      * A [OAuthAuthorizeCodeHandler] bean. This bean handles the OAuth Authorize Code Flow.
      */
     @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE)
     fun oauthAuthorizeCodeHandler(
         authorizeCodeStrategy: AuthorizeCodeStrategy,
         authorizeCodeRepository: AuthorizeCodeRepository,
@@ -103,6 +106,7 @@ class OAuthConfiguration {
      * A [OAuthImplicitHandler] bean. This bean handles the OAuth Implicit Flow.
      */
     @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE + 100)
     fun oauthImplicitHandler(
         nixProperties: NixProperties,
         accessTokenStrategy: AccessTokenStrategy,
@@ -117,6 +121,7 @@ class OAuthConfiguration {
      * A [OAuthClientCredentialsHandler] bean. This bean handles the OAuth Client Credentials Flow.
      */
     @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE + 200)
     fun oauthClientCredentialsHandler(
         accessTokenHelper: AccessTokenHelper,
         refreshTokenHelper: RefreshTokenHelper
@@ -129,6 +134,7 @@ class OAuthConfiguration {
      * A [OAuthRefreshHandler] bean. This bean handles the OAuth Refresh Flow.
      */
     @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE + 300)
     fun oauthRefreshHandler(
         accessTokenHelper: AccessTokenHelper,
         refreshTokenHelper: RefreshTokenHelper,

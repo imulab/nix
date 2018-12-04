@@ -75,7 +75,7 @@ class RequestObjectAwareOidcAuthorizeRequestProducer(
                 }
                 if (request.hasClaim(OidcParam.claims)) {
                     // TODO this is very inefficient, upgrade claimsJsonConverter!!!
-                    b.claims = claimsJsonConverter.fromJson(request.claimsInJson())
+                    //b.claims = claimsJsonConverter.fromJson(request.claimsInJson())
                 }
                 if (request.hasClaim(OidcParam.claimsLocales)) {
                     b.claimsLocales.clear()

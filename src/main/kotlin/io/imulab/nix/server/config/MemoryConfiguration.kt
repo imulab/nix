@@ -1,5 +1,10 @@
 package io.imulab.nix.server.config
 
+import io.imulab.nix.oauth.client.pwd.BCryptPasswordEncoder
+import io.imulab.nix.oauth.reserved.ClientType
+import io.imulab.nix.oauth.reserved.GrantType
+import io.imulab.nix.oauth.reserved.ResponseType
+import io.imulab.nix.oauth.reserved.StandardScope
 import io.imulab.nix.oauth.token.storage.MemoryAccessTokenRepository
 import io.imulab.nix.oauth.token.storage.MemoryAuthorizeCodeRepository
 import io.imulab.nix.oauth.token.storage.MemoryRefreshTokenRepository
@@ -10,6 +15,7 @@ import io.imulab.nix.oidc.request.MemoryRequestRepository
 import io.imulab.nix.oidc.reserved.JweKeyManagementAlgorithm
 import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
 import io.imulab.nix.server.authz.repo.MemoryOidcAuthorizeRequestRepository
+import io.imulab.nix.server.client.NixClient
 import org.jose4j.jwk.JsonWebKeySet
 import org.jose4j.jwk.RsaJwkGenerator
 import org.jose4j.jwk.Use
@@ -49,7 +55,34 @@ class MemoryConfiguration {
     fun memoryRequestRepository() = MemoryRequestRepository()
 
     @Bean
-    fun memoryClientStorage() = MemoryClientStorage()   // todo: add some fake clients here
+    fun memoryClientStorage() = MemoryClientStorage(database = mutableMapOf(
+        "foo" to NixClient.Builder().also { b ->
+            b.id = "foo"
+            b.name = "Foo"
+            b.type = ClientType.confidential
+            b.secret = BCryptPasswordEncoder().encode("s3cret").toByteArray()
+            b.responseTypes = mutableSetOf(
+                ResponseType.code,
+                ResponseType.token,
+                io.imulab.nix.oidc.reserved.ResponseType.idToken
+            )
+            b.grantTypes = mutableSetOf(
+                GrantType.authorizationCode,
+                GrantType.clientCredentials,
+                GrantType.implicit,
+                GrantType.refreshToken
+            )
+            b.redirectUris = mutableSetOf(
+                "http://localhost:8888/callback"
+            )
+            b.scopes = mutableSetOf(
+                "foo",
+                "bar",
+                StandardScope.offlineAccess,
+                io.imulab.nix.oidc.reserved.StandardScope.openid
+            )
+        }.build()
+    ))
 
     @Bean
     fun webSessionRepository() = ReactiveMapSessionRepository(ConcurrentHashMap())

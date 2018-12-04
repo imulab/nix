@@ -70,7 +70,8 @@ object GsonClaimsConverter: ClaimsJsonConverter {
     private class ClaimsDeserializer: JsonDeserializer<Claims> {
 
         override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): Claims {
-            checkNotNull(json)
+            if (json == null)
+                return Claims()
 
             return Claims(
                 userInfo = if (json.asJsonObject.has(userInfoField)) {

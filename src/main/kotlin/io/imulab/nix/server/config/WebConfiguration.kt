@@ -1,5 +1,6 @@
 package io.imulab.nix.server.config
 
+import io.imulab.nix.oauth.handler.AuthorizeRequestHandler
 import io.imulab.nix.oauth.request.OAuthRequestProducer
 import io.imulab.nix.server.authz.authn.AuthenticationProvider
 import io.imulab.nix.server.authz.consent.ConsentProvider
@@ -36,10 +37,12 @@ class WebConfiguration : WebFluxConfigurer {
     fun authorizeRouteProvider(
         requestProducer: OAuthRequestProducer,
         authenticationProvider: AuthenticationProvider,
-        consentProvider: ConsentProvider
+        consentProvider: ConsentProvider,
+        handlers: List<AuthorizeRequestHandler>
     ) = AuthorizeRouteProvider(
         requestProducer = requestProducer,
         authenticationProvider = authenticationProvider,
-        consentProvider = consentProvider
+        consentProvider = consentProvider,
+        handlers = handlers
     )
 }

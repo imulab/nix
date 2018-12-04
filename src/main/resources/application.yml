@@ -39,7 +39,7 @@ nix:
       signatureAlgorithms:
         - RS256
     subjectSalt: "c2693a2e26a0438a965363d3ba5d12ec"
-    autoLogin: false
+    autoLogin: true
     autoConsent: true
   authorizeCode:
     key: "eeb9674cc4d54901bdcf862dd7d46ec87492a99a1ca44d2e9832e841434371f9"
