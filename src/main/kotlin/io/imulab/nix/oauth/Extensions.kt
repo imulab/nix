@@ -38,6 +38,8 @@ fun String?.ifNotNullOrEmpty(action: (String) -> Unit) {
     }
 }
 
+fun Set<String>.exactly(value: String): Boolean = size == 1 && contains(value)
+
 @Suppress("unchecked_cast")
 inline fun <reified T : Any> Any?.assertType(): T {
     if (this == null)

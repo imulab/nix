@@ -1,4 +1,4 @@
-package io.imulab.nix.oauth.authorize
+package io.imulab.nix.oauth.handler
 
 import io.imulab.nix.oauth.request.OAuthAuthorizeRequest
 import io.imulab.nix.oauth.response.AuthorizeEndpointResponse
@@ -11,5 +11,5 @@ interface AuthorizeRequestHandler {
     /**
      * Handle an authorization request.
      */
-    suspend fun handleRequest(request: OAuthAuthorizeRequest, response: AuthorizeEndpointResponse)
+    suspend fun handleAuthorizeRequest(request: OAuthAuthorizeRequest, response: AuthorizeEndpointResponse)
 }

@@ -4,16 +4,14 @@ import io.imulab.nix.oauth.putIfNotEmpty
 import io.imulab.nix.oauth.reserved.Param
 import io.imulab.nix.oauth.reserved.space
 
-open class AuthorizeEndpointResponse(
-    override var code: String = "",
-    override var state: String = "",
-    override var scope: Set<String> = emptySet(),
+class TokenEndpointResponse(
     override var accessToken: String = "",
     override var tokenType: String = "",
     override var expiresIn: Long = 0,
     override var refreshToken: String = "",
-    val handledResponseTypes: MutableSet<String> = mutableSetOf()
-) : AuthorizationCodeResponse, AccessTokenResponse, OAuthResponse {
+    override var scope: Set<String> = emptySet(),
+    override var state: String = ""
+) : AccessTokenResponse, OAuthResponse {
 
     override val status: Int
         get() = 200
@@ -25,7 +23,6 @@ open class AuthorizeEndpointResponse(
     override val data: Map<String, String>
         get() {
             val m = mutableMapOf<String, String>()
-            m.putIfNotEmpty(Param.code, code)
             m.putIfNotEmpty(Param.accessToken, accessToken)
             m.putIfNotEmpty(Param.tokenType, tokenType)
             m.putIfNotEmpty(Param.expiresIn, if (expiresIn > 0) expiresIn.toString() else "")
