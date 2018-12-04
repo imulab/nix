@@ -1,8 +1,8 @@
 package io.imulab.nix.oauth.handler.helper
 
 import io.imulab.nix.oauth.OAuthContext
-import io.imulab.nix.oauth.request.OAuthAccessRequest
-import io.imulab.nix.oauth.response.TokenEndpointResponse
+import io.imulab.nix.oauth.request.OAuthRequest
+import io.imulab.nix.oauth.response.AccessTokenResponse
 import io.imulab.nix.oauth.token.storage.AccessTokenRepository
 import io.imulab.nix.oauth.token.strategy.AccessTokenStrategy
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +16,7 @@ class AccessTokenHelper(
     private val accessTokenRepository: AccessTokenRepository
 ) {
 
-    suspend fun createAccessToken(request: OAuthAccessRequest, response: TokenEndpointResponse): Job {
+    suspend fun createAccessToken(request: OAuthRequest, response: AccessTokenResponse): Job {
         return accessTokenStrategy.generateToken(request).let { accessToken ->
             response.accessToken = accessToken
             response.tokenType = "bearer"
