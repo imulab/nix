@@ -7,6 +7,7 @@ object OidcParam {
     const val prompt = "prompt"
     const val maxAge = "max_age"
     const val uiLocales = "ui_locales"
+    const val idToken = "id_token"
     const val idTokenHint = "id_token_hint"
     const val loginHint = "login_hint"
     const val acrValues = "acr_values"

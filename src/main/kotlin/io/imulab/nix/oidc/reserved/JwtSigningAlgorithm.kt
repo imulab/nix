@@ -6,7 +6,10 @@ import org.jose4j.jws.AlgorithmIdentifiers
 /**
  * Signature algorithm used to sign and verify signatures.
  */
-enum class JwtSigningAlgorithm(val spec: String, val algorithmIdentifier: String) {
+enum class JwtSigningAlgorithm(
+    val spec: String,
+    val algorithmIdentifier: String
+) {
     HS256("HS256", AlgorithmIdentifiers.HMAC_SHA256),
     HS384("HS384", AlgorithmIdentifiers.HMAC_SHA384),
     HS512("HS512", AlgorithmIdentifiers.HMAC_SHA512),

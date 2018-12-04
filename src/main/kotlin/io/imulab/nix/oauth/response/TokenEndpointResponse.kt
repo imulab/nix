@@ -4,7 +4,7 @@ import io.imulab.nix.oauth.putIfNotEmpty
 import io.imulab.nix.oauth.reserved.Param
 import io.imulab.nix.oauth.reserved.space
 
-class TokenEndpointResponse(
+open class TokenEndpointResponse(
     override var accessToken: String = "",
     override var tokenType: String = "",
     override var expiresIn: Long = 0,
