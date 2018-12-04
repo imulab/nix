@@ -1,8 +1,15 @@
 package io.imulab.nix.server.config
 
-import io.imulab.nix.oauth.token.strategy.HmacSha2AuthorizeCodeStrategy
-import io.imulab.nix.oauth.token.strategy.HmacSha2RefreshTokenStrategy
-import io.imulab.nix.oauth.token.strategy.JwtAccessTokenStrategy
+import io.imulab.nix.oauth.handler.OAuthAuthorizeCodeHandler
+import io.imulab.nix.oauth.handler.OAuthClientCredentialsHandler
+import io.imulab.nix.oauth.handler.OAuthImplicitHandler
+import io.imulab.nix.oauth.handler.OAuthRefreshHandler
+import io.imulab.nix.oauth.handler.helper.AccessTokenHelper
+import io.imulab.nix.oauth.handler.helper.RefreshTokenHelper
+import io.imulab.nix.oauth.token.storage.AccessTokenRepository
+import io.imulab.nix.oauth.token.storage.AuthorizeCodeRepository
+import io.imulab.nix.oauth.token.storage.RefreshTokenRepository
+import io.imulab.nix.oauth.token.strategy.*
 import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
 import org.jose4j.keys.AesKey
 import org.springframework.context.annotation.Bean
@@ -46,5 +53,93 @@ class OAuthConfiguration {
         key = AesKey(nixProperties.refreshToken.key.toByteArray(StandardCharsets.UTF_8)),
         signingAlgorithm = JwtSigningAlgorithm.HS512,
         tokenLength = 32
+    )
+
+    /**
+     * A [AccessTokenHelper] bean. This bean is the logic abstraction to generate an access token, create
+     * a session for it and set it in response.
+     */
+    @Bean
+    fun accessTokenHelper(
+        nixProperties: NixProperties,
+        accessTokenStrategy: AccessTokenStrategy,
+        accessTokenRepository: AccessTokenRepository
+    ) = AccessTokenHelper(
+        oauthContext = nixProperties,
+        accessTokenStrategy = accessTokenStrategy,
+        accessTokenRepository = accessTokenRepository
+    )
+
+    /**
+     * A [RefreshTokenHelper] bean. This bean is the logic abstraction to generate a refresh token, create
+     * a session for it and set it in response.
+     */
+    @Bean
+    fun refreshTokenHelper(
+        refreshTokenStrategy: RefreshTokenStrategy,
+        refreshTokenRepository: RefreshTokenRepository
+    ) = RefreshTokenHelper(
+        refreshTokenStrategy = refreshTokenStrategy,
+        refreshTokenRepository = refreshTokenRepository
+    )
+
+    /**
+     * A [OAuthAuthorizeCodeHandler] bean. This bean handles the OAuth Authorize Code Flow.
+     */
+    @Bean
+    fun oauthAuthorizeCodeHandler(
+        authorizeCodeStrategy: AuthorizeCodeStrategy,
+        authorizeCodeRepository: AuthorizeCodeRepository,
+        accessTokenHelper: AccessTokenHelper,
+        refreshTokenHelper: RefreshTokenHelper
+    ) = OAuthAuthorizeCodeHandler(
+        authorizeCodeStrategy = authorizeCodeStrategy,
+        authorizeCodeRepository = authorizeCodeRepository,
+        accessTokenHelper = accessTokenHelper,
+        refreshTokenHelper = refreshTokenHelper
+    )
+
+    /**
+     * A [OAuthImplicitHandler] bean. This bean handles the OAuth Implicit Flow.
+     */
+    @Bean
+    fun oauthImplicitHandler(
+        nixProperties: NixProperties,
+        accessTokenStrategy: AccessTokenStrategy,
+        accessTokenRepository: AccessTokenRepository
+    ) = OAuthImplicitHandler(
+        oauthContext = nixProperties,
+        accessTokenRepository = accessTokenRepository,
+        accessTokenStrategy = accessTokenStrategy
+    )
+
+    /**
+     * A [OAuthClientCredentialsHandler] bean. This bean handles the OAuth Client Credentials Flow.
+     */
+    @Bean
+    fun oauthClientCredentialsHandler(
+        accessTokenHelper: AccessTokenHelper,
+        refreshTokenHelper: RefreshTokenHelper
+    ) = OAuthClientCredentialsHandler(
+        accessTokenHelper = accessTokenHelper,
+        refreshTokenHelper = refreshTokenHelper
+    )
+
+    /**
+     * A [OAuthRefreshHandler] bean. This bean handles the OAuth Refresh Flow.
+     */
+    @Bean
+    fun oauthRefreshHandler(
+        accessTokenHelper: AccessTokenHelper,
+        refreshTokenHelper: RefreshTokenHelper,
+        accessTokenRepository: AccessTokenRepository,
+        refreshTokenStrategy: RefreshTokenStrategy,
+        refreshTokenRepository: RefreshTokenRepository
+    ) = OAuthRefreshHandler(
+        accessTokenHelper = accessTokenHelper,
+        refreshTokenHelper = refreshTokenHelper,
+        accessTokenRepository = accessTokenRepository,
+        refreshTokenRepository = refreshTokenRepository,
+        refreshTokenStrategy = refreshTokenStrategy
     )
 }
