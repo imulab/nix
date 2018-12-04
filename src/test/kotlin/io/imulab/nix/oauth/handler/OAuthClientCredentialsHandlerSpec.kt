@@ -6,13 +6,14 @@ import io.imulab.nix.`when`
 import io.imulab.nix.given
 import io.imulab.nix.oauth.OAuthContext
 import io.imulab.nix.oauth.client.OAuthClient
-import io.imulab.nix.oauth.handler.OAuthRefreshHandlerSpec.validAccessRequest
+import io.imulab.nix.oauth.error.OAuthException
+import io.imulab.nix.oauth.handler.OAuthClientCredentialsHandlerSpec.validAccessRequest
+import io.imulab.nix.oauth.handler.OAuthClientCredentialsHandlerSpec.validAccessRequestByPublicClient
 import io.imulab.nix.oauth.handler.helper.AccessTokenHelper
 import io.imulab.nix.oauth.handler.helper.RefreshTokenHelper
 import io.imulab.nix.oauth.request.OAuthAccessRequest
-import io.imulab.nix.oauth.request.OAuthAuthorizeRequest
+import io.imulab.nix.oauth.reserved.ClientType
 import io.imulab.nix.oauth.reserved.GrantType
-import io.imulab.nix.oauth.reserved.ResponseType
 import io.imulab.nix.oauth.response.TokenEndpointResponse
 import io.imulab.nix.oauth.token.storage.MemoryAccessTokenRepository
 import io.imulab.nix.oauth.token.storage.MemoryRefreshTokenRepository
@@ -21,7 +22,7 @@ import io.imulab.nix.oauth.token.strategy.JwtAccessTokenStrategy
 import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
 import io.imulab.nix.then
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.*
 import org.jose4j.jwk.JsonWebKeySet
 import org.jose4j.jwk.RsaJwkGenerator
 import org.jose4j.jwk.Use
@@ -29,42 +30,62 @@ import org.jose4j.keys.AesKey
 import org.spekframework.spek2.Spek
 import java.time.Duration
 
-object OAuthRefreshHandlerSpec : Spek({
+object OAuthClientCredentialsHandlerSpec : Spek({
 
-    given("""
-        a configured handler, and
-        a previously existing refresh token
-    """.trimIndent()) {
+    given("a configured handler") {
         val given = Given()
-        val refreshToken = given.originalRefreshToken
         val handler = given.handler
 
-        `when`("a valid access request is made") {
-            val request = validAccessRequest(refreshToken)
+        `when`("a valid request is made") {
+            val request = validAccessRequest()
             val response = TokenEndpointResponse()
             runBlocking {
                 handler.updateSession(request)
                 handler.handleAccessRequest(request, response)
             }
 
-            then("a new access token should be issued") {
+            then("an access token should have been issued in response") {
                 assertThat(response.accessToken).isNotEmpty()
             }
 
-            then("a new refresh token should be issued") {
-                assertThat(response.refreshToken).isNotEmpty()
-                assertThat(response.refreshToken).isNotEqualTo(refreshToken)
+            then("token type should have been set in response") {
+                assertThat(response.tokenType).isEqualTo("bearer")
             }
 
-            then("granted scopes should be the same as before") {
-                assertThat(response.scope).contains("foo", "offline_access")
-                assertThat(response.scope).doesNotContain("bar")
+            then("expiration ttl should have been set in response") {
+                assertThat(response.expiresIn).isGreaterThan(0)
+            }
+
+            then("granted scopes should have been set in response") {
+                assertThat(response.scope).contains("foo", "bar")
+            }
+
+            then("an access token session should have been created") {
+                assertThat(runBlocking { given.accessTokenRepository.getAccessTokenSession(response.accessToken) })
+                    .isNotNull
+            }
+        }
+
+        `when`("a request is made by a public client") {
+            val request = validAccessRequestByPublicClient()
+            val response = TokenEndpointResponse()
+            val result = runCatching {
+                runBlocking {
+                    handler.updateSession(request)
+                    handler.handleAccessRequest(request, response)
+                }
+            }
+
+            then("an error should have been raised") {
+                assertThat(result.isFailure).isTrue()
+                assertThat(result.exceptionOrNull()).isInstanceOf(OAuthException::class.java)
             }
         }
     }
-
 }) {
+
     class Given {
+
         private val oauthContext = mock<OAuthContext> {
             onGeneric { accessTokenLifespan } doReturn Duration.ofMinutes(10)
         }
@@ -83,29 +104,7 @@ object OAuthRefreshHandlerSpec : Spek({
             serverJwks = serverJwks
         )
 
-        private val accessTokenRepository = MemoryAccessTokenRepository()
-
-        val originalRefreshToken: String by lazy {
-            var refreshToken = ""
-            val client = mock<OAuthClient> {
-                onGeneric { id } doReturn "foo"
-            }
-            val req = OAuthAuthorizeRequest.Builder().also { b ->
-                b.client = client
-                b.redirectUri = "https://test.com/callback"
-                b.responseTypes = mutableSetOf(ResponseType.token)
-                b.scopes = mutableSetOf("foo", "bar", "offline_access")
-                b.state = "12345678"
-            }.build().also { r ->
-                r.session.subject = "tester"
-                r.session.grantedScopes.addAll(listOf("foo", "offline_access"))
-            }
-            runBlocking {
-                refreshToken = refreshTokenStrategy.generateToken(req)
-                refreshTokenRepository.createRefreshTokenSession(refreshToken, req)
-            }
-            return@lazy refreshToken
-        }
+        val accessTokenRepository = MemoryAccessTokenRepository()
 
         private val refreshTokenStrategy = HmacSha2RefreshTokenStrategy(
             key = AesKey("2fb9a6e7a6014e609cc7a42812dae6c7".toByteArray()),
@@ -115,10 +114,7 @@ object OAuthRefreshHandlerSpec : Spek({
 
         private val refreshTokenRepository = MemoryRefreshTokenRepository()
 
-        val handler = OAuthRefreshHandler(
-            refreshTokenStrategy = refreshTokenStrategy,
-            refreshTokenRepository = refreshTokenRepository,
-            accessTokenRepository = accessTokenRepository,
+        val handler = OAuthClientCredentialsHandler(
             refreshTokenHelper = RefreshTokenHelper(
                 refreshTokenStrategy = refreshTokenStrategy,
                 refreshTokenRepository = refreshTokenRepository
@@ -131,14 +127,27 @@ object OAuthRefreshHandlerSpec : Spek({
         )
     }
 
-    fun validAccessRequest(refreshToken: String): OAuthAccessRequest {
+    fun validAccessRequest(): OAuthAccessRequest {
         val client = mock<OAuthClient> {
             onGeneric { id } doReturn "foo"
         }
         return OAuthAccessRequest.Builder().also { b ->
             b.client = client
-            b.refreshToken = refreshToken
-            b.grantTypes = mutableSetOf(GrantType.refreshToken)
+            b.scopes = mutableSetOf("foo", "bar")
+            b.grantTypes = mutableSetOf(GrantType.clientCredentials)
+            b.redirectUri = "https://test.com/callback"
+        }.build()
+    }
+
+    fun validAccessRequestByPublicClient() : OAuthAccessRequest {
+        val client = mock<OAuthClient> {
+            onGeneric { id } doReturn "foo"
+            onGeneric { type } doReturn ClientType.public
+        }
+        return OAuthAccessRequest.Builder().also { b ->
+            b.client = client
+            b.scopes = mutableSetOf("foo", "bar")
+            b.grantTypes = mutableSetOf(GrantType.clientCredentials)
             b.redirectUri = "https://test.com/callback"
         }.build()
     }
