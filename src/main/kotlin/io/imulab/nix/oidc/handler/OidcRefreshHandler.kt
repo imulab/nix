@@ -1,5 +1,6 @@
 package io.imulab.nix.oidc.handler
 
+import io.imulab.nix.oauth.assertType
 import io.imulab.nix.oauth.handler.AccessRequestHandler
 import io.imulab.nix.oauth.request.OAuthAccessRequest
 import io.imulab.nix.oauth.reserved.GrantType
@@ -28,16 +29,11 @@ class OidcRefreshHandler(private val idTokenStrategy: IdTokenStrategy) : AccessR
             "Upstream should have generated an access token. Was handler misplaced?"
         }
 
-        check(request.session is OidcSession) {
-            "Caller should have supplied an OidcSession."
-        }
-
-        check(request.client is OidcClient) {
-            "Caller should have supplied an OidcClient."
-        }
-
-        request.session.idTokenClaims[IdTokenClaim.accessTokenHash] =
-                TokenHashHelper.leftMostHash(response.accessToken, request.client.idTokenSignedResponseAlgorithm)
+        request.session.assertType<OidcSession>().idTokenClaims[IdTokenClaim.accessTokenHash] =
+                TokenHashHelper.leftMostHash(
+                    response.accessToken,
+                    request.client.assertType<OidcClient>().idTokenSignedResponseAlgorithm
+                )
         response.idToken = idTokenStrategy.generateToken(request)
     }
 

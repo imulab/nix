@@ -1,5 +1,6 @@
 package io.imulab.nix.oidc.handler
 
+import io.imulab.nix.oauth.assertType
 import io.imulab.nix.oauth.exactly
 import io.imulab.nix.oauth.handler.AuthorizeRequestHandler
 import io.imulab.nix.oauth.handler.helper.AccessTokenHelper
@@ -27,21 +28,16 @@ class OidcImplicitHandler(
             "Caller should have supplied an OidcAuthorizeEndpointResponse"
         }
 
-        check(request.session is OidcSession) {
-            "Caller should have supplied an OidcSession."
-        }
-
-        check(request.client is OidcClient) {
-            "Caller should have supplied an OidcClient."
-        }
-
         if (request.state.isNotEmpty())
             response.state = request.state
 
         if (request.responseTypes.contains(io.imulab.nix.oauth.reserved.ResponseType.token)) {
             accessTokenHelper.createAccessToken(request, response).join()
-            request.session.idTokenClaims[IdTokenClaim.accessTokenHash] =
-                    TokenHashHelper.leftMostHash(response.accessToken, request.client.idTokenSignedResponseAlgorithm)
+            request.session.assertType<OidcSession>().idTokenClaims[IdTokenClaim.accessTokenHash] =
+                    TokenHashHelper.leftMostHash(
+                        response.accessToken,
+                        request.client.assertType<OidcClient>().idTokenSignedResponseAlgorithm
+                    )
             response.handledResponseTypes.add(io.imulab.nix.oauth.reserved.ResponseType.token)
         }
 

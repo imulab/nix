@@ -1,5 +1,6 @@
 package io.imulab.nix.oidc.handler
 
+import io.imulab.nix.oauth.assertType
 import io.imulab.nix.oauth.error.InvalidScope
 import io.imulab.nix.oauth.exactly
 import io.imulab.nix.oauth.handler.AccessRequestHandler
@@ -10,7 +11,6 @@ import io.imulab.nix.oauth.reserved.GrantType
 import io.imulab.nix.oauth.reserved.ResponseType
 import io.imulab.nix.oauth.response.AuthorizeEndpointResponse
 import io.imulab.nix.oauth.response.TokenEndpointResponse
-import io.imulab.nix.oauth.token.strategy.AuthorizeCodeStrategy
 import io.imulab.nix.oidc.client.OidcClient
 import io.imulab.nix.oidc.handler.helper.TokenHashHelper
 import io.imulab.nix.oidc.request.OidcSession
@@ -53,10 +53,6 @@ class OidcAuthorizeCodeHandler(
             "Called should have supplied an OidcTokenEndpointResponse."
         }
 
-        check(request.client is OidcClient) {
-            "Called should have supplied an OidcClient"
-        }
-
         check(response.accessToken.isNotEmpty()) {
             "Upstream handler should have issued access token. Was handler misplaced?"
         }
@@ -66,7 +62,10 @@ class OidcAuthorizeCodeHandler(
             throw InvalidScope.notGranted(StandardScope.openid)
 
         request.session.idTokenClaims[IdTokenClaim.accessTokenHash] =
-                TokenHashHelper.leftMostHash(response.accessToken, request.client.idTokenSignedResponseAlgorithm)
+                TokenHashHelper.leftMostHash(
+                    response.accessToken,
+                    request.client.assertType<OidcClient>().idTokenSignedResponseAlgorithm
+                )
         response.idToken = idTokenStrategy.generateToken(request)
     }
 }
