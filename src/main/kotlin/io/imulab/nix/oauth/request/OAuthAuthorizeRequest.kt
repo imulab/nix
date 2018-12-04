@@ -11,18 +11,10 @@ open class OAuthAuthorizeRequest(
     client: OAuthClient,
     val responseTypes: Set<String>,
     val redirectUri: String,
-    val scopes: Set<String>,
     val state: String,
+    scopes: Set<String>,
     session: OAuthSession = OAuthSession()
-) : OAuthRequest(client = client, session = session) {
-
-    /**
-     * Convenience method to grant a scope. The granted scope must be in the requested [scopes].
-     */
-    fun grantScope(scope: String) {
-        if (scopes.contains(scope))
-            session.grantedScopes.add(scope)
-    }
+) : OAuthRequest(client = client, scopes = scopes, session = session) {
 
     class Builder(
         var responseTypes: MutableSet<String> = mutableSetOf(),

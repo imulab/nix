@@ -11,5 +11,14 @@ open class OAuthRequest(
     val id: String = UUID.randomUUID().toString(),
     val requestTime: LocalDateTime = LocalDateTime.now(),
     val client: OAuthClient,
+    val scopes: Set<String>,
     val session: OAuthSession = OAuthSession()
-)
+) {
+    /**
+     * Convenience method to grant a scope. The granted scope must be in the requested [scopes].
+     */
+    fun grantScope(scope: String) {
+        if (scopes.contains(scope))
+            session.grantedScopes.add(scope)
+    }
+}

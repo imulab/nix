@@ -11,13 +11,15 @@ open class OAuthAccessRequest(
     val grantTypes: Set<String>,
     val code: String,
     val redirectUri: String,
-    client: OAuthClient
-) : OAuthRequest(client = client) {
+    client: OAuthClient,
+    scopes: Set<String> = emptySet()
+) : OAuthRequest(client = client, scopes = scopes) {
 
     class Builder(
         var grantTypes: MutableSet<String> = mutableSetOf(),
         var code: String = "",
         var redirectUri: String = "",
+        var scopes: MutableSet<String> = mutableSetOf(),
         var client: OAuthClient? = null
     ) {
 
@@ -34,6 +36,7 @@ open class OAuthAccessRequest(
             return OAuthAccessRequest(
                 grantTypes = grantTypes.toSet(),
                 code = code,
+                scopes = scopes,
                 redirectUri = redirectUri,
                 client = client!!
             )

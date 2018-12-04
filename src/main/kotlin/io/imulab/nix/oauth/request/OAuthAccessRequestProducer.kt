@@ -5,6 +5,7 @@ import io.imulab.nix.oauth.client.authn.ClientAuthenticators
 import io.imulab.nix.oauth.error.InvalidRequest
 import io.imulab.nix.oauth.reserved.Param
 import io.imulab.nix.oauth.reserved.space
+import io.imulab.nix.oauth.validation.ScopeValidator
 
 /**
  * Implementation of [OAuthRequestProducer] that takes the input parameter values from [OAuthRequestForm]
@@ -33,6 +34,11 @@ open class OAuthAccessRequestProducer(
                 .split(space)
                 .filter { it.isNotBlank() }
                 .map { grantTypeValidator.validate(it) }
+                .toMutableSet()
+            b.scopes = form.scope
+                .split(space)
+                .filter { it.isNotBlank() }
+                .map { ScopeValidator.validate(it) }
                 .toMutableSet()
             b.redirectUri = form.redirectUri
         }
