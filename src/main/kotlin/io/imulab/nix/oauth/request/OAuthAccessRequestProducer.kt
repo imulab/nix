@@ -30,6 +30,7 @@ open class OAuthAccessRequestProducer(
         val builder = OAuthAccessRequest.Builder().also { b ->
             b.client = client
             b.code = form.code
+            b.refreshToken = form.refreshToken
             b.grantTypes = form.grantType
                 .split(space)
                 .filter { it.isNotBlank() }

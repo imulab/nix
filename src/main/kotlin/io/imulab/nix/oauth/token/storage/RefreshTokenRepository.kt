@@ -18,4 +18,9 @@ interface RefreshTokenRepository {
      * Removes information related to the refresh [token].
      */
     suspend fun deleteRefreshTokenSession(token: String)
+
+    /**
+     * Removes the refresh token associated with request by [requestId].
+     */
+    suspend fun deleteRefreshTokenAssociatedWithRequest(requestId: String)
 }

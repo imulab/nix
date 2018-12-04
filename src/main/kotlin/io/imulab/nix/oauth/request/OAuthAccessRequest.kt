@@ -10,6 +10,7 @@ import io.imulab.nix.oauth.reserved.Param
 open class OAuthAccessRequest(
     val grantTypes: Set<String>,
     val code: String,
+    val refreshToken: String,
     val redirectUri: String,
     client: OAuthClient,
     scopes: Set<String> = emptySet()
@@ -18,6 +19,7 @@ open class OAuthAccessRequest(
     class Builder(
         var grantTypes: MutableSet<String> = mutableSetOf(),
         var code: String = "",
+        var refreshToken: String = "",
         var redirectUri: String = "",
         var scopes: MutableSet<String> = mutableSetOf(),
         var client: OAuthClient? = null
@@ -36,6 +38,7 @@ open class OAuthAccessRequest(
             return OAuthAccessRequest(
                 grantTypes = grantTypes.toSet(),
                 code = code,
+                refreshToken = refreshToken,
                 scopes = scopes,
                 redirectUri = redirectUri,
                 client = client!!

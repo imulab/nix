@@ -18,4 +18,15 @@ class MemoryRefreshTokenRepository : RefreshTokenRepository {
     override suspend fun deleteRefreshTokenSession(token: String) {
         db.remove(token)
     }
+
+    override suspend fun deleteRefreshTokenAssociatedWithRequest(requestId: String) {
+        val it = db.iterator()
+        while (it.hasNext()) {
+            val kv = it.next()
+            if (kv.value.id == requestId) {
+                it.remove()
+                break
+            }
+        }
+    }
 }

@@ -18,4 +18,9 @@ interface AccessTokenRepository {
      * Removes information related to the access [token].
      */
     suspend fun deleteAccessTokenSession(token: String)
+
+    /**
+     * Removes the access token associated with request by [requestId].
+     */
+    suspend fun deleteAccessTokenAssociatedWithRequest(requestId: String)
 }

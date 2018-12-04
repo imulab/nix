@@ -33,6 +33,7 @@ open class OAuthRequestForm(
         "responseType" to Param.responseType,
         "state" to Param.state,
         "code" to Param.code,
+        "refreshToken" to Param.refreshToken,
         "grantType" to Param.grantType,
         "username" to Param.username,
         "password" to Param.password,
@@ -52,6 +53,7 @@ open class OAuthRequestForm(
     var responseType: String by Delegate
     var state: String by Delegate
     var code: String by Delegate
+    var refreshToken: String by Delegate
     var grantType: String by Delegate
     var username: String by Delegate
     var password: String by Delegate

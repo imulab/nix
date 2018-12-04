@@ -18,6 +18,9 @@ import io.imulab.nix.oauth.token.strategy.AccessTokenStrategy
 import io.imulab.nix.oauth.token.strategy.AuthorizeCodeStrategy
 import io.imulab.nix.oauth.token.strategy.RefreshTokenStrategy
 import io.imulab.nix.oauth.reserved.StandardScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class OAuthAuthorizeCodeHandler(
     private val oauthContext: OAuthContext,
@@ -33,17 +36,22 @@ class OAuthAuthorizeCodeHandler(
         if (!request.responseTypes.exactly(ResponseType.code))
             return
 
-        val code = authorizeCodeStrategy.generateCode(request)
-
-        authorizeCodeRepository.createAuthorizeCodeSession(code, request)
+        val codeCreation = authorizeCodeStrategy.generateCode(request).let { code ->
+            response.code = code
+            withContext(Dispatchers.IO) {
+                launch {
+                    authorizeCodeRepository.createAuthorizeCodeSession(code, request)
+                }
+            }
+        }
 
         response.let {
-            it.code = code
             if (request.state.isNotEmpty())
                 it.state = request.state
             it.scope = request.session.grantedScopes
         }
 
+        codeCreation.join()
         response.handledResponseTypes.add(ResponseType.code)
     }
 
@@ -69,20 +77,31 @@ class OAuthAuthorizeCodeHandler(
         if (!request.grantTypes.exactly(GrantType.authorizationCode))
             return
 
-        accessTokenStrategy.generateToken(request).let { accessToken ->
-            accessTokenRepository.createAccessTokenSession(accessToken, request)
+        val accessTokenCreation = accessTokenStrategy.generateToken(request).let { accessToken ->
             response.accessToken = accessToken
             response.tokenType = "bearer"
             response.expiresIn = oauthContext.accessTokenLifespan.toSeconds()
-        }
-
-        if (request.session.grantedScopes.contains(StandardScope.offlineAccess)) {
-            refreshTokenStrategy.generateToken(request).let { refreshToken ->
-                refreshTokenRepository.createRefreshTokenSession(refreshToken, request)
-                response.refreshToken = refreshToken
+            withContext(Dispatchers.IO) {
+                launch {
+                    accessTokenRepository.createAccessTokenSession(accessToken, request)
+                }
             }
         }
 
+        val refreshTokenCreation = if (request.session.grantedScopes.contains(StandardScope.offlineAccess)) {
+            refreshTokenStrategy.generateToken(request).let { refreshToken ->
+                response.refreshToken = refreshToken
+                withContext(Dispatchers.IO) {
+                    launch {
+                        refreshTokenRepository.createRefreshTokenSession(refreshToken, request)
+                    }
+                }
+            }
+        } else null
+
         response.scope = request.session.grantedScopes.toSet()
+
+        accessTokenCreation.join()
+        refreshTokenCreation?.join()
     }
 }

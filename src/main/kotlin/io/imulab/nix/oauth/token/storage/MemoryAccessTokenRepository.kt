@@ -18,4 +18,15 @@ class MemoryAccessTokenRepository : AccessTokenRepository {
     override suspend fun deleteAccessTokenSession(token: String) {
         db.remove(token)
     }
+
+    override suspend fun deleteAccessTokenAssociatedWithRequest(requestId: String) {
+        val it = db.iterator()
+        while (it.hasNext()) {
+            val kv = it.next()
+            if (kv.value.id == requestId) {
+                it.remove()
+                break
+            }
+        }
+    }
 }
