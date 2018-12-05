@@ -64,7 +64,9 @@ class OAuthAuthorizeCodeHandler(
         else if (request.redirectUri != authorizeRequest.redirectUri)
             throw InvalidRequest.unmet("redirect_uri must match authorize request.")
 
-        request.session.merge(authorizeRequest.session)
+        request.session.merge(authorizeRequest.session).also {
+            authorizeCodeRepository.invalidateAuthorizeCodeSession(request.code)
+        }
     }
 
     override suspend fun handleAccessRequest(request: OAuthAccessRequest, response: TokenEndpointResponse) {

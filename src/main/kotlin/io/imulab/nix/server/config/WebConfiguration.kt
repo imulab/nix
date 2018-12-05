@@ -5,6 +5,7 @@ import io.imulab.nix.oauth.handler.OAuthClientCredentialsHandler
 import io.imulab.nix.oauth.handler.OAuthImplicitHandler
 import io.imulab.nix.oauth.handler.OAuthRefreshHandler
 import io.imulab.nix.oauth.request.OAuthRequestProducer
+import io.imulab.nix.oauth.validation.OAuthRequestValidationChain
 import io.imulab.nix.server.authz.authn.AuthenticationProvider
 import io.imulab.nix.server.authz.consent.ConsentProvider
 import io.imulab.nix.server.route.AuthorizeRouteProvider
@@ -32,6 +33,10 @@ import java.util.concurrent.ConcurrentHashMap
 class WebConfiguration @Autowired constructor(
     @Qualifier("authorizeRequestProducer")
     private val authorizeRequestProducer: OAuthRequestProducer,
+    @Qualifier("authorizePreValidation")
+    private val authorizePreValidation: OAuthRequestValidationChain,
+    @Qualifier("authorizePostValidation")
+    private val authorizePostValidation: OAuthRequestValidationChain,
     private val authenticationProvider: AuthenticationProvider,
     private val consentProvider: ConsentProvider,
     private val oAuthAuthorizeCodeHandler: OAuthAuthorizeCodeHandler,
@@ -56,6 +61,8 @@ class WebConfiguration @Autowired constructor(
         requestProducer = authorizeRequestProducer,
         authenticationProvider = authenticationProvider,
         consentProvider = consentProvider,
+        preValidation = authorizePreValidation,
+        postValidation = authorizePostValidation,
         handlers = listOf(
             oAuthAuthorizeCodeHandler,
             oAuthImplicitHandler

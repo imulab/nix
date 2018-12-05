@@ -3,9 +3,9 @@ package io.imulab.nix.server.route
 import io.imulab.nix.oauth.assertType
 import io.imulab.nix.oauth.error.ServerError
 import io.imulab.nix.oauth.handler.AuthorizeRequestHandler
-import io.imulab.nix.oauth.request.OAuthAuthorizeRequestProducer
 import io.imulab.nix.oauth.request.OAuthRequestProducer
 import io.imulab.nix.oauth.response.OAuthResponse
+import io.imulab.nix.oauth.validation.OAuthRequestValidation
 import io.imulab.nix.oidc.request.OidcAuthorizeRequest
 import io.imulab.nix.oidc.request.OidcRequestForm
 import io.imulab.nix.oidc.reserved.ResponseMode
@@ -24,15 +24,15 @@ import reactor.core.publisher.Mono
 
 class AuthorizeRouteProvider(
     private val requestProducer: OAuthRequestProducer,
-    //private val preValidation: OAuthRequestValidation,
+    private val preValidation: OAuthRequestValidation,
     private val authenticationProvider: AuthenticationProvider,
     private val consentProvider: ConsentProvider,
-    private val handlers: List<AuthorizeRequestHandler>
-    //private val postValidation: OAuthRequestValidation
+    private val handlers: List<AuthorizeRequestHandler>,
+    private val postValidation: OAuthRequestValidation
 ) {
 
     fun handle(request: ServerRequest): Mono<ServerResponse> {
-        val formMono = Mono.just(request)
+        val form = Mono.just(request)
             .flatMap {
                 when (it.method()) {
                     HttpMethod.GET -> Mono.just(it.queryParams())
@@ -42,15 +42,15 @@ class AuthorizeRouteProvider(
             }
             .map { OidcRequestForm(it) }
 
-        val requestMono = formMono.map {
+        val parsedRequest = form.map {
             runBlocking {
                 requestProducer.produce(it).assertType<OidcAuthorizeRequest>()
             }
         }
 
-        // we need pre-validation
+        val preValidated = parsedRequest.map { it.apply { preValidation.validate(this) } }
 
-        val authorizedMono = formMono.zipWith(requestMono).zipWith(request.session())
+        val authorized = form.zipWith(preValidated).zipWith(request.session())
             .map {
                 runBlocking {
                     authenticationProvider.tryAuthenticate(it.t1.t1, it.t1.t2.assertType(), it.t2)
@@ -59,9 +59,9 @@ class AuthorizeRouteProvider(
                 }
             }
 
-        // we need post-validation
+        val postValidated = authorized.map { it.apply { postValidation.validate(this) } }
 
-        val handledMono: Mono<OAuthResponse> = authorizedMono
+        val handled: Mono<OAuthResponse> = postValidated
             .map {
                 runBlocking {
                     val response = OidcAuthorizeEndpointResponse()
@@ -73,10 +73,10 @@ class AuthorizeRouteProvider(
                 }
             }
 
-        return handledMono
+        return handled
             .onErrorResume { t -> Mono.just(t.asOAuthResponse()) }
             .flatMap { resp ->
-                requestMono.flatMap { r -> resp.render(r.responseMode, r.redirectUri) }
+                parsedRequest.flatMap { r -> resp.render(r.responseMode, r.redirectUri) }
                     .onErrorResume { t -> t.asOAuthResponse().render() }
             }
     }

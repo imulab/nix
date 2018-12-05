@@ -18,6 +18,7 @@ object ScopeValidator : SpecDefinitionValidator,
 
     override fun validate(request: OAuthRequest) {
         val ar = request.assertType<OAuthAuthorizeRequest>()
+
         ar.scopes.forEach { scope ->
             scope.mustNotMalformedScope()
             ar.client.mustScope(scope)

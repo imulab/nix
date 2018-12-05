@@ -11,7 +11,7 @@ object OidcParam {
     const val idTokenHint = "id_token_hint"
     const val loginHint = "login_hint"
     const val acrValues = "acr_values"
-    const val claims = "idTokenClaims"
+    const val claims = "claims"
     const val claimsLocales = "claims_locales"
     const val request = "request"
     const val requestUri = "request_uri"
