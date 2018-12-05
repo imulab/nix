@@ -6,6 +6,10 @@ import io.imulab.nix.oauth.handler.OAuthImplicitHandler
 import io.imulab.nix.oauth.handler.OAuthRefreshHandler
 import io.imulab.nix.oauth.request.OAuthRequestProducer
 import io.imulab.nix.oauth.validation.OAuthRequestValidationChain
+import io.imulab.nix.oidc.handler.OidcAuthorizeCodeHandler
+import io.imulab.nix.oidc.handler.OidcHybridHandler
+import io.imulab.nix.oidc.handler.OidcImplicitHandler
+import io.imulab.nix.oidc.handler.OidcRefreshHandler
 import io.imulab.nix.server.authz.authn.AuthenticationProvider
 import io.imulab.nix.server.authz.consent.ConsentProvider
 import io.imulab.nix.server.route.AuthorizeRouteProvider
@@ -43,6 +47,10 @@ class WebConfiguration @Autowired constructor(
     private val oAuthImplicitHandler: OAuthImplicitHandler,
     private val oAuthClientCredentialsHandler: OAuthClientCredentialsHandler,
     private val oAuthRefreshHandler: OAuthRefreshHandler,
+    private val oidcAuthorizeCodeHandler: OidcAuthorizeCodeHandler,
+    private val oidcImplicitHandler: OidcImplicitHandler,
+    private val oidcHybridHandler: OidcHybridHandler,
+    private val oidcRefreshHandler: OidcRefreshHandler,
     @Qualifier("accessRequestProducer")
     private val accessRequestProducer: OAuthRequestProducer
 ) : WebFluxConfigurer {
@@ -65,7 +73,10 @@ class WebConfiguration @Autowired constructor(
         postValidation = authorizePostValidation,
         handlers = listOf(
             oAuthAuthorizeCodeHandler,
-            oAuthImplicitHandler
+            oAuthImplicitHandler,
+            oidcAuthorizeCodeHandler,
+            oidcImplicitHandler,
+            oidcHybridHandler
         )
     )
 
@@ -75,7 +86,10 @@ class WebConfiguration @Autowired constructor(
         handlers = listOf(
             oAuthAuthorizeCodeHandler,
             oAuthClientCredentialsHandler,
-            oAuthRefreshHandler
+            oAuthRefreshHandler,
+            oidcAuthorizeCodeHandler,
+            oidcHybridHandler,
+            oidcRefreshHandler
         )
     )
 }
