@@ -3,7 +3,7 @@ package io.imulab.nix.oidc.request
 /**
  * Memory implementation of [CachedRequestRepository].
  */
-class MemoryRequestRepository : CachedRequestRepository {
+class MemoryCachedRequestRepository : CachedRequestRepository {
 
     private val database = mutableMapOf<String, CachedRequest>()
 

@@ -6,135 +6,69 @@ import io.imulab.nix.oauth.handler.OAuthImplicitHandler
 import io.imulab.nix.oauth.handler.OAuthRefreshHandler
 import io.imulab.nix.oauth.handler.helper.AccessTokenHelper
 import io.imulab.nix.oauth.handler.helper.RefreshTokenHelper
-import io.imulab.nix.oauth.token.storage.AccessTokenRepository
-import io.imulab.nix.oauth.token.storage.AuthorizeCodeRepository
-import io.imulab.nix.oauth.token.storage.RefreshTokenRepository
+import io.imulab.nix.oauth.token.storage.*
 import io.imulab.nix.oauth.token.strategy.*
 import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
-import org.jose4j.keys.AesKey
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.core.Ordered
-import org.springframework.core.annotation.Order
-import java.nio.charset.StandardCharsets
 
-/**
- * This class configures OAuth related components (minus state management).
- */
 @Configuration
-class OAuthConfiguration {
+class OAuthConfiguration @Autowired constructor(private val prop: NixProperties) {
 
-    /**
-     * A [HmacSha2AuthorizeCodeStrategy] bean. This bean is responsible for generating and verifying
-     * an authorization code.
-     */
     @Bean
-    fun authorizeCodeStrategy(nixProperties: NixProperties) = HmacSha2AuthorizeCodeStrategy(
-        key = AesKey(nixProperties.authorizeCode.key.toByteArray(StandardCharsets.UTF_8)),
-        signingAlgorithm = JwtSigningAlgorithm.HS512,
-        codeLength = 16
-    )
+    @Memory
+    fun memoryAuthorizeCodeRepository() = MemoryAuthorizeCodeRepository()
 
-    /**
-     * A [JwtAccessTokenStrategy] bean. This bean is responsible for generating and verifying
-     * an access token.
-     */
     @Bean
-    fun accessTokenStrategy(nixProperties: NixProperties) = JwtAccessTokenStrategy(
-        oauthContext = nixProperties,
-        serverJwks = nixProperties.masterJsonWebKeySet,
-        signingAlgorithm = JwtSigningAlgorithm.RS256
-    )
+    @Memory
+    fun memoryAccessTokenRepository() = MemoryAccessTokenRepository()
 
-    /**
-     * A [HmacSha2RefreshTokenStrategy] bean. This bean is responsible for generating and verifying
-     * a refresh token.
-     */
     @Bean
-    fun refreshTokenStrategy(nixProperties: NixProperties) = HmacSha2RefreshTokenStrategy(
-        key = AesKey(nixProperties.refreshToken.key.toByteArray(StandardCharsets.UTF_8)),
-        signingAlgorithm = JwtSigningAlgorithm.HS512,
-        tokenLength = 32
-    )
+    @Memory
+    fun memoryRefreshTokenRepository() = MemoryRefreshTokenRepository()
 
-    /**
-     * A [AccessTokenHelper] bean. This bean is the logic abstraction to generate an access token, create
-     * a session for it and set it in response.
-     */
     @Bean
-    fun accessTokenHelper(
-        nixProperties: NixProperties,
-        accessTokenStrategy: AccessTokenStrategy,
-        accessTokenRepository: AccessTokenRepository
-    ) = AccessTokenHelper(
-        oauthContext = nixProperties,
-        accessTokenStrategy = accessTokenStrategy,
-        accessTokenRepository = accessTokenRepository
-    )
+    fun authorizeCodeStrategy() =
+        HmacSha2AuthorizeCodeStrategy(prop.authorizeCode.key.toAesKey(), JwtSigningAlgorithm.HS256)
 
-    /**
-     * A [RefreshTokenHelper] bean. This bean is the logic abstraction to generate a refresh token, create
-     * a session for it and set it in response.
-     */
     @Bean
-    fun refreshTokenHelper(
-        refreshTokenStrategy: RefreshTokenStrategy,
-        refreshTokenRepository: RefreshTokenRepository
-    ) = RefreshTokenHelper(
-        refreshTokenStrategy = refreshTokenStrategy,
-        refreshTokenRepository = refreshTokenRepository
-    )
+    fun accessTokenStrategy() = JwtAccessTokenStrategy(prop, JwtSigningAlgorithm.RS256, prop.masterJsonWebKeySet)
 
-    /**
-     * A [OAuthAuthorizeCodeHandler] bean. This bean handles the OAuth Authorize Code Flow.
-     */
     @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE)
+    fun refreshTokenStrategy() =
+        HmacSha2RefreshTokenStrategy(prop.refreshToken.key.toAesKey(), JwtSigningAlgorithm.HS256)
+
+    @Bean
+    fun accessTokenHelper(strategy: AccessTokenStrategy, repo: AccessTokenRepository) =
+        AccessTokenHelper(prop, strategy, repo)
+
+    @Bean
+    fun refreshTokenHelper(strategy: RefreshTokenStrategy, repo: RefreshTokenRepository) =
+        RefreshTokenHelper(strategy, repo)
+
+    @Bean
     fun oauthAuthorizeCodeHandler(
         authorizeCodeStrategy: AuthorizeCodeStrategy,
         authorizeCodeRepository: AuthorizeCodeRepository,
         accessTokenHelper: AccessTokenHelper,
         refreshTokenHelper: RefreshTokenHelper
     ) = OAuthAuthorizeCodeHandler(
-        authorizeCodeStrategy = authorizeCodeStrategy,
-        authorizeCodeRepository = authorizeCodeRepository,
-        accessTokenHelper = accessTokenHelper,
-        refreshTokenHelper = refreshTokenHelper
+        authorizeCodeStrategy,
+        authorizeCodeRepository,
+        accessTokenHelper,
+        refreshTokenHelper
     )
 
-    /**
-     * A [OAuthImplicitHandler] bean. This bean handles the OAuth Implicit Flow.
-     */
     @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE + 100)
-    fun oauthImplicitHandler(
-        nixProperties: NixProperties,
-        accessTokenStrategy: AccessTokenStrategy,
-        accessTokenRepository: AccessTokenRepository
-    ) = OAuthImplicitHandler(
-        oauthContext = nixProperties,
-        accessTokenRepository = accessTokenRepository,
-        accessTokenStrategy = accessTokenStrategy
-    )
+    fun oauthImplicitHandler(accessTokenStrategy: AccessTokenStrategy, accessTokenRepository: AccessTokenRepository) =
+        OAuthImplicitHandler(prop, accessTokenStrategy, accessTokenRepository)
 
-    /**
-     * A [OAuthClientCredentialsHandler] bean. This bean handles the OAuth Client Credentials Flow.
-     */
     @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE + 200)
-    fun oauthClientCredentialsHandler(
-        accessTokenHelper: AccessTokenHelper,
-        refreshTokenHelper: RefreshTokenHelper
-    ) = OAuthClientCredentialsHandler(
-        accessTokenHelper = accessTokenHelper,
-        refreshTokenHelper = refreshTokenHelper
-    )
+    fun oauthClientCredentialsHandler(accessTokenHelper: AccessTokenHelper, refreshTokenHelper: RefreshTokenHelper) =
+        OAuthClientCredentialsHandler(accessTokenHelper, refreshTokenHelper)
 
-    /**
-     * A [OAuthRefreshHandler] bean. This bean handles the OAuth Refresh Flow.
-     */
     @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE + 300)
     fun oauthRefreshHandler(
         accessTokenHelper: AccessTokenHelper,
         refreshTokenHelper: RefreshTokenHelper,
@@ -142,10 +76,10 @@ class OAuthConfiguration {
         refreshTokenStrategy: RefreshTokenStrategy,
         refreshTokenRepository: RefreshTokenRepository
     ) = OAuthRefreshHandler(
-        accessTokenHelper = accessTokenHelper,
-        refreshTokenHelper = refreshTokenHelper,
-        accessTokenRepository = accessTokenRepository,
-        refreshTokenRepository = refreshTokenRepository,
-        refreshTokenStrategy = refreshTokenStrategy
+        accessTokenHelper,
+        refreshTokenHelper,
+        accessTokenRepository,
+        refreshTokenStrategy,
+        refreshTokenRepository
     )
 }

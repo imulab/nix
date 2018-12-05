@@ -5,13 +5,14 @@ import io.imulab.nix.oidc.jwk.JsonWebKeySetRepository
 import kotlinx.coroutines.runBlocking
 import org.jose4j.jwk.JsonWebKeySet
 import org.springframework.beans.factory.InitializingBean
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
 import java.time.Duration
 
 @Configuration
 @ConfigurationProperties(prefix = "nix")
-class NixProperties(
+class NixProperties @Autowired constructor(
     private val jwksRepo: JsonWebKeySetRepository
 ) : OidcContext, InitializingBean {
 

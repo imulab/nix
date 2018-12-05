@@ -12,8 +12,8 @@ import java.util.concurrent.ThreadLocalRandom
 
 class HmacSha2RefreshTokenStrategy(
     private val key: Key,
-    private val tokenLength: Int = 32,
-    signingAlgorithm: JwtSigningAlgorithm
+    signingAlgorithm: JwtSigningAlgorithm,
+    private val tokenLength: Int = 32
 ) : RefreshTokenStrategy {
 
     private val encoder = Base64.getUrlEncoder().withoutPadding()

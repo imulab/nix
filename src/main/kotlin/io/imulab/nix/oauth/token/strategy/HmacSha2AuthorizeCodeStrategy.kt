@@ -12,8 +12,8 @@ import java.util.concurrent.ThreadLocalRandom
 
 class HmacSha2AuthorizeCodeStrategy(
     private val key: Key,
-    private val codeLength: Int = 16,
-    signingAlgorithm: JwtSigningAlgorithm
+    signingAlgorithm: JwtSigningAlgorithm,
+    private val codeLength: Int = 16
 ) : AuthorizeCodeStrategy {
 
     private val encoder = Base64.getUrlEncoder().withoutPadding()
