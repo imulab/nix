@@ -1,6 +1,8 @@
 package io.imulab.nix.server.config
 
 import io.imulab.nix.oauth.client.ClientLookup
+import io.imulab.nix.oauth.client.authn.ClientAuthenticators
+import io.imulab.nix.oauth.request.OAuthAccessRequestProducer
 import io.imulab.nix.oidc.discovery.Discovery
 import io.imulab.nix.oidc.discovery.OidcContext
 import io.imulab.nix.oidc.jwk.JsonWebKeySetStrategy
@@ -16,6 +18,7 @@ import io.imulab.nix.server.oidc.GsonClaimsConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import io.imulab.nix.oauth.request.OAuthRequestProducer
+import io.imulab.nix.oauth.validation.OAuthGrantTypeValidator
 
 /**
  * This class configures everything related to an OAuth/Oidc request (minus state management).
@@ -50,8 +53,8 @@ class RequestConfiguration {
      * again delegates to [OidcAuthorizeRequestProducer] for parameters provided directly from query
      * or form parameters.
      */
-    @Bean
-    fun requestProducer(
+    @Bean("authorizeRequestProducer")
+    fun authorizeRequestProducer(
         oidcAuthorizeRequestRepository: OidcAuthorizeRequestRepository,
         discovery: Discovery,
         requestStrategy: RequestStrategy,
@@ -68,5 +71,14 @@ class RequestConfiguration {
                 responseTypeValidator = OidcResponseTypeValidator
             )
         )
+    )
+
+    /**
+     * A [OAuthRequestProducer] bean. It is responsible for preliminary parameter parsing for the token endpoint.
+     */
+    @Bean("accessRequestProducer")
+    fun accessRequestProducer(clientAuthenticators: ClientAuthenticators) = OAuthAccessRequestProducer(
+        grantTypeValidator = OAuthGrantTypeValidator,
+        clientAuthenticators = clientAuthenticators
     )
 }

@@ -3,6 +3,7 @@ package io.imulab.nix.server.route
 import io.imulab.nix.oauth.assertType
 import io.imulab.nix.oauth.error.ServerError
 import io.imulab.nix.oauth.handler.AuthorizeRequestHandler
+import io.imulab.nix.oauth.request.OAuthAuthorizeRequestProducer
 import io.imulab.nix.oauth.request.OAuthRequestProducer
 import io.imulab.nix.oauth.response.OAuthResponse
 import io.imulab.nix.oidc.request.OidcAuthorizeRequest
