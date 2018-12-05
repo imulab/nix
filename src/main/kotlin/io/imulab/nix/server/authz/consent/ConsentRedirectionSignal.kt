@@ -8,7 +8,7 @@ import io.imulab.nix.oidc.reserved.ConsentTokenParam
  * Special exception to signal an HTTP redirection to the consent endpoint.
  */
 class ConsentRedirectionSignal(
-    private val consentEndpoint: String,
+    val consentEndpoint: String,
     private val consentToken: String,
     private val authorizeRequestId: String,
     private val callbackUri: String,

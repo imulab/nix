@@ -1,20 +1,18 @@
 package io.imulab.nix.oidc.request
 
 import io.imulab.nix.oauth.error.OAuthException
+import io.imulab.nix.oauth.token.mustKeyForJweKeyManagement
+import io.imulab.nix.oauth.token.resolvePrivateKey
 import io.imulab.nix.oidc.client.OidcClient
 import io.imulab.nix.oidc.discovery.OidcContext
 import io.imulab.nix.oidc.error.InvalidRequestObject
 import io.imulab.nix.oidc.error.InvalidRequestUri
 import io.imulab.nix.oidc.jwk.JsonWebKeySetStrategy
 import io.imulab.nix.oidc.jwk.JwtVerificationKeyResolver
-import io.imulab.nix.oauth.token.mustKeyForJweKeyManagement
-import io.imulab.nix.oauth.token.resolvePrivateKey
 import io.imulab.nix.oidc.reserved.JweContentEncodingAlgorithm
 import io.imulab.nix.oidc.reserved.JweKeyManagementAlgorithm
 import io.imulab.nix.oidc.reserved.JwtSigningAlgorithm
 import io.imulab.nix.oidc.spi.SimpleHttpClient
-import io.ktor.http.URLBuilder
-import io.ktor.http.Url
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -23,6 +21,7 @@ import org.jose4j.jwk.OctetSequenceJsonWebKey
 import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.consumer.JwtConsumerBuilder
 import org.jose4j.keys.AesKey
+import java.net.URI
 import java.security.MessageDigest
 import java.time.Duration
 import java.time.LocalDateTime
@@ -96,11 +95,9 @@ class RequestStrategy(
 
     private suspend fun fetchFromRepository(requestUri: String): String? {
         // sanitize request_uri, separate fragment if any
-        val fragment = Url(requestUri).fragment
+        val fragment = URI(requestUri).fragment
         val cacheId = if (fragment.isEmpty()) requestUri else {
-            URLBuilder(requestUri).also {
-                it.fragment = ""
-            }.buildString()
+            requestUri.split("#")[0]
         }
 
         val cached = repository.find(cacheId) ?: return null
@@ -137,11 +134,9 @@ class RequestStrategy(
         if (request.isEmpty())
             throw InvalidRequestUri.invalid()
 
-        val fragment = Url(requestUri).fragment
+        val fragment = URI(requestUri).fragment
         val cacheId = if (fragment.isEmpty()) requestUri else {
-            URLBuilder(requestUri).also {
-                it.fragment = ""
-            }.buildString()
+            requestUri.split("#")[0]
         }
 
         val hash = base64Encoder.encodeToString(sha256.digest(request.toByteArray()))

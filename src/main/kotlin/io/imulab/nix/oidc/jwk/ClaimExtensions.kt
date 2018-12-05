@@ -1,9 +1,7 @@
 package io.imulab.nix.oidc.jwk
 
-import com.google.gson.GsonBuilder
 import io.imulab.nix.oauth.reserved.Param
 import io.imulab.nix.oauth.reserved.space
-import io.imulab.nix.oauth.token.maybe
 import io.imulab.nix.oauth.token.maybeString
 import io.imulab.nix.oidc.reserved.IdTokenClaim
 import io.imulab.nix.oidc.reserved.OidcParam
@@ -66,10 +64,10 @@ fun JwtClaims.setAcr(acrValues: List<String>) {
     setStringClaim(IdTokenClaim.acr, acrValues.joinToString(separator = space))
 }
 
-fun JwtClaims.claimsInJson(): String =
-    maybe(OidcParam.claims)
-        ?.let { GsonBuilder().serializeNulls().create().toJson(it) }
-        ?: "{}"
+//fun JwtClaims.claimsInJson(): String =
+//    maybe(OidcParam.claims)
+//        ?.let { GsonBuilder().serializeNulls().create().toJson(it) }
+//        ?: "{}"
 
 fun JwtClaims.claimsLocales(): List<String> =
     (maybeString(OidcParam.claimsLocales) ?: "")

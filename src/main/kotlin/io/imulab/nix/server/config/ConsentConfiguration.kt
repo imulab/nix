@@ -24,7 +24,8 @@ class ConsentConfiguration {
     fun consentTokenStrategy(prop: NixProperties) = ConsentTokenStrategy(
         oidcContext = prop,
         tokenAudience = prop.endpoints.consent,
-        claimsJsonConverter = GsonClaimsConverter
+        claimsJsonConverter = GsonClaimsConverter,
+        tokenLifespan = prop.consentToken.expiration
     )
 
     /**

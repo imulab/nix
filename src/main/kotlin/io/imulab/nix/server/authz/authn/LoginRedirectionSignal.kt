@@ -8,7 +8,7 @@ import io.imulab.nix.oidc.reserved.LoginTokenParam
  * Special exception to signal an HTTP redirection to the login endpoint.
  */
 class LoginRedirectionSignal(
-    private val loginEndpoint: String,
+    val loginEndpoint: String,
     private val loginToken: String,
     private val authorizeRequestId: String,
     private val callbackUri: String,

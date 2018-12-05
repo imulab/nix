@@ -32,7 +32,8 @@ class LoginConfiguration {
     @Bean
     fun loginTokenStrategy(prop: NixProperties) = LoginTokenStrategy(
         oidcContext = prop,
-        tokenAudience = prop.endpoints.login
+        tokenAudience = prop.endpoints.login,
+        tokenLifespan = prop.loginToken.expiration
     )
 
     /**
