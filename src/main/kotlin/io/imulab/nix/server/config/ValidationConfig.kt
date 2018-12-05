@@ -41,4 +41,9 @@ class ValidationConfig @Autowired constructor(
     fun authorizationEndpointPostValidation() = OAuthRequestValidationChain(listOf(
         AuthTimeValidator
     ))
+
+    @Bean("accessValidation")
+    fun accessEndpointValidation() = OAuthRequestValidationChain(listOf(
+        OAuthGrantTypeValidator
+    ))
 }

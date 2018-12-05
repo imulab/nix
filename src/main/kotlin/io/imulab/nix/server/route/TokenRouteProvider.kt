@@ -6,6 +6,7 @@ import io.imulab.nix.oauth.handler.AccessRequestHandler
 import io.imulab.nix.oauth.request.OAuthAccessRequest
 import io.imulab.nix.oauth.request.OAuthRequestProducer
 import io.imulab.nix.oauth.response.OAuthResponse
+import io.imulab.nix.oauth.validation.OAuthRequestValidationChain
 import io.imulab.nix.oidc.request.OidcRequestForm
 import io.imulab.nix.oidc.response.OidcTokenEndpointResponse
 import kotlinx.coroutines.runBlocking
@@ -15,21 +16,24 @@ import reactor.core.publisher.Mono
 
 class TokenRouteProvider(
     private val requestProducer: OAuthRequestProducer,
+    private val validator: OAuthRequestValidationChain,
     private val handlers: List<AccessRequestHandler>
 ) {
 
     fun handle(request: ServerRequest): Mono<ServerResponse> {
-        val formMono = Mono.just(request)
+        val form = Mono.just(request)
             .flatMap { it.formData() }
             .map { OidcRequestForm(it) }
 
-        val requestMono = formMono.map {
+        val parsedRequest = form.map {
             runBlocking {
                 requestProducer.produce(it).assertType<OAuthAccessRequest>()
             }
         }
 
-        val handledMono: Mono<OAuthResponse> = requestMono
+        val validated = parsedRequest.map { it.apply { validator.validate(this) } }
+
+        val handled: Mono<OAuthResponse> = validated
             .map {
                 runBlocking {
                     val response = OidcTokenEndpointResponse()
@@ -41,7 +45,7 @@ class TokenRouteProvider(
                 }
             }
 
-        return handledMono
+        return handled
             .onErrorResume { t -> Mono.just(t.asOAuthResponse()) }
             .flatMap { resp -> resp.render() }
     }

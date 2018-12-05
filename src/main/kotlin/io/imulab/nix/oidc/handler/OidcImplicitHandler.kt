@@ -5,6 +5,7 @@ import io.imulab.nix.oauth.exactly
 import io.imulab.nix.oauth.handler.AuthorizeRequestHandler
 import io.imulab.nix.oauth.handler.helper.AccessTokenHelper
 import io.imulab.nix.oauth.request.OAuthAuthorizeRequest
+import io.imulab.nix.oauth.reserved.GrantType
 import io.imulab.nix.oauth.response.AuthorizeEndpointResponse
 import io.imulab.nix.oidc.client.OidcClient
 import io.imulab.nix.oidc.handler.helper.TokenHashHelper
@@ -27,6 +28,8 @@ class OidcImplicitHandler(
         check(response is OidcAuthorizeEndpointResponse) {
             "Caller should have supplied an OidcAuthorizeEndpointResponse"
         }
+
+        request.client.mustGrantType(GrantType.implicit)
 
         if (request.state.isNotEmpty())
             response.state = request.state

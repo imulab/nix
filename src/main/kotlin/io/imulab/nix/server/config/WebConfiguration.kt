@@ -52,7 +52,9 @@ class WebConfiguration @Autowired constructor(
     private val oidcHybridHandler: OidcHybridHandler,
     private val oidcRefreshHandler: OidcRefreshHandler,
     @Qualifier("accessRequestProducer")
-    private val accessRequestProducer: OAuthRequestProducer
+    private val accessRequestProducer: OAuthRequestProducer,
+    @Qualifier("accessValidation")
+    private val accessValidation: OAuthRequestValidationChain
 ) : WebFluxConfigurer {
 
     @Bean @Memory
@@ -83,6 +85,7 @@ class WebConfiguration @Autowired constructor(
     @Bean
     fun tokenRouteProvider() = TokenRouteProvider(
         requestProducer = accessRequestProducer,
+        validator = accessValidation,
         handlers = listOf(
             oAuthAuthorizeCodeHandler,
             oAuthClientCredentialsHandler,

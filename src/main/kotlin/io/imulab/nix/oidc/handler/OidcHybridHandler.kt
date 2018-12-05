@@ -5,6 +5,7 @@ import io.imulab.nix.oauth.handler.AccessRequestHandler
 import io.imulab.nix.oauth.handler.AuthorizeRequestHandler
 import io.imulab.nix.oauth.handler.helper.AccessTokenHelper
 import io.imulab.nix.oauth.request.OAuthAuthorizeRequest
+import io.imulab.nix.oauth.reserved.GrantType
 import io.imulab.nix.oauth.reserved.ResponseType.code
 import io.imulab.nix.oauth.reserved.ResponseType.token
 import io.imulab.nix.oidc.reserved.ResponseType.idToken
@@ -60,6 +61,8 @@ class OidcHybridHandler(
         } else null
 
         val accessTokenJob = if (request.responseTypes.contains(token)) {
+            request.client.mustGrantType(GrantType.implicit)
+
             withContext(Dispatchers.IO) {
                 launch {
                     accessTokenHelper.createAccessToken(request, response).join()
