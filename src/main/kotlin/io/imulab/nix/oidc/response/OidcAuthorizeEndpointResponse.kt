@@ -10,7 +10,8 @@ class OidcAuthorizeEndpointResponse(
     override val data: Map<String, String>
         get() {
             val m = super.data as MutableMap
-            m[OidcParam.idToken] = idToken
+            if (idToken.isNotEmpty())
+                m[OidcParam.idToken] = idToken
             return m
         }
 }

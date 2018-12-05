@@ -4,8 +4,10 @@ import io.imulab.nix.oauth.assertType
 import io.imulab.nix.oauth.error.ServerError
 import io.imulab.nix.oauth.handler.AuthorizeRequestHandler
 import io.imulab.nix.oauth.request.OAuthRequestProducer
+import io.imulab.nix.oauth.response.OAuthResponse
 import io.imulab.nix.oidc.request.OidcAuthorizeRequest
 import io.imulab.nix.oidc.request.OidcRequestForm
+import io.imulab.nix.oidc.reserved.ResponseMode
 import io.imulab.nix.oidc.response.OidcAuthorizeEndpointResponse
 import io.imulab.nix.server.authz.authn.AuthenticationProvider
 import io.imulab.nix.server.authz.consent.ConsentProvider
@@ -15,8 +17,11 @@ import kotlinx.coroutines.runBlocking
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.util.UriComponentsBuilder
 import reactor.core.publisher.Mono
 
 fun Routing.authorize(di: Kodein) {
@@ -65,25 +70,91 @@ class AuthorizeRouteProvider(
 
         // we need post-validation
 
-        val handledMono = authorizedMono.map {
-            runBlocking {
-                val response = OidcAuthorizeEndpointResponse()
-                for (h in handlers)
-                    h.handleAuthorizeRequest(it, response)
-                if (!response.handledResponseTypes.containsAll(it.responseTypes))
-                    throw ServerError.internal("Some response types were not handled.")
-                return@runBlocking response
+        val handledMono: Mono<OAuthResponse> = authorizedMono
+            .map {
+                runBlocking {
+                    val response = OidcAuthorizeEndpointResponse()
+                    for (h in handlers)
+                        h.handleAuthorizeRequest(it, response)
+                    if (!response.handledResponseTypes.containsAll(it.responseTypes))
+                        throw ServerError.internal("Some response types were not handled.")
+                    return@runBlocking response as OAuthResponse
+                }
+            }
+
+        val r = handledMono
+            .onErrorResume { t -> Mono.just(t.asOAuthResponse()) }
+            .flatMap { resp ->
+                //resp.render("fragment", "http://localhost:8888/callback")
+
+                formMono.flatMap { f ->
+                    resp.render(f.responseMode, f.redirectUri)
+                }
+
+                requestMono.flatMap { r -> resp.render(r.responseMode, r.redirectUri) }
+                    .onErrorResume { t -> t.asOAuthResponse().render("", "") }
+
+//                requestMono.flatMap { req ->
+//                    resp.render(req.responseMode, req.redirectUri)
+//                }.onErrorResume { t -> Mono.just(ServerError.wrapped(t)) }
+            }
+            /*.onErrorResume { t ->
+                val e: OAuthResponse = when (t) {
+                    is OAuthResponse -> t
+                    else -> ServerError.wrapped(t)
+                }
+                requestMono.flatMap { req ->
+                    e.render(req.responseMode, req.redirectUri)
+                }
+            }*/
+
+        return r
+    }
+
+    private fun Throwable.asOAuthResponse(): OAuthResponse {
+        return when (this) {
+            is OAuthResponse -> this
+            else -> ServerError.wrapped(this)
+        }
+    }
+
+    private fun OAuthResponse.render(responseMode: String, redirectUri: String): Mono<ServerResponse> {
+        if (redirectUri.isEmpty())
+            return ServerResponse.badRequest().syncBody(this.data)
+
+        return when (responseMode) {
+            ResponseMode.fragment -> {
+                val fragment = UriComponentsBuilder
+                    .fromUriString(redirectUri)
+                    .also { b -> data.keys.forEach { k -> b.query("$k={$k}") } }
+                    .buildAndExpand(data)
+                    .encode().query
+                ServerResponse.status(HttpStatus.FOUND)
+                    .location(
+                        UriComponentsBuilder
+                            .fromUriString(redirectUri)
+                            .fragment(fragment)
+                            .build()
+                            .encode()
+                            .toUri()
+                    )
+                    .build()
+            }
+            else -> {
+                ServerResponse.status(HttpStatus.FOUND)
+                    .location(
+                        UriComponentsBuilder
+                            .fromUriString(redirectUri)
+                            .also { b ->
+                                data.keys.forEach { k -> b.query("$k={$k}") }
+                            }
+                            .buildAndExpand(data)
+                            .encode()
+                            .toUri()
+                    )
+                    .build()
             }
         }
-
-        return handledMono
-            .flatMap {
-                ServerResponse.ok().syncBody(it.code)
-            }
-            .onErrorResume { t ->
-                throw t
-                //ServerResponse.badRequest().syncBody(t.message!!)
-            }
     }
 
 //    fun accept(ctx: PipelineContext<Unit, ApplicationCall>) = runBlocking {

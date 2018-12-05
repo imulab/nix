@@ -10,17 +10,17 @@ object InvalidRequest {
     private const val status = 400
 
     val required: (String) -> Throwable =
-        { param -> OAuthException(status, code, "Parameter <$param> is required.") }
+        { param -> OAuthException(status, code, "Parameter $param is required.") }
 
     val invalid: (String) -> Throwable =
-        { param -> OAuthException(status, code, "Value for parameter <$param> is invalid.") }
+        { param -> OAuthException(status, code, "Value for parameter $param is invalid.") }
 
     val duplicate: (String) -> Throwable =
         { param ->
             OAuthException(
                 status,
                 code,
-                "Parameter <$param> is duplicated in the request."
+                "Parameter $param is duplicated in the request."
             )
         }
 
@@ -29,7 +29,7 @@ object InvalidRequest {
             OAuthException(
                 status,
                 code,
-                "Value for parameter <$param> cannot be determined."
+                "Value for parameter $param cannot be determined."
             )
         }
 

@@ -7,7 +7,7 @@ object Param {
 
     // (new to) authorization request
     const val responseType = "response_type"
-    const val redirectUri = "redirectUri"
+    const val redirectUri = "redirect_uri"
     const val scope = "scope"
     const val state = "state"
 
