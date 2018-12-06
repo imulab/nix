@@ -18,6 +18,11 @@ nix:
       - code
       - token
       - id_token
+    grantTypes:
+      - authorization_code
+      - implicit
+      - client_credentials
+      - refresh_token
   oidc:
     nonceEntropy: 8
     subjectTypes:

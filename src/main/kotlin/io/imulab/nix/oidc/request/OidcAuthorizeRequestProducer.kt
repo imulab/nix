@@ -8,7 +8,7 @@ import io.imulab.nix.oauth.request.OAuthRequest
 import io.imulab.nix.oauth.request.OAuthRequestForm
 import io.imulab.nix.oauth.reserved.space
 import io.imulab.nix.oauth.validation.SpecDefinitionValidator
-import io.imulab.nix.oidc.claim.ClaimsJsonConverter
+import io.imulab.nix.oidc.claim.ClaimConverter
 
 /**
  * Extension of [OAuthAuthorizeRequestProducer] to produce a [OidcAuthorizeRequest]. This class utilizes
@@ -18,7 +18,7 @@ import io.imulab.nix.oidc.claim.ClaimsJsonConverter
 class OidcAuthorizeRequestProducer(
     lookup: ClientLookup,
     responseTypeValidator: SpecDefinitionValidator,
-    private val claimsJsonConverter: ClaimsJsonConverter
+    private val claimConverter: ClaimConverter
 ) : OAuthAuthorizeRequestProducer(lookup, responseTypeValidator) {
 
     override suspend fun produce(form: OAuthRequestForm): OAuthRequest {
@@ -44,13 +44,16 @@ class OidcAuthorizeRequestProducer(
                 b.idTokenHint = idTokenHint
                 b.loginHint = loginHint
                 b.acrValues.addAll(acrValues.split(space).filter { it.isNotBlank() })
-                //b.claims = claimsJsonConverter.fromJson(claims)
-                // TODO
+                if (claims.isNotEmpty())
+                    b.claims = claimConverter.fromJson(claims)
                 b.claimsLocales.addAll(claimsLocales.split(space).filter { it.isNotBlank() })
                 b.iss = iss
                 b.targetLinkUri = targetLinkUri
                 b.session = OidcSession()
             }
+
+            if (b.client?.requireAuthTime == true)
+                b.claims.requireAuthTime()
         }.build()
     }
 }

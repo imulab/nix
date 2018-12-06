@@ -2,11 +2,11 @@ package io.imulab.nix.server.authz.consent
 
 import io.imulab.nix.oauth.reserved.Param
 import io.imulab.nix.oauth.reserved.space
-import io.imulab.nix.oidc.claim.ClaimsJsonConverter
 import io.imulab.nix.oidc.discovery.OidcContext
 import io.imulab.nix.oauth.token.mustKeyForJweKeyManagement
 import io.imulab.nix.oauth.token.mustKeyForSignature
 import io.imulab.nix.oauth.token.resolvePrivateKey
+import io.imulab.nix.oidc.client.OidcClient
 import io.imulab.nix.oidc.request.OidcAuthorizeRequest
 import io.imulab.nix.oidc.reserved.*
 import org.jose4j.jwe.JsonWebEncryption
@@ -28,8 +28,7 @@ class ConsentTokenStrategy(
     private val responseEncryptionAlgorithm: JweKeyManagementAlgorithm = JweKeyManagementAlgorithm.RSA1_5,
     private val responseEncryptionEncoding: JweContentEncodingAlgorithm = JweContentEncodingAlgorithm.A128GCM,
     private val tokenLifespan: Duration = Duration.ofMinutes(10),
-    private val tokenAudience: String,
-    private val claimsJsonConverter: ClaimsJsonConverter
+    private val tokenAudience: String
 ) {
 
     fun generateConsentTokenRequest(request: OidcAuthorizeRequest): String {
@@ -74,8 +73,7 @@ class ConsentTokenStrategy(
             c.setAudience(tokenAudience, client.id)
             c.subject = session.subject
 
-            // TODO set more client information (i.e. TOS, contact...).
-            c.setStringClaim(ConsentTokenClaim.clientName, client.name)
+            c.setClaim(ConsentTokenClaim.client, client.getDescriptiveData())
 
             if (display.isNotEmpty())
                 c.setStringClaim(OidcParam.display, display)
@@ -86,8 +84,8 @@ class ConsentTokenStrategy(
             if (claimsLocales.isNotEmpty())
                 c.setStringClaim(OidcParam.claimsLocales, scopes.joinToString(separator = space))
 
-            // TODO right now, just include claim as a JSON string, this should be fixed later.
-            c.setStringClaim(OidcParam.claims, claimsJsonConverter.toJson(claims))
+            if (claims.isNotEmpty())
+                c.setClaim(OidcParam.claims, claims.getAllClaims().map { it.toMap() })
         }
     }
 }

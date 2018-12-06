@@ -199,4 +199,13 @@ interface OidcClient : OAuthClient {
      */
     fun requireIdTokenEncryption(): Boolean =
         idTokenEncryptedResponseAlgorithm != JweKeyManagementAlgorithm.None
+
+    override fun getDescriptiveData(): Map<String, Any> = mapOf(
+        "name" to name,
+        "contacts" to contacts,
+        "logo" to logoUri,
+        "homepage" to clientUri,
+        "policy" to policyUri,
+        "tos" to tosUri
+    )
 }

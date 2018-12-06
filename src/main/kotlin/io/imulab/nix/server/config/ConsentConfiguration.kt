@@ -3,7 +3,6 @@ package io.imulab.nix.server.config
 import io.imulab.nix.server.authz.consent.*
 import io.imulab.nix.server.authz.repo.OidcAuthorizeRequestRepository
 import io.imulab.nix.server.http.SpringWebSessionStrategy
-import io.imulab.nix.server.oidc.GsonClaimsConverter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -23,7 +22,6 @@ class ConsentConfiguration @Autowired constructor(
     fun consentTokenStrategy() = ConsentTokenStrategy(
         oidcContext = properties,
         tokenAudience = properties.endpoints.consent,
-        claimsJsonConverter = GsonClaimsConverter,
         tokenLifespan = properties.consentToken.expiration
     )
 

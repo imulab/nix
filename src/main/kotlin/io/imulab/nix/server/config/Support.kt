@@ -49,6 +49,7 @@ object Stock {
             StandardScope.offlineAccess,
             io.imulab.nix.oidc.reserved.StandardScope.openid
         )
+        b.requireAuthTime = true
     }.build()
 
     val signatureKey: RsaJsonWebKey = RsaJwkGenerator.generateJwk(2048).also { k ->

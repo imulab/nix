@@ -45,7 +45,7 @@ class SupportValidator(private val discovery: Discovery) : OAuthRequestValidatio
         if (request.display.isNotEmpty() && !discovery.displayValuesSupported.contains(request.display))
             throw RequestNotSupported.unsupported(OidcParam.display)
 
-        if (!request.claims.isEmpty() && !discovery.claimsParameterSupported)
+        if (request.claims.isNotEmpty() && !discovery.claimsParameterSupported)
             throw RequestNotSupported.unsupported(OidcParam.claims)
     }
 

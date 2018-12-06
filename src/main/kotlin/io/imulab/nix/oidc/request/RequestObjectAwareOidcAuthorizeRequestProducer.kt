@@ -5,7 +5,8 @@ import io.imulab.nix.oauth.request.OAuthRequest
 import io.imulab.nix.oauth.request.OAuthRequestForm
 import io.imulab.nix.oauth.request.OAuthRequestProducer
 import io.imulab.nix.oauth.reserved.Param
-import io.imulab.nix.oidc.claim.ClaimsJsonConverter
+import io.imulab.nix.oidc.claim.ClaimConverter
+import io.imulab.nix.oidc.claim.Claims
 import io.imulab.nix.oidc.discovery.Discovery
 import io.imulab.nix.oidc.jwk.*
 import io.imulab.nix.oidc.reserved.OidcParam
@@ -15,16 +16,11 @@ import io.imulab.nix.oidc.reserved.StandardScope
  * Functional extension to [OidcAuthorizeRequestProducer] that provides the capability to merge request objects
  * (provided as `request` parameter or `request_uri` parameter) back to the [OidcAuthorizeRequest] parsed by
  * [OidcAuthorizeRequestProducer].
- *
- * Note: as of now, the deserialization of the 'idTokenClaims' parameter take a round trip to and from JSON. This is very
- * inefficient. We intend to fix this in the future. Potentially, [ClaimsJsonConverter] will provide a capability
- * to directly parse a map.
  */
 class RequestObjectAwareOidcAuthorizeRequestProducer(
     private val discovery: Discovery,
     private val firstPassProducer: OidcAuthorizeRequestProducer,
-    private val requestStrategy: RequestStrategy,
-    private val claimsJsonConverter: ClaimsJsonConverter
+    private val requestStrategy: RequestStrategy
 ) : OAuthRequestProducer {
 
     override suspend fun produce(form: OAuthRequestForm): OAuthRequest {
@@ -74,8 +70,7 @@ class RequestObjectAwareOidcAuthorizeRequestProducer(
                     b.acrValues.addAll(request.acrValues())
                 }
                 if (request.hasClaim(OidcParam.claims)) {
-                    // TODO this is very inefficient, upgrade claimsJsonConverter!!!
-                    //b.claims = claimsJsonConverter.fromJson(request.claimsInJson())
+                    b.claims = Claims(request.getClaimValue(OidcParam.claims, LinkedHashMap<String, Any>().javaClass))
                 }
                 if (request.hasClaim(OidcParam.claimsLocales)) {
                     b.claimsLocales.clear()

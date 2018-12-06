@@ -160,9 +160,9 @@ interface Discovery {
 
     /**
      * OPTIONAL. JSON array containing a list of the Claim Types that the OpenID Provider supports. The option
-     * universe is `normal, aggregated, distributed`. If omitted, the implementation supports only normal Claims.
+     * universe is `normal, aggregated, distributed`. If omitted, the implementation supports only normal OldClaims.
      */
-    val claimValuesSupported: List<String>
+    val claimTypesSupported: List<String>
         get() = listOf(ClaimType.normal)
 
     /**
@@ -179,7 +179,7 @@ interface Discovery {
     val serviceDocumentation: String
 
     /**
-     * OPTIONAL. Languages and scripts supported for values in Claims being returned, represented as a JSON array
+     * OPTIONAL. Languages and scripts supported for values in OldClaims being returned, represented as a JSON array
      * of BCP47 (RFC5646) language tag values. Not all languages and scripts are necessarily supported for all
      * Claim values.
      */
@@ -309,6 +309,6 @@ interface Discovery {
 
         // misc
         displayValuesSupported.forEach { DisplayValidator.validate(it) }
-        check(claimValuesSupported.map { ClaimTypeValidator.validate(it) }.isNotEmpty())
+        check(claimTypesSupported.map { ClaimTypeValidator.validate(it) }.isNotEmpty())
     }
 }

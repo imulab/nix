@@ -44,7 +44,8 @@ class NixProperties @Autowired constructor(
     class OAuthConfig(
         var stateEntropy: Int = 0,
         var scopes: List<String> = emptyList(),
-        var responseTypes: List<String> = emptyList()
+        var responseTypes: List<String> = emptyList(),
+        var grantTypes: List<String> = emptyList()
     )
 
     class OidcConfig(
@@ -187,6 +188,22 @@ class NixProperties @Autowired constructor(
         get() = oidc.uiLocales
     override val opPolicyUri: String
         get() = oidc.policyUri
+    override val responseModeSupported: List<String>
+        get() = oidc.responseModes
+    override val grantTypesSupported: List<String>
+        get() = oauth.grantTypes
+    override val tokenEndpointAuthenticationMethodsSupported: List<String>
+        get() = security.tokenEndpointAuth.supported
+    override val claimTypesSupported: List<String>
+        get() = claims.types
+    override val claimsParameterSupported: Boolean
+        get() = claims.supported
+    override val requestParameterSupported: Boolean
+        get() = requestObject.supportRequestParameter
+    override val requestUriParameterSupported: Boolean
+        get() = requestObject.supportRequestUriParameter
+    override val requireRequestUriRegistration: Boolean
+        get() = requestObject.requireRequestUriRegistration
 
     override fun afterPropertiesSet() {
         validate()

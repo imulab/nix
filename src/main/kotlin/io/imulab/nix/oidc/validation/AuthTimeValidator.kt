@@ -33,7 +33,7 @@ object AuthTimeValidator : OAuthRequestValidation {
             when {
                 ar.maxAge > 0 ->
                     throw ServerError.internal("<auth_time> must be specified when <max_age> is specified.")
-                ar.claims.hasEssentialClaim(IdTokenClaim.authTime) ->
+                ar.claims.getClaim(IdTokenClaim.authTime)?.essential == true ->
                     throw ServerError.internal("<auth_time> must be specified when it is requested as an essential claim.")
             }
             return

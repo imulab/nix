@@ -89,4 +89,8 @@ interface OAuthClient {
             }
         }
     }
+
+    fun getDescriptiveData(): Map<String, Any> = mapOf(
+        "name" to name
+    )
 }
