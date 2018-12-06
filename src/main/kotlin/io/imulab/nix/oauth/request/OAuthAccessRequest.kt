@@ -13,8 +13,9 @@ open class OAuthAccessRequest(
     val refreshToken: String,
     val redirectUri: String,
     client: OAuthClient,
-    scopes: Set<String> = emptySet()
-) : OAuthRequest(client = client, scopes = scopes) {
+    scopes: Set<String> = emptySet(),
+    session: OAuthSession = OAuthSession()
+) : OAuthRequest(client = client, scopes = scopes, session = session) {
 
     class Builder(
         var grantTypes: MutableSet<String> = mutableSetOf(),
@@ -22,7 +23,8 @@ open class OAuthAccessRequest(
         var refreshToken: String = "",
         var redirectUri: String = "",
         var scopes: MutableSet<String> = mutableSetOf(),
-        var client: OAuthClient? = null
+        var client: OAuthClient? = null,
+        var session: OAuthSession = OAuthSession()
     ) {
 
         fun build(): OAuthAccessRequest {
@@ -39,7 +41,8 @@ open class OAuthAccessRequest(
                 refreshToken = refreshToken,
                 scopes = scopes,
                 redirectUri = redirectUri,
-                client = client!!
+                client = client!!,
+                session = session
             )
         }
     }

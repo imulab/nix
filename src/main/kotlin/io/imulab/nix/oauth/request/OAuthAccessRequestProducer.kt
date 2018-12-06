@@ -21,13 +21,13 @@ open class OAuthAccessRequestProducer(
     private val clientAuthenticators: ClientAuthenticators
 ) : OAuthRequestProducer {
 
-    override suspend fun produce(form: OAuthRequestForm): OAuthRequest {
+    protected open suspend fun builder(form: OAuthRequestForm): OAuthAccessRequest.Builder {
         if (form.clientId.isEmpty())
             throw InvalidRequest.required(Param.clientId)
 
         val client = clientAuthenticators.authenticate(form)
 
-        val builder = OAuthAccessRequest.Builder().also { b ->
+        return OAuthAccessRequest.Builder().also { b ->
             b.client = client
             b.code = form.code
             b.refreshToken = form.refreshToken
@@ -43,7 +43,9 @@ open class OAuthAccessRequestProducer(
                 .toMutableSet()
             b.redirectUri = form.redirectUri
         }
+    }
 
-        return builder.build()
+    override suspend fun produce(form: OAuthRequestForm): OAuthRequest {
+        return builder(form).build()
     }
 }

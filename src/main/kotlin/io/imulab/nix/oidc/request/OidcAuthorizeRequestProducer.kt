@@ -50,6 +50,7 @@ class OidcAuthorizeRequestProducer(
                 b.iss = iss
                 b.targetLinkUri = targetLinkUri
                 b.session = OidcSession()
+                b.session.nonce = b.nonce
             }
 
             if (b.client?.requireAuthTime == true)

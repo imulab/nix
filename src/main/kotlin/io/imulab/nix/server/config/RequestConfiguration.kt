@@ -3,7 +3,6 @@ package io.imulab.nix.server.config
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.imulab.nix.oauth.client.ClientLookup
 import io.imulab.nix.oauth.client.authn.ClientAuthenticators
-import io.imulab.nix.oauth.request.OAuthAccessRequestProducer
 import io.imulab.nix.oauth.validation.OAuthGrantTypeValidator
 import io.imulab.nix.oidc.jwk.JsonWebKeySetStrategy
 import io.imulab.nix.oidc.request.*
@@ -59,7 +58,7 @@ class RequestConfiguration @Autowired constructor(
         )
 
     @Bean("accessRequestProducer")
-    fun accessRequestProducer() = OAuthAccessRequestProducer(
+    fun accessRequestProducer() = OidcAccessRequestProducer(
         grantTypeValidator = OAuthGrantTypeValidator,
         clientAuthenticators = clientAuthenticators
     )

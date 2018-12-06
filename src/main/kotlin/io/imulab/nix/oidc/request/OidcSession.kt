@@ -19,7 +19,7 @@ open class OidcSession(
     override fun merge(another: OAuthSession) {
         super.merge(another)
         if (another is OidcSession) {
-            if (obfuscatedSubject.isNotEmpty())
+            if (obfuscatedSubject.isEmpty())
                 obfuscatedSubject = another.obfuscatedSubject
             if (authTime != null)
                 authTime = another.authTime
